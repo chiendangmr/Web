@@ -10,7 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		global.json = global.json
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "WebDelay", "src\WebDelay\WebDelay.xproj", "{EF301351-B23B-474F-96F8-63A90356D570}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MVCtest2", "src\WebDelay\MVCtest2.xproj", "{EF301351-B23B-474F-96F8-63A90356D570}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MVCtest1", "src\HDStationTraffic\MVCtest1.xproj", "{64B122D0-7054-4B1E-90B5-56F9EA79D584}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,11 +24,16 @@ Global
 		{EF301351-B23B-474F-96F8-63A90356D570}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF301351-B23B-474F-96F8-63A90356D570}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF301351-B23B-474F-96F8-63A90356D570}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64B122D0-7054-4B1E-90B5-56F9EA79D584}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64B122D0-7054-4B1E-90B5-56F9EA79D584}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64B122D0-7054-4B1E-90B5-56F9EA79D584}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64B122D0-7054-4B1E-90B5-56F9EA79D584}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{EF301351-B23B-474F-96F8-63A90356D570} = {E8D52073-B8BB-4E20-A286-5BBFFCB65187}
+		{64B122D0-7054-4B1E-90B5-56F9EA79D584} = {E8D52073-B8BB-4E20-A286-5BBFFCB65187}
 	EndGlobalSection
 EndGlobal

@@ -1,46 +1,70 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Daily Schedule1";
 }
-
 <div class="row">
-    <div class="col-md-3">
-        <h2>Application uses</h2>
-        <ul>
-            <li>Sample pages using ASP.NET Core MVC</li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=518004">Bower</a> for managing client-side libraries</li>
-            <li>Theming using <a href="http://go.microsoft.com/fwlink/?LinkID=398939">Bootstrap</a></li>
-        </ul>
+    <div class="panel panel-primary col-md-4" style="height: 20%">
+        <div class="panel-heading">Search</div>
+        <div class="panel-body">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="inpChannel">Channel: </label>
+                    <input type="text" class="form-control" id="inpChannel">
+                </div>
+            </form>
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="inpProgram">Program:</label>
+                    <input type="text" class="form-control" id="inpProgram">
+                </div>
+                <div class="form-group">
+                    <label for="inpPeriod">Period:</label>
+                    <input type="text" class="form-control" id="inpPeriod">
+                </div>
+            </form>
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="inpFrom">From:   </label>
+                    <input type="text" class="form-control" id="inpFrom">
+                </div>
+                <div class="form-group">
+                    <label for="inpTo">To:  </label>
+                    <input type="text" class="form-control" id="inpTo">
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="col-md-3">
-        <h2>How to</h2>
-        <ul>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkID=398600">Add a Controller and View</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkID=699562">Add an appsetting in config and access it in app.</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=699315">Manage User Secrets using Secret Manager.</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=699316">Use logging to log a message.</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=699317">Add packages using NuGet.</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=699318">Add client packages using Bower.</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=699319">Target development, staging or production environment.</a></li>
-        </ul>
+    <div class="panel panel-primary col-md-8" style="height: 20%">
+        <div class="panel-heading">Playlist</div>
+        <div class="panel-body">Panel Content</div>
     </div>
-    <div class="col-md-3">
-        <h2>Overview</h2>
-        <ul>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=518008">Conceptual overview of what is ASP.NET Core</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=699320">Fundamentals of ASP.NET Core such as Startup and middleware.</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=398602">Working with Data</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkId=398603">Security</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkID=699321">Client side development</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkID=699322">Develop on different platforms</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkID=699323">Read more on the documentation site</a></li>
-        </ul>
+</div>
+<div class="row">
+    <div class="panel panel-primary col-md-4" style="height: 70%">
+        <div class="panel-heading">Clip List</div>
+        <div class="panel-body pre-scrollable">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Title</th>
+                        <th>Content</th>
+                        <th>Duration</th>
+                        <th>Comment</th>
+                        <th>Code</th>
+                        <th>Create Date</th>
+                        <th>Content Type</th>
+                        <th>Section</th>
+                        <th>Timecode In</th>
+                        <th>Timecode Out</th>
+                        <th>Real TC In</th>
+                        <th>Real TC Out</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
     </div>
-    <div class="col-md-3">
-        <h2>Run & Deploy</h2>
-        <ul>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkID=517851">Run your app</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkID=517853">Run tools such as EF migrations and more</a></li>
-            <li><a href="http://go.microsoft.com/fwlink/?LinkID=398609">Publish to Microsoft Azure Web Apps</a></li>
-        </ul>
+    <div class="panel panel-primary col-md-8" style="height: 70%">
+        <div class="panel-heading">Orded PlayList</div>
+        <div class="panel-body">Panel Content</div>
     </div>
 </div>

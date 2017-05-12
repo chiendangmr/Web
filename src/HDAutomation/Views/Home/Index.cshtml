@@ -1,8 +1,18 @@
 ﻿@{
     ViewData["Title"] = "OnAir 2017";
 }
-<div class="panel panel-primary text-center">
-    @*<div class="panel-heading">OnAir 2017 - Bản thử nghiệm</div>*@
+<div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+        Thao tác
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        <li><a href="#">Đồng bộ dữ liệu</a></li>
+        <li><a href="#">Danh sách lịch phát sóng</a></li>
+        <li><a href="#">Thay đổi Timecode</a></li>
+    </ul>
+</div>
+<div class="panel panel-primary text-center">   
     <div class="panel-body">
         <div class="panel panel-default">
             <div class="panel-heading">Lịch phát sóng ngày @DateTime.Now.Date.ToString("dd/MM/yyyy")</div>
@@ -91,4 +101,10 @@
         <h5 class="col-lg-6 col-md-6 col-sm-6">CSDL đang dùng: RemoteDB</h5>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+
+
+    });
+</script>
 

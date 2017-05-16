@@ -1,100 +1,115 @@
 ﻿@{
     ViewData["Title"] = "OnAir 2017";
 }
-
-<div class="panel panel-primary text-center">   
-    <div class="panel-body">
-        <div class="panel panel-default">
-            <div class="panel-heading">Lịch phát sóng ngày @DateTime.Now.Date.ToString("dd/MM/yyyy")</div>
-            <div class="panel-body">
-                <div class="row">                    
-                    <h4 class="col-lg-3 col-md-3 col-sm-3" style="color:darkgreen">Thời gian bắt đầu: 00:05:00</h4>
-                    <h4 class="col-lg-3 col-md-3 col-sm-3">Tổng thời lượng: 00:00:00.00</h4>
-                    <h4 class="col-lg-3 col-md-3 col-sm-3 checkbox">
-                        <label><input type="checkbox" checked />Tự động cuộn đến dòng đang phát</label>
-                    </h4>
-                </div>
-                <div class="row container-fluid">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Firstname</th>
-                                <th>Lastname</th>
-                                <th>Email</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>John</td>
-                                <td>Doe</td>
-                                <td>john@example.com</td>
-                            </tr>
-                            <tr>
-                                <td>Mary</td>
-                                <td>Moe</td>
-                                <td>mary@example.com</td>
-                            </tr>
-                            <tr>
-                                <td>July</td>
-                                <td>Dooley</td>
-                                <td>july@example.com</td>
-                            </tr>
-                        </tbody>
-                    </table>
+<head>
+    <link type="text/css" rel="stylesheet" href="~/lib/jsgrid/dist/jsgrid.min.css" />
+    <link type="text/css" rel="stylesheet" href="~/lib/jsgrid/dist/jsgrid-theme.min.css" />
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="~/lib/jsgrid/dist/jsgrid.min.js"></script>
+</head>
+<body>
+    <div class="panel panel-primary text-center">
+        <div class="panel-body">
+            <div class="panel panel-default">
+                <div class="panel-heading">Lịch phát sóng ngày @DateTime.Now.Date.ToString("dd/MM/yyyy")</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <h4 class="col-lg-3 col-md-3 col-sm-3" style="color:darkgreen">Thời gian bắt đầu: 00:05:00</h4>
+                        <h4 class="col-lg-3 col-md-3 col-sm-3">Tổng thời lượng: 00:00:00.00</h4>
+                        <h4 class="col-lg-3 col-md-3 col-sm-3 checkbox">
+                            <label><input type="checkbox" checked />Tự động cuộn đến dòng đang phát</label>
+                        </h4>
+                    </div>
+                    <div class="row container-fluid">
+                        <div id="jsGrid"></div>                        
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">Thông tin Server</div>
-            <div class="panel-body">
-                <div class="row container-fluid" style="color:darkgreen">Lịch phát sóng ngày @DateTime.Now.Date.ToString("dd/MM/yyyy"). Thời gian bắt đầu: 00:05:00</div>
-                <div class="row">
-                    <div class="col-lg-5 col-md-5 col-sm-5">Tổng thời lượng: 00:00:00.00</div>
-                    <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                        <label><input type="checkbox" checked />Tự động cuộn đến dòng đang phát</label>
+            <div class="panel panel-default">
+                <div class="panel-heading">Thông tin Server</div>
+                <div class="panel-body">
+                    <div class="row container-fluid" style="color:darkgreen">Lịch phát sóng ngày @DateTime.Now.Date.ToString("dd/MM/yyyy"). Thời gian bắt đầu: 00:05:00</div>
+                    <div class="row">
+                        <div class="col-lg-5 col-md-5 col-sm-5">Tổng thời lượng: 00:00:00.00</div>
+                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                            <label><input type="checkbox" checked />Tự động cuộn đến dòng đang phát</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row container-fluid">
+                        <form>
+                            <label class="action" style="padding-right: 20px;">Chọn chế độ: </label>
+                            <label class="action radio-inline">
+                                <input type="radio" name="optradio">Theo giờ phát sóng
+                            </label>
+                            <label class="action radio-inline">
+                                <input type="radio" name="optradio">Clip được chọn
+                            </label>
+                            <label class="action radio-inline">
+                                <input type="radio" name="optradio">Clip đầu tiên
+                            </label>
+                        </form>
+                    </div>
+                    <div class="row container-fluid">
+                        <div class="btn-group-lg">
+                            <button type="button" class="btn btn-info" id="btnPlay"><img src="~/images/play.png" /> PHÁT SÓNG</button>
+                            <button type="button" class="btn btn-info" id="btnReset"><img src="~/images/reset.png" /> KHÔI PHỤC</button>
+                            <button type="button" class="btn btn-info" id="btnCue"><img src="~/images/cue.png" /> CUE</button>
+                            <button type="button" class="btn btn-info" id="btnJump"><img src="~/images/jump.png" /> NHẢY</button>
+                            <button type="button" class="btn btn-info" id="btnJumpLive"><img src="~/images/live.png" /> NHẢY LIVE</button>
+                            <button type="button" class="btn btn-info" id="btnClose"><img src="~/images/close.png" /> NGẮT ĐIỀU KHIỂN</button>
+                            <button type="button" class="btn btn-info" id="btnPower"><img src="~/images/power.png" /> DỪNG PHÁT SÓNG</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="panel panel-default">            
-            <div class="panel-body">
-                <div class="row container-fluid">
-                    <form>
-                        <label class="action" style="padding-right: 20px;">Chọn chế độ: </label>
-                        <label class="action radio-inline">
-                            <input type="radio" name="optradio">Theo giờ phát sóng
-                        </label>
-                        <label class="action radio-inline">
-                            <input type="radio" name="optradio">Clip được chọn
-                        </label>
-                        <label class="action radio-inline">
-                            <input type="radio" name="optradio">Clip đầu tiên
-                        </label>
-                    </form>
-                </div> 
-                <div class="row container-fluid">
-                    <div class="btn-group-lg">
-                        <button type="button" class="btn btn-info" id="btnPlay"><img src="~/images/play.png" /> PHÁT SÓNG</button>
-                        <button type="button" class="btn btn-info" id="btnReset"><img src="~/images/reset.png" /> KHÔI PHỤC</button>
-                        <button type="button" class="btn btn-info" id="btnCue"><img src="~/images/cue.png" /> CUE</button>
-                        <button type="button" class="btn btn-info" id="btnJump"><img src="~/images/jump.png" /> NHẢY</button>
-                        <button type="button" class="btn btn-info" id="btnJumpLive"><img src="~/images/live.png" /> NHẢY LIVE</button>
-                        <button type="button" class="btn btn-info" id="btnClose"><img src="~/images/close.png" /> NGẮT ĐIỀU KHIỂN</button>
-                        <button type="button" class="btn btn-info" id="btnPower"><img src="~/images/power.png" /> DỪNG PHÁT SÓNG</button>
-                    </div>
-                </div>
-            </div>           
+        <div class="panel-footer" style="height:50px;">
+            <h5 class="col-lg-6 col-md-6 col-sm-6">Trạng thái kết nối với CSDL: Đang kết nối</h5>
+            <h5 class="col-lg-6 col-md-6 col-sm-6">CSDL đang dùng: RemoteDB</h5>
         </div>
     </div>
-    <div class="panel-footer" style="height:50px;">
-        <h5 class="col-lg-6 col-md-6 col-sm-6">Trạng thái kết nối với CSDL: Đang kết nối</h5>        
-        <h5 class="col-lg-6 col-md-6 col-sm-6">CSDL đang dùng: RemoteDB</h5>
-    </div>
-</div>
+</body>
 <script>
-    $(document).ready(function () {
+    (function ($) {
+        var clients = [
+            { "Name": "Otto Clay", "Age": 25, "Country": 1, "Address": "Ap #897-1459 Quam Avenue", "Married": false },
+            { "Name": "Connor Johnston", "Age": 45, "Country": 2, "Address": "Ap #370-4647 Dis Av.", "Married": true },
+            { "Name": "Lacey Hess", "Age": 29, "Country": 3, "Address": "Ap #365-8835 Integer St.", "Married": false },
+            { "Name": "Timothy Henson", "Age": 56, "Country": 1, "Address": "911-5143 Luctus Ave", "Married": true },
+            { "Name": "Ramona Benton", "Age": 32, "Country": 3, "Address": "Ap #614-689 Vehicula Street", "Married": false }
+        ];
 
+        var countries = [
+            { Name: "Vietnam", Id: 0 },
+            { Name: "United States", Id: 1 },
+            { Name: "Canada", Id: 2 },
+            { Name: "United Kingdom", Id: 3 }
+        ];
 
-    });
+        $("#jsGrid").jsGrid({
+            width: "100%",
+            height: "400px",
+
+            inserting: true,
+            editing: true,
+            sorting: true,
+            paging: true,
+
+            data: clients,
+
+            fields: [
+                { name: "Name", type: "text", width: 150, validate: "required" },
+                { name: "Age", type: "number", width: 50 },
+                { name: "Address", type: "text", width: 200 },
+                { name: "Country", type: "select", items: countries, valueField: "Id", textField: "Name" },
+                { name: "Married", type: "checkbox", title: "Is Married", sorting: false },
+                { type: "control" }
+            ]
+        });
+    })(jQuery);
 </script>
 

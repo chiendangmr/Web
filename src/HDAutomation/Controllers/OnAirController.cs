@@ -6,13 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HDAutomation.Controllers
 {
-    public class HomeController : Controller
+    public class OnAirController : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
 
+        public IActionResult DBSync()
+        {
+            return View();
+        }
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";

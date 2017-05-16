@@ -44,7 +44,7 @@ namespace HDAutomation
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/OnAir/Error");
             }
 
             app.UseStaticFiles();
@@ -53,7 +53,7 @@ namespace HDAutomation
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=OnAir}/{action=Index}/{id?}");
             });
         }
     }

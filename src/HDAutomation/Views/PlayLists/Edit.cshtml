@@ -1,0 +1,122 @@
+@model HDAutomation.Models.PlayList
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <h4>PlayList</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="ListId" />
+        <div class="form-group">
+            <label asp-for="DateList" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="DateList" class="form-control" />
+                <span asp-validation-for="DateList" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="SystemId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="SystemId" class="form-control" />
+                <span asp-validation-for="SystemId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <div class="checkbox">
+                    <input asp-for="Isupdate" />
+                    <label asp-for="Isupdate"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Playline" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Playline" class="form-control" />
+                <span asp-validation-for="Playline" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <div class="checkbox">
+                    <input asp-for="Islock" />
+                    <label asp-for="Islock"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="TimeStart" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="TimeStart" class="form-control" />
+                <span asp-validation-for="TimeStart" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="MasterPlaylistId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="MasterPlaylistId" class="form-control" />
+                <span asp-validation-for="MasterPlaylistId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ApproverId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ApproverId" class="form-control" />
+                <span asp-validation-for="ApproverId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="TimeLast" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="TimeLast" class="form-control" />
+                <span asp-validation-for="TimeLast" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Changed" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Changed" class="form-control" />
+                <span asp-validation-for="Changed" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Cueline" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Cueline" class="form-control" />
+                <span asp-validation-for="Cueline" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="UserId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="UserId" class="form-control" />
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="LastTime" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="LastTime" class="form-control" />
+                <span asp-validation-for="LastTime" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,197 @@
+@model IEnumerable<HDAutomation.Models.PlayListItem>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.ListId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Idclip)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.IdclipSubstitute)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OrderClip)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PlayTcIn)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PlayTcOut)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Command)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Command1)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Note)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Setting)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.StartTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ColorDisplay)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RouterInput)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CommandAtEnd)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.StandbyPlaylistId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.MasterPlaylistItemId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.VtrId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Changed)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ClusterId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PlayTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EventType)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Approved)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RealPlayTcIn)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RealPlayTcOut)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SyncId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RowColor)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ProgramNote)
+                </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ListId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Idclip)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdclipSubstitute)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrderClip)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PlayTcIn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PlayTcOut)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Command)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Command1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Note)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Setting)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ColorDisplay)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RouterInput)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CommandAtEnd)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StandbyPlaylistId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MasterPlaylistItemId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.VtrId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Changed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ClusterId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PlayTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EventType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Approved)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RealPlayTcIn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RealPlayTcOut)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SyncId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RowColor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProgramNote)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

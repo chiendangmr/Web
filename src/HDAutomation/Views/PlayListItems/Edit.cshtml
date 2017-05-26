@@ -1,0 +1,225 @@
+@model HDAutomation.Models.PlayListItem
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <h4>PlayListItem</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label asp-for="ListId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ListId" class="form-control" />
+                <span asp-validation-for="ListId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Idclip" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Idclip" class="form-control" />
+                <span asp-validation-for="Idclip" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="IdclipSubstitute" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="IdclipSubstitute" class="form-control" />
+                <span asp-validation-for="IdclipSubstitute" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="OrderClip" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="OrderClip" class="form-control" />
+                <span asp-validation-for="OrderClip" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PlayTcIn" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="PlayTcIn" class="form-control" />
+                <span asp-validation-for="PlayTcIn" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PlayTcOut" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="PlayTcOut" class="form-control" />
+                <span asp-validation-for="PlayTcOut" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Command" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Command" class="form-control" />
+                <span asp-validation-for="Command" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Command1" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Command1" class="form-control" />
+                <span asp-validation-for="Command1" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Note" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Note" class="form-control" />
+                <span asp-validation-for="Note" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Setting" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Setting" class="form-control" />
+                <span asp-validation-for="Setting" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="StartTime" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="StartTime" class="form-control" />
+                <span asp-validation-for="StartTime" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ColorDisplay" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ColorDisplay" class="form-control" />
+                <span asp-validation-for="ColorDisplay" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Status" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="RouterInput" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="RouterInput" class="form-control" />
+                <span asp-validation-for="RouterInput" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="CommandAtEnd" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="CommandAtEnd" class="form-control" />
+                <span asp-validation-for="CommandAtEnd" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="StandbyPlaylistId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="StandbyPlaylistId" class="form-control" />
+                <span asp-validation-for="StandbyPlaylistId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="MasterPlaylistItemId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="MasterPlaylistItemId" class="form-control" />
+                <span asp-validation-for="MasterPlaylistItemId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="VtrId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="VtrId" class="form-control" />
+                <span asp-validation-for="VtrId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Changed" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Changed" class="form-control" />
+                <span asp-validation-for="Changed" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClusterId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ClusterId" class="form-control" />
+                <span asp-validation-for="ClusterId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PlayTime" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="PlayTime" class="form-control" />
+                <span asp-validation-for="PlayTime" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="EventType" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="EventType" class="form-control" />
+                <span asp-validation-for="EventType" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Approved" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Approved" class="form-control" />
+                <span asp-validation-for="Approved" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="RealPlayTcIn" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="RealPlayTcIn" class="form-control" />
+                <span asp-validation-for="RealPlayTcIn" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="RealPlayTcOut" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="RealPlayTcOut" class="form-control" />
+                <span asp-validation-for="RealPlayTcOut" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="SyncId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="SyncId" class="form-control" />
+                <span asp-validation-for="SyncId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="RowColor" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="RowColor" class="form-control" />
+                <span asp-validation-for="RowColor" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ProgramNote" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ProgramNote" class="form-control" />
+                <span asp-validation-for="ProgramNote" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

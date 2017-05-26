@@ -24,19 +24,7 @@
                         <div id="jsGrid"></div>                        
                     </div>
                 </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">Thông tin Server</div>
-                <div class="panel-body">
-                    <div class="row container-fluid" style="color:darkgreen">Lịch phát sóng ngày @DateTime.Now.Date.ToString("dd/MM/yyyy"). Thời gian bắt đầu: 00:05:00</div>
-                    <div class="row">
-                        <div class="col-lg-5 col-md-5 col-sm-5">Tổng thời lượng: 00:00:00.00</div>
-                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                            <label><input type="checkbox" checked />Tự động cuộn đến dòng đang phát</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </div>           
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="row container-fluid">
@@ -62,6 +50,18 @@
                             <button type="button" class="btn btn-info" id="btnJumpLive"><img src="~/images/live.png" /> NHẢY LIVE</button>
                             <button type="button" class="btn btn-info" id="btnClose"><img src="~/images/close.png" /> NGẮT ĐIỀU KHIỂN</button>
                             <button type="button" class="btn btn-info" id="btnPower"><img src="~/images/power.png" /> DỪNG PHÁT SÓNG</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Thông tin Server</div>
+                <div class="panel-body">
+                    <div class="row container-fluid" style="color:darkgreen">Lịch phát sóng ngày @DateTime.Now.Date.ToString("dd/MM/yyyy"). Thời gian bắt đầu: 00:05:00</div>
+                    <div class="row">
+                        <div class="col-lg-5 col-md-5 col-sm-5">Tổng thời lượng: 00:00:00.00</div>
+                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                            <label><input type="checkbox" checked />Tự động cuộn đến dòng đang phát</label>
                         </div>
                     </div>
                 </div>

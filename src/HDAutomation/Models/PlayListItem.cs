@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace HDAutomation.Data
+namespace HDAutomation.Models
 {
-    public class PlaylistItem
+    public partial class PlayListItem
     {
-        public long id { get; set; }
-        public int ListID { get; set; }
-        public long IDCLip { get; set; }
-        public long? IDClipSubstitute { get; set; }
+        public long Id { get; set; }
+        public int ListId { get; set; }
+        public long Idclip { get; set; }
+        public long? IdclipSubstitute { get; set; }
         public int OrderClip { get; set; }
         public string PlayTcIn { get; set; }
         public string PlayTcOut { get; set; }
@@ -23,7 +21,7 @@ namespace HDAutomation.Data
         public int? Status { get; set; }
         public int? RouterInput { get; set; }
         public string CommandAtEnd { get; set; }
-        public int? StandbyPlaylistID { get; set; }
+        public int? StandbyPlaylistId { get; set; }
         public long? MasterPlaylistItemId { get; set; }
         public int? VtrId { get; set; }
         public int? Changed { get; set; }
@@ -33,7 +31,7 @@ namespace HDAutomation.Data
         public bool? Approved { get; set; }
         public string RealPlayTcIn { get; set; }
         public string RealPlayTcOut { get; set; }
-        public Guid? SyncId { get; set; }
+        public Guid SyncId { get; set; }
         public string RowColor { get; set; }
         public string ProgramNote { get; set; }
     }

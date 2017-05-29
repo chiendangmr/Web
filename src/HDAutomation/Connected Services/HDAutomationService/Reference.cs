@@ -846,7 +846,7 @@ namespace HDAutomationService
         {
             if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding_IOnAirService))
             {
-                return new System.ServiceModel.EndpointAddress("http://localhost:8733/Design_Time_Addresses/HDAutomationService/Service1/");
+                return new System.ServiceModel.EndpointAddress("http://10.10.10.114:8733/Design_Time_Addresses/HDAutomationService/Service1/");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }

@@ -25,6 +25,12 @@ namespace HDAutomation
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Adds services required for using options.
+            services.AddOptions();
+
+            // Register the IConfiguration instance which Sector binds against.
+            services.Configure<Sector>(Configuration);
+
             // Add framework services.
             services.AddDbContext<HDStationPS_V4Context>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));

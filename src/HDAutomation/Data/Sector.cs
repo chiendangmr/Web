@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HDAutomation.Services
+namespace HDAutomation.Data
 {
-    public class OnAirServices
+    public class Sector
     {
-
+        public int SectorID { get; set; }
     }
 }

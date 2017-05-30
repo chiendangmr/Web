@@ -1,6 +1,6 @@
 ﻿body {
     padding-top: 50px;
-    padding-bottom: 20px;
+    padding-bottom: 20px;    
 }
 
 /* Wrapping element */
@@ -35,3 +35,23 @@ textarea {
         display: none;
     }
 }
+h4{
+    color:white;
+}
+h5{
+    color: black;
+}
+.action {
+    color: white;
+}
+.k-header {
+    background-color: #211e1e !important;
+    color: #76abd9 !important;
+}
+.k-grid-content{
+    background-color:#333 !important;
+}
+.k-widget{
+    color: #ffffff !important;
+}
+

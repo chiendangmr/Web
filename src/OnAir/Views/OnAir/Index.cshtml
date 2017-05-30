@@ -3,10 +3,12 @@
     ViewData["Title"] = "OnAir 2017";
 }
 <head>
-    <link type="text/css" rel="stylesheet" href="~/lib/jsgrid/dist/jsgrid.min.css" />
-    <link type="text/css" rel="stylesheet" href="~/lib/jsgrid/dist/jsgrid-theme.min.css" />
-    <script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>
-    <script type="text/javascript" src="~/lib/jsgrid/dist/jsgrid.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/kendo/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/kendo/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/kendo/styles/kendo.bootstrap.mobile.min.css" />
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>   
+    <script type="text/javascript" src="~/lib/kendo/js/kendo.all.min.js"></script>
 </head>
 <body>
     <div class="panel panel-primary text-center">
@@ -15,14 +17,14 @@
                 <div class="panel-heading">Playlist for @DateTime.Now.Date.ToString("MMM dd/yyyy")</div>
                 <div class="panel-body">
                     <div class="row">
-                        <h4 class="col-lg-3 col-md-3 col-sm-3" style="color:darkgreen">Start Time: 00:05:00</h4>
+                        <h4 class="col-lg-3 col-md-3 col-sm-3">Start Time: 00:05:00</h4>
                         <h4 class="col-lg-3 col-md-3 col-sm-3">Total Duration: 00:00:00.00</h4>
                         <h4 class="col-lg-3 col-md-3 col-sm-3 checkbox">
                             <label><input type="checkbox" checked />Auto navigate to playing line</label>
                         </h4>
                     </div>
-                    <div class="row container-fluid">
-                        <div id="jsGrid"></div>
+                    <div class="row container-fluid">                       
+                        <div id="grid"></div>
                     </div>
                 </div>
             </div>
@@ -69,29 +71,21 @@
 </body>
 <script>
     var lstItems = @Json.Serialize(Model);    
-    (function ($) {
-
-        $("#jsGrid").jsGrid({
-            width: "100%",
-            height: "400px",
-
-            inserting: true,
-            editing: true,
-            sorting: true,
-            paging: true,
-
-            data: lstItems,
-
-            fields: [
-                { name: "startTime", type: "text", width: 200, title: "Start Time" },
-                { name: "programName", type: "text", width: 200, title:"Program Name", validate: "required" },
-                { name: "fileName", type: "text", width: 200, title: "File Name" },
-                { name: "duration", type: "text", width: 200, title: "Name" },
-                { name: "tcIn", type: "text", width: 200, title: "Timecode In" },
-                { name: "tcOut", type: "text", width: 200, title: "Timecode Out" }
-            ]
-        });
-
+    (function ($) {       
+        var grid = $("#grid").kendoGrid({
+            batch: true,
+            height: "495px",
+            dataSource: lstItems,
+            columns: [
+                "startTime",
+                "programName",
+                "fileName",
+                "duration",
+                "tcIn",
+                "tcOut"
+            ],
+            pageable: true
+        }).data("kendoGrid");
         $('input[type=radio][name=optradio]').change(function () {
             if (this.id == 'option1') {
                 alert("1");

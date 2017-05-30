@@ -1,0 +1,101 @@
+@model OnAir.Data.PlayList
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>PlayList</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <input type="hidden" asp-for="ListId" />
+        <dt>
+            @Html.DisplayNameFor(model => model.DateList)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DateList)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SystemId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SystemId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Isupdate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Isupdate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Playline)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Playline)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Islock)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Islock)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TimeStart)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TimeStart)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MasterPlaylistId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MasterPlaylistId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ApproverId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ApproverId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TimeLast)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TimeLast)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Changed)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Changed)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Cueline)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Cueline)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LastTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LastTime)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </form>
+</div>

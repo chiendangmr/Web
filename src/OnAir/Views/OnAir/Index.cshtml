@@ -1,0 +1,109 @@
+﻿@model List<OnAir.Models.ItemViewModel>
+@{
+    ViewData["Title"] = "OnAir 2017";
+}
+<head>
+    <link type="text/css" rel="stylesheet" href="~/lib/jsgrid/dist/jsgrid.min.css" />
+    <link type="text/css" rel="stylesheet" href="~/lib/jsgrid/dist/jsgrid-theme.min.css" />
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="~/lib/jsgrid/dist/jsgrid.min.js"></script>
+</head>
+<body>
+    <div class="panel panel-primary text-center">
+        <div class="panel-body">
+            <div class="panel panel-default">
+                <div class="panel-heading">Playlist for @DateTime.Now.Date.ToString("MMM dd/yyyy")</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <h4 class="col-lg-3 col-md-3 col-sm-3" style="color:darkgreen">Start Time: 00:05:00</h4>
+                        <h4 class="col-lg-3 col-md-3 col-sm-3">Total Duration: 00:00:00.00</h4>
+                        <h4 class="col-lg-3 col-md-3 col-sm-3 checkbox">
+                            <label><input type="checkbox" checked />Auto navigate to playing line</label>
+                        </h4>
+                    </div>
+                    <div class="row container-fluid">
+                        <div id="jsGrid"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row container-fluid">
+                        <form>
+                            <label class="action" style="padding-right: 20px;">Choose mode: </label>
+                            <label class="action radio-inline">
+                                <input type="radio" name="optradio" id="option1">As Start Time
+                            </label>
+                            <label class="action radio-inline">
+                                <input type="radio" name="optradio" id="option2">Selected Clip
+                            </label>
+                            <label class="action radio-inline">
+                                <input type="radio" name="optradio" id="option3">First Clip
+                            </label>
+                        </form>
+                    </div>
+                    <div class="row container-fluid">
+                        <div class="btn-group-lg">
+                            <button type="button" class="btn btn-info" id="btnPlay"><img src="~/images/play.png" /> PLAY</button>
+                            <button type="button" class="btn btn-info" id="btnReset"><img src="~/images/reset.png" /> RESET</button>
+                            <button type="button" class="btn btn-info" id="btnCue"><img src="~/images/cue.png" /> CUE</button>
+                            <button type="button" class="btn btn-info" id="btnJump"><img src="~/images/jump.png" /> JUMP</button>
+                            <button type="button" class="btn btn-info" id="btnJumpLive"><img src="~/images/live.png" /> JUMP LIVE</button>
+                            <button type="button" class="btn btn-info" id="btnClose"><img src="~/images/close.png" /> REMOVE CONTROLLER</button>
+                            <button type="button" class="btn btn-info" id="btnPower"><img src="~/images/power.png" /> STOP PLAY-OUT</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Server Info</div>
+                <div class="panel-body">                    
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer" style="height:50px;">
+            <h5 class="col-lg-6 col-md-6 col-sm-6">Status of database connection: Connected</h5>
+            <h5 class="col-lg-6 col-md-6 col-sm-6">Database name: RemoteDB</h5>
+        </div>
+    </div>
+</body>
+<script>
+    var lstItems = @Json.Serialize(Model);    
+    (function ($) {
+
+        $("#jsGrid").jsGrid({
+            width: "100%",
+            height: "400px",
+
+            inserting: true,
+            editing: true,
+            sorting: true,
+            paging: true,
+
+            data: lstItems,
+
+            fields: [
+                { name: "startTime", type: "text", width: 200, title: "Start Time" },
+                { name: "programName", type: "text", width: 200, title:"Program Name", validate: "required" },
+                { name: "fileName", type: "text", width: 200, title: "File Name" },
+                { name: "duration", type: "text", width: 200, title: "Name" },
+                { name: "tcIn", type: "text", width: 200, title: "Timecode In" },
+                { name: "tcOut", type: "text", width: 200, title: "Timecode Out" }
+            ]
+        });
+
+        $('input[type=radio][name=optradio]').change(function () {
+            if (this.id == 'option1') {
+                alert("1");
+            }
+            else if (this.id == 'option2') {
+                alert("2");
+            }
+            else if (this.id == 'option3') {
+                alert("3");
+            }
+        });
+        
+    })(jQuery);
+</script>
+

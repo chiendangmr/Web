@@ -8,12 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using HDAutomation.Models;
 
+
 namespace HDAutomation.Controllers
 {
     public class OnAirController : Controller
     {
         private readonly HDStationPS_V4Context _context;
-        private readonly Sector _sector;
+        private readonly Sector _sector;        
 
         public OnAirController(HDStationPS_V4Context context, IOptions<Sector> sector)
         {
@@ -53,5 +54,6 @@ namespace HDAutomation.Controllers
         {
             return _context.InforTape.Where(m => m.Idclip == idClip).FirstOrDefault();
         }
+
     }
 }

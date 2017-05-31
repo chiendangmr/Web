@@ -7,15 +7,15 @@
     <link rel="stylesheet" href="~/lib/kendo/styles/kendo.common-bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/kendo/styles/kendo.bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/kendo/styles/kendo.bootstrap.mobile.min.css" />
-    <script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>   
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="~/lib/kendo/js/kendo.all.min.js"></script>
 </head>
 <body>
-    <div class="panel panel-primary text-center">
+    <div class="panel panel-default" id="rootPanel">
         <div class="panel-body">
             <div class="panel panel-default">
                 <div class="panel-heading">Playlist for @DateTime.Now.Date.ToString("MMM dd/yyyy")</div>
-                <div class="panel-body">
+                <div class="panel-body text-center" id="panelbody1">
                     <div class="row">
                         <h4 class="col-lg-3 col-md-3 col-sm-3">Start Time: 00:05:00</h4>
                         <h4 class="col-lg-3 col-md-3 col-sm-3">Total Duration: 00:00:00.00</h4>
@@ -23,13 +23,11 @@
                             <label><input type="checkbox" checked />Auto navigate to playing line</label>
                         </h4>
                     </div>
-                    <div class="row container-fluid">                       
-                        <div id="grid"></div>
-                    </div>
+                    <div class="row" id="treelist"></div>                    
                 </div>
             </div>
             <div class="panel panel-default">
-                <div class="panel-body">
+                <div class="panel-body text-center">
                     <div class="row container-fluid">
                         <form>
                             <label class="action" style="padding-right: 20px;">Choose mode: </label>
@@ -50,8 +48,8 @@
                             <button type="button" class="btn btn-info" id="btnReset"><img src="~/images/reset.png" /> RESET</button>
                             <button type="button" class="btn btn-info" id="btnCue"><img src="~/images/cue.png" /> CUE</button>
                             <button type="button" class="btn btn-info" id="btnJump"><img src="~/images/jump.png" /> JUMP</button>
-                            <button type="button" class="btn btn-info" id="btnJumpLive"><img src="~/images/live.png" /> JUMP LIVE</button>
-                            <button type="button" class="btn btn-info" id="btnClose"><img src="~/images/close.png" /> REMOVE CONTROLLER</button>
+                            <button type="button" class="btn btn-info" id="btnJumpLive"><img src="~/images/live.png" /> SW LIVE</button>
+                            <button type="button" class="btn btn-info" id="btnClose"><img src="~/images/close.png" /> DISCONNECT</button>
                             <button type="button" class="btn btn-info" id="btnPower"><img src="~/images/power.png" /> STOP PLAY-OUT</button>
                         </div>
                     </div>
@@ -59,33 +57,100 @@
             </div>
             <div class="panel panel-default">
                 <div class="panel-heading">Server Info</div>
-                <div class="panel-body">                    
+                <div class="panel-body">
                 </div>
             </div>
-        </div>
-        <div class="panel-footer" style="height:50px;">
-            <h5 class="col-lg-6 col-md-6 col-sm-6">Status of database connection: Connected</h5>
-            <h5 class="col-lg-6 col-md-6 col-sm-6">Database name: RemoteDB</h5>
         </div>
     </div>
 </body>
 <script>
-    var lstItems = @Json.Serialize(Model);    
-    (function ($) {       
-        var grid = $("#grid").kendoGrid({
-            batch: true,
-            height: "495px",
-            dataSource: lstItems,
-            columns: [
-                "startTime",
-                "programName",
-                "fileName",
-                "duration",
-                "tcIn",
-                "tcOut"
-            ],
-            pageable: true
-        }).data("kendoGrid");
+    var lstItems = @Json.Serialize(Model);
+    (function ($) {
+        var commonSettings = {
+            dataSource: {
+                data: lstItems,
+                schema: {
+                    model: {
+                        id: "PlaylistItemID",
+                        fields: {
+                            programName: {},
+                            startTime: {},
+                            fileName: {},
+                            duration: {},
+                            tcIn: {},
+                            tcOut:{}
+                        }
+                    }
+                }
+            },
+            sortable: true,
+            columns: [{
+                field: "startTime",
+                title: "Start Time"
+            }, {
+                field: "programName",
+                title: "Program Name"
+            }, {
+                field: "fileName",
+                title: "File Name"
+            },
+            {
+                field: "duration",
+                title: "Duration"
+            },
+            {
+                field: "tcIn",
+                title: "TC In"
+            }, {
+                field: "tcOut",
+                title: "TC Out"
+            }],
+            height: 460,
+            pageable: false
+        };
+        $("#treelist").kendoGrid($.extend({
+            dataBound: function (e) {
+                // get the index of the UnitsInStock cell
+                var columns = e.sender.columns;
+                
+                // iterate the table rows and apply custom row and cell styling
+                var rows = e.sender.tbody.children();
+                for (var j = 0; j < rows.length; j++) {
+                    var row = $(rows[j]);
+                    var dataItem = e.sender.dataItem(row);
+                    var units = dataItem.get("programName");                    
+                    if(units==="abcd")
+                        row.addClass("isPlaying");
+                }
+            }
+        }, commonSettings));
+        //var treelist = $("#treelist").kendoTreeList({
+        //    batch: true,
+        //    height: 460,
+        //    dataSource: lstItems,
+        //    columns: [{
+        //        field: "startTime",
+        //        title: "Start Time"
+        //    }, {
+        //        field: "programName",
+        //        title: "Program Name"
+        //    }, {
+        //        field: "fileName",
+        //        title: "File Name"
+        //    },
+        //    {
+        //        field: "duration",
+        //        title: "Duration"
+        //    },
+        //    {
+        //        field: "tcIn",
+        //        title: "TC In"
+        //    }, {
+        //        field: "tcOut",
+        //        title:"TC Out"
+        //    }],
+        //    pageable: false
+        //});
         $('input[type=radio][name=optradio]').change(function () {
             if (this.id == 'option1') {
                 alert("1");
@@ -97,7 +162,15 @@
                 alert("3");
             }
         });
-        
+        $("#treelist").on("mousedown", "tr[role='row']", function (e) {
+            if (e.which === 1) {
+                $("#treelist tbody tr").removeClass("k-state-selected");
+                $(this).toggleClass("k-state-selected");
+                var treeData = $("#treelist").data('kendoTreeList');
+                var selectedRowData = treeData.dataItem($(".k-grid").find("tr.k-state-selected"));
+                alert(selectedRowData.programName);
+            }
+        });
     })(jQuery);
 </script>
 

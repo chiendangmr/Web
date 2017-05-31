@@ -1,6 +1,7 @@
 ﻿body {
     padding-top: 50px;
-    padding-bottom: 20px;    
+    padding-bottom: 20px;
+    background-color: #252830;
 }
 
 /* Wrapping element */
@@ -45,13 +46,53 @@ h5{
     color: white;
 }
 .k-header {
-    background-color: #211e1e !important;
+    background-color: #1a1c22 !important;
     color: #76abd9 !important;
+    text-align: center !important;   
 }
-.k-grid-content{
-    background-color:#333 !important;
+.k-grid-content {
+    background-color: #252830 !important;
 }
 .k-widget{
-    color: #ffffff !important;
+    color: #ffffff !important;    
 }
+.k-alt {
+    background-color: #292d36 !important;
+}
+.panel-default > .panel-heading {
+    background-color: #1a1c22 !important;
+    color: white;
+}
+.panel-heading{
+    border-style:none;
+}
+.panel-default {
+    border-style: solid;
+    border-color: #585757 !important;
+}
+#treelist{
+    margin:0px !important;
+    padding:0px !important;
+    border-style: none;
+}
+.panel-body {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    background-color: #252830 !important;
+}
+#rootPanel{
+    margin-top:10px;
+    border-style:none;
+}
+#panelbody1{
+    margin-bottom:0px !important;
+    padding-bottom:0px !important;
+}
+.isPlaying {
+    font-weight: bold !important;
+    background-color: rgba(0,255,0,0.4) !important;    
+}
+
 

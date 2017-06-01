@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnAir", "src\OnAir\OnAir.csproj", "{CA49A61D-EA85-4309-BB23-712D6FF79263}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDAutomationWebAPI", "src\WebAPISample\HDAutomationWebAPI.csproj", "{08ED3CE8-AA83-49D6-859E-B260820B8876}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HDAutomationWebAPI", "src\HDAutomationWebAPI\HDAutomationWebAPI.csproj", "{FAD35F01-B114-4D85-A964-A00980FC1CC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,16 +21,16 @@ Global
 		{CA49A61D-EA85-4309-BB23-712D6FF79263}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA49A61D-EA85-4309-BB23-712D6FF79263}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA49A61D-EA85-4309-BB23-712D6FF79263}.Release|Any CPU.Build.0 = Release|Any CPU
-		{08ED3CE8-AA83-49D6-859E-B260820B8876}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{08ED3CE8-AA83-49D6-859E-B260820B8876}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{08ED3CE8-AA83-49D6-859E-B260820B8876}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{08ED3CE8-AA83-49D6-859E-B260820B8876}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAD35F01-B114-4D85-A964-A00980FC1CC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAD35F01-B114-4D85-A964-A00980FC1CC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAD35F01-B114-4D85-A964-A00980FC1CC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAD35F01-B114-4D85-A964-A00980FC1CC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CA49A61D-EA85-4309-BB23-712D6FF79263} = {E8D52073-B8BB-4E20-A286-5BBFFCB65187}
-		{08ED3CE8-AA83-49D6-859E-B260820B8876} = {E8D52073-B8BB-4E20-A286-5BBFFCB65187}
+		{FAD35F01-B114-4D85-A964-A00980FC1CC3} = {E8D52073-B8BB-4E20-A286-5BBFFCB65187}
 	EndGlobalSection
 EndGlobal

@@ -6,10 +6,8 @@ namespace HDAutomationWebAPI.Models
     public partial class TblSectors
     {
         public TblSectors()
-        {
-            HdsyncV4TblSectors = new HashSet<HdsyncV4TblSectors>();
-            TblClipTypes = new HashSet<TblClipTypes>();
-            V4sectorBranch = new HashSet<V4sectorBranch>();
+        {           
+            TblClipTypes = new HashSet<TblClipTypes>();            
         }
 
         public int SectorId { get; set; }
@@ -40,9 +38,7 @@ namespace HDAutomationWebAPI.Models
         public int? PlayingState { get; set; }
         public Guid? SyncId { get; set; }
         public int MasterBranchId { get; set; }
-
-        public virtual ICollection<HdsyncV4TblSectors> HdsyncV4TblSectors { get; set; }
-        public virtual ICollection<TblClipTypes> TblClipTypes { get; set; }
-        public virtual ICollection<V4sectorBranch> V4sectorBranch { get; set; }
+        
+        public virtual ICollection<TblClipTypes> TblClipTypes { get; set; }       
     }
 }

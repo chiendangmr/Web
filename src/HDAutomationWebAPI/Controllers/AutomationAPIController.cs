@@ -19,16 +19,32 @@ namespace HDAutomationWebAPI.Controllers
             _context = context;
         }
         //Playlist
-        [HttpGet("{sectorId}", Name = "GetPlaylists")]
+        [HttpGet]
+        [Route("Playlist/{sectorId}")]
         public IEnumerable<PlayList> GetPlaylists(int sectorId)
         {
             return _context.PlayList.Where(m => m.SystemId == sectorId).Where(m => m.DateList >= DateTime.Now.Date).ToList();
         }
+        [HttpPost]
+        public IActionResult CreatePlaylist([FromBody]PlayList item)
+        {
+            if (item == null) return BadRequest();
+            _context.PlayList.Add(item);
+            _context.SaveChanges();
+            return CreatedAtRoute("GetPlaylists", new { sectorId = item.SystemId }, item);
+        }
         //PlaylistItems
         [HttpGet]
+        [Route("PlaylistItem/{playlistId}")]
         public IEnumerable<PlayListItem> GetPlaylistItems(int playlistId)
         {
             return _context.PlayListItem.Where(m => m.ListId == playlistId).ToList();
+        }
+        //CG_Playlist_Item
+        [HttpGet]
+        public IEnumerable<TblCgPlaylistItem> GetCGPlaylistItems(long playlistItemId)
+        {
+            return _context.TblCgPlaylistItem.Where(m => m.PlaylistItemId == playlistItemId).ToList();
         }
     }
 }

@@ -6,8 +6,7 @@ namespace HDAutomationWebAPI.Models
     public partial class TblClipTypes
     {
         public TblClipTypes()
-        {
-            HdsyncV4TblClipTypes = new HashSet<HdsyncV4TblClipTypes>();
+        {           
             TblClipTypeCglayer = new HashSet<TblClipTypeCglayer>();
         }
 
@@ -22,8 +21,7 @@ namespace HDAutomationWebAPI.Models
         public bool? Tvad { get; set; }
         public Guid SyncId { get; set; }
         public int? ChangedPcd { get; set; }
-
-        public virtual ICollection<HdsyncV4TblClipTypes> HdsyncV4TblClipTypes { get; set; }
+        
         public virtual ICollection<TblClipTypeCglayer> TblClipTypeCglayer { get; set; }
         public virtual TblSectors Sector { get; set; }
     }

@@ -5,12 +5,6 @@ namespace HDAutomationWebAPI.Models
 {
     public partial class InforTape
     {
-        public InforTape()
-        {
-            Hdimport = new HashSet<Hdimport>();
-            HdsyncV4InforTape = new HashSet<HdsyncV4InforTape>();
-        }
-
         public long Idclip { get; set; }
         public string Mabang { get; set; }
         public string TcIn { get; set; }
@@ -97,9 +91,6 @@ namespace HDAutomationWebAPI.Models
         public string Cgnow12 { get; set; }
         public string Cgnow { get; set; }
         public int? CgtopNumber { get; set; }
-        public string Cgtop { get; set; }
-
-        public virtual ICollection<Hdimport> Hdimport { get; set; }
-        public virtual ICollection<HdsyncV4InforTape> HdsyncV4InforTape { get; set; }
+        public string Cgtop { get; set; }        
     }
 }

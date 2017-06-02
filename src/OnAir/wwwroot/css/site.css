@@ -59,6 +59,10 @@ h5{
 .k-alt {
     background-color: #292d36 !important;
 }
+.k-grid-header .k-link:link, .k-grid-header .k-link:visited, .k-grid-header .k-nav-current.k-state-hover .k-link, .k-grouping-header .k-link {
+    color: white !important;
+    font-weight: bold !important;
+}
 .panel-default > .panel-heading {
     background-color: #1a1c22 !important;
     color: white;
@@ -70,7 +74,7 @@ h5{
     border-style: solid;
     border-color: #585757 !important;
 }
-#treelist{
+#treeGrid{
     margin:0px !important;
     padding:0px !important;
     border-style: none;
@@ -94,5 +98,19 @@ h5{
     font-weight: bold !important;
     background-color: rgba(0,255,0,0.4) !important;    
 }
-
-
+#playingProgress {
+    width: 100%;
+    background-color: transparent;
+    margin: 0px !important;
+    padding: 0px !important;
+    border-style: none;
+    position: absolute;
+}
+#playingBar {
+    width: 1%;
+    height: 100%;
+    background-color: rgba(0,255,0,0.4);
+    text-align: center; /* To center it horizontally (if you want) */
+    line-height: 30px; /* To center it vertically */
+    color: white;
+}

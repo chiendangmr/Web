@@ -15,7 +15,7 @@
         <div class="panel-body">
             <div class="panel panel-default">
                 <div class="panel-heading">Playlist for @DateTime.Now.Date.ToString("MMM dd/yyyy")</div>
-                <div class="panel-body text-center" id="panelbody1">
+                <div class="panel-body text-center container-fluid" id="panelbody1">
                     <div class="row">
                         <h4 class="col-lg-3 col-md-3 col-sm-3">Start Time: 00:05:00</h4>
                         <h4 class="col-lg-3 col-md-3 col-sm-3">Total Duration: 00:00:00.00</h4>
@@ -23,7 +23,12 @@
                             <label><input type="checkbox" checked />Auto navigate to playing line</label>
                         </h4>
                     </div>
-                    <div class="row" id="treelist"></div>                    
+                    <div class="row" id="treeGrid"></div>                    
+                    <div id="playingProgress" hidden>
+                        <div id="playingBar">1%</div>
+                    </div>
+                    <br>
+                    <button id="clickme">Click Me</button>
                 </div>
             </div>
             <div class="panel panel-default">
@@ -64,8 +69,27 @@
     </div>
 </body>
 <script>
+
     var lstItems = @Json.Serialize(Model);
+    var _elem;
+    var _class1;
+    var _class2;
+    var _myInterval;
     (function ($) {
+        function move() {
+            var elem = document.getElementById('playingBar');
+            var width = 1;
+            var id = setInterval(frame, 1000);
+            function frame() {
+                if (width >= 300) {
+                    clearInterval(id);
+                } else {
+                    width+=1/3;
+                    elem.style.width = width + '%';
+                    elem.innerHTML = width * 1 + '%';
+                }
+            }
+        }
         var commonSettings = {
             dataSource: {
                 data: lstItems,
@@ -107,50 +131,30 @@
             }],
             height: 460,
             pageable: false
-        };
-        $("#treelist").kendoGrid($.extend({
+        };        
+        $("#treeGrid").kendoGrid($.extend({
             dataBound: function (e) {
-                // get the index of the UnitsInStock cell
+                // get index 
                 var columns = e.sender.columns;
-                
                 // iterate the table rows and apply custom row and cell styling
                 var rows = e.sender.tbody.children();
                 for (var j = 0; j < rows.length; j++) {
                     var row = $(rows[j]);
                     var dataItem = e.sender.dataItem(row);
-                    var units = dataItem.get("programName");                    
-                    if(units==="abcd")
-                        row.addClass("isPlaying");
+                    var units = dataItem.get("programName");
+                    if (units === "abcd") {                                                
+                        $("#playingProgress").offset(row.offset());
+                        $("#playingProgress").width(row.width());
+                        $("#playingProgress").height(row.height());
+                        $("#playingProgress").show();
+                        console.log(row.offset());
+                    }
                 }
             }
         }, commonSettings));
-        //var treelist = $("#treelist").kendoTreeList({
-        //    batch: true,
-        //    height: 460,
-        //    dataSource: lstItems,
-        //    columns: [{
-        //        field: "startTime",
-        //        title: "Start Time"
-        //    }, {
-        //        field: "programName",
-        //        title: "Program Name"
-        //    }, {
-        //        field: "fileName",
-        //        title: "File Name"
-        //    },
-        //    {
-        //        field: "duration",
-        //        title: "Duration"
-        //    },
-        //    {
-        //        field: "tcIn",
-        //        title: "TC In"
-        //    }, {
-        //        field: "tcOut",
-        //        title:"TC Out"
-        //    }],
-        //    pageable: false
-        //});
+        $("#clickme").click(function () {
+            move();
+        });
         $('input[type=radio][name=optradio]').change(function () {
             if (this.id == 'option1') {
                 alert("1");
@@ -162,11 +166,12 @@
                 alert("3");
             }
         });
-        $("#treelist").on("mousedown", "tr[role='row']", function (e) {
+        $("#treeGrid").on("mousedown", "tr[role='row']", function (e) {
             if (e.which === 1) {
-                $("#treelist tbody tr").removeClass("k-state-selected");
+                $("#treeGrid tbody tr").removeClass("k-state-selected");
                 $(this).toggleClass("k-state-selected");
-                var treeData = $("#treelist").data('kendoTreeList');
+                var treeData = $("#treeGrid").data('kendoGrid');
+                console.log(treeData);
                 var selectedRowData = treeData.dataItem($(".k-grid").find("tr.k-state-selected"));
                 alert(selectedRowData.programName);
             }

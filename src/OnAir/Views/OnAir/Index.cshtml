@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/lib/kendo/styles/kendo.bootstrap.mobile.min.css" />
     <script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="~/lib/kendo/js/kendo.all.min.js"></script>
+    <script type="text/javascript" src="~/js/HDCore.js"></script>
 </head>
 <body>
     <div class="panel panel-default" id="rootPanel">
@@ -76,17 +77,19 @@
     var _class2;
     var _myInterval;
     (function ($) {
-        function move() {
+        function move(duration) {
             var elem = document.getElementById('playingBar');
-            var width = 1;
+            var width = 0;
             var id = setInterval(frame, 1000);
             function frame() {
-                if (width >= 300) {
+                if (width >= 100) {
                     clearInterval(id);
                 } else {
-                    width+=1/3;
+                    width += 100 / duration;
                     elem.style.width = width + '%';
-                    elem.innerHTML = width * 1 + '%';
+                    console.log(width);
+                    //elem.innerHTML = (width * duration / 100).toFixed(0) + ' s';
+                    elem.innerHTML = MilisecondsToTimeCode(((width * duration / 100).toFixed(0))*1000);
                 }
             }
         }
@@ -129,7 +132,7 @@
                 field: "tcOut",
                 title: "TC Out"
             }],
-            height: 460,
+            height: 400,
             pageable: false
         };        
         $("#treeGrid").kendoGrid($.extend({
@@ -142,18 +145,17 @@
                     var row = $(rows[j]);
                     var dataItem = e.sender.dataItem(row);
                     var units = dataItem.get("programName");
-                    if (units === "abcd") {                                                
+                    if (units === "test") {                                                
                         $("#playingProgress").offset(row.offset());
                         $("#playingProgress").width(row.width());
                         $("#playingProgress").height(row.height());
-                        $("#playingProgress").show();
-                        console.log(row.offset());
+                        $("#playingProgress").show();                        
                     }
                 }
             }
         }, commonSettings));
         $("#clickme").click(function () {
-            move();
+            move(200);
         });
         $('input[type=radio][name=optradio]').change(function () {
             if (this.id == 'option1') {

@@ -1,5 +1,4 @@
 ﻿using HD.TVAD.ApplicationCore.Entities;
-using HD.TVAD.Web.Features.Managers.UserGroup.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

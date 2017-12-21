@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{F73747
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaInfoDotNet", "src\MediaInfoDotNet\MediaInfoDotNet.csproj", "{3DDA4B81-B020-4044-B0E8-CC8A190FE00E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5A97364D-C49D-461D-872D-4E76B4E209E0}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HD.TVAD.ApplicationCore", "src\HD.TVAD.ApplicationCore\HD.TVAD.ApplicationCore.csproj", "{549C7B65-45D3-4B99-A279-4B50AF79266C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HD.TVAD.Infrastructure", "src\HD.TVAD.Infrastructure\HD.TVAD.Infrastructure.csproj", "{343AD501-0202-4956-8E07-AACBC50EAB7F}"

@@ -14,7 +14,7 @@ namespace HD.TVAD.Web.Features.Managers.UserGroup.Models
         [Required(ErrorMessage = "The name field is required")]
         [Display(Name = "User group name")]
         public string name { get; set; }
-		[Display(Name = "Active")]
-		public bool active { get; set; }
-	}
+        [Display(Name = "Active")]
+        public bool active { get; set; }
+    }
 }

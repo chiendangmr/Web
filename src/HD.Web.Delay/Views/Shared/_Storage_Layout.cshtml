@@ -1,0 +1,77 @@
+﻿@{
+    Layout = "_Layout";
+}
+<link rel="stylesheet" type="text/css" href="~/css/components/show-hide-element.css" />
+<div class="container-flex">
+    <div class="flex flex-1 need-show-hide">
+        <div class="panel panel-flex panel-default">
+            <div class="panel-heading">
+                <div class="sidebar-header">
+                    <button class="nav-toggler nav-toggler-sm sidebar-toggler" type="button" data-toggle="collapse" data-target="#nav-toggleable-sm">
+                        <span class="sr-only">Toggle nav</span>
+                    </button>
+                    <a class="sidebar-brand img-responsive" href="">
+                        <span class="icon icon-home sidebar-brand-icon"></span>
+                    </a>
+                    <a class="sidebar-brand img-responsive show-hide-element" title="@Localizer["Hide this panel"]">
+                        <span class="icon icon-left-open sidebar-brand-icon"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="panel-body">
+
+                <div class="collapse nav-toggleable-sm" id="nav-toggleable-sm">
+
+                    <ul class="nav nav-pills nav-stacked">
+                        <li class="nav-header">@Localizer["Dashboards"]</li>
+                        <li>
+                            <a href="/Home">@Localizer["Home"]</a>
+                        </li>
+                        <li class="nav-header">@Localizer["Storage Management"]</li>
+
+                        <li>
+                            <a asp-controller="Storage" asp-action="Index">@Localizer["Storage"]</a>
+                        </li>
+                        <li>
+                            <a asp-controller="AccessZone" asp-action="Index">@Localizer["Access Zone"]</a>
+                        </li>
+                        <li>
+                            <a asp-controller="StorageLocation" asp-action="Index"> @Localizer["Storage Location"]</a>
+                        </li>
+                        <li>
+                            <a asp-controller="StorageLocationAccess" asp-action="Index">@Localizer["Storage Location Access"]</a>
+                        </li>                       
+
+                        <li>
+                            <a asp-controller="StorageLocationAccessZone" asp-action="Index">@Localizer["Storage Location Access Zone"]</a>
+                        </li>
+                    </ul>
+                    <hr class="visible-xs m-t">
+                </div>
+            </div>
+        </div>
+    </div>
+    <img id="arrow" class="show-hide-element hiden" src="~/images/arrowright.png" title="@Localizer["Show Panel"]">
+    <div class="flex flex-4">
+        @RenderBody()
+    </div>
+</div>
+
+
+<script>
+    require(['module/show-hide-element'], function (SHE) {
+        var path = location.pathname;
+        var controller = path.split('/')[2];
+        $("ul.nav.nav-pills.nav-stacked>li>a").each(function (i, v) {
+            var href = $(v).attr("href");
+            if (href.split('/')[2] === controller) {
+                $(v).closest('li').addClass("active");
+            }
+        });
+        $(".show-hide-element").click(function () {
+            SHE.init({
+                iconUrl: "/images/arrowright.png"
+            });
+        });
+    });
+</script>

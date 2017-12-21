@@ -1,0 +1,73 @@
+﻿@model TimeBandSliceDescriptionIndexViewModel
+@{
+	Layout = null;
+}
+<div class="container-vertical-flex">
+	<div class="flex flex-0">
+		<span class="h4">@Localizer["TimeBand"]: @Model.TimeBandName > @Localizer["Slice"]: @Model.TimeBandSliceName</span>
+		<button class="btn btn-sm btn-primary-outline create timeBandSliceDescription pull-right"> <span class="glyphicon glyphicon-plus"></span> @Localizer["Add"] </button>
+	</div>
+	<div class="flex flex-1">
+		<div id="grid-timeBandSliceDescription"></div>
+	</div>
+</div>
+
+<script id="timeBandSliceDescription-edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete timeBandSliceDescription"><span class="icon icon-action-delete"></span></button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit timeBandSliceDescription"><span class="icon icon-action-edit"></span></button>
+
+	</div>
+</script>
+
+<script>
+	require(['module/timeband-slice-description'], function (module) {
+
+		module.init({
+			url: {
+				controller: "TimeBandSliceDescription",
+				getAll: "GetAllByTimeBandSliceId",
+				id: "@Model.TimeBandSliceId",
+			},
+			DOMid: {
+				grid: 'grid-timeBandSliceDescription',
+			},
+			DOMclass: {
+				entity: ".timeBandSliceDescription",
+			},
+			data: {
+				timeBandSliceId: "@Model.TimeBandSliceId"
+			},
+			model: {
+				id: 'Id',
+				fields: {
+					startDate: { field: "StartDate", type: "date" },
+					endDate: { field: "EndDate", type: "date" },
+					description: { field: "Description", type: "text" },
+				},
+			},
+			columns: [
+				{
+					field: 'startDate', title: "@Localizer["Start Date"]",
+				template: function (dataItem) {
+					return kendo.template($("#date-template").html())({ date: dataItem.startDate });
+				}
+				},
+				{
+					field: 'endDate', title: "@Localizer["End Date"]",
+				template: function (dataItem) {
+					return kendo.template($("#date-template").html())({ date: dataItem.endDate });
+				}
+				},
+				{ field: "description", title: "@Localizer["Description"]", },
+				{
+					field: "",
+					title: "@Localizer["Edit"]",
+					template: kendo.template($("#timeBandSliceDescription-edit-template").html()),
+					width: "120px",
+				}
+
+			]
+		});
+	});
+</script>

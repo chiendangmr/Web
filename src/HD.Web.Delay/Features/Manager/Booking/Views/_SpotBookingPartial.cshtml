@@ -1,0 +1,55 @@
+﻿@using HD.TVAD.ApplicationCore.Entities.Booking
+@{
+	Layout = null;
+}
+@model SpotBookingCreateIndexViewModel
+
+@inject ITimeBandViewService _timeBandViewService
+@inject ITimeBandSliceForTypeService _timeBandSliceForTypeService
+@{
+	var timeBandSelectItems = new List<SelectListItem>();
+
+	switch (BookingTypeEnum.Contract_Booking)
+	{
+		case BookingTypeEnum.Retail:
+			var timeBands = await _timeBandSliceForTypeService.GetTimeBandsForTypeAsync(BookingTypeEnum.Retail);
+			timeBandSelectItems = timeBands.Select(t => new SelectListItem()
+			{
+				Value = t.Id.ToString(),
+				Text = t.TimeBandBase.Name,
+			})
+			.OrderBy(t => t.Text)
+			.ToList();
+			break;
+		default:
+			timeBandSelectItems = (await _timeBandViewService.GetSelectListItemAsync()).ToList();
+			break;
+	}
+
+}
+<div class="container-flex">
+	<div class="flex flex-1" id="createSpotBooking-panel">
+		@Html.Partial("_SpotBookingCreatePartial", new SpotBookingCreateIndexViewModel()
+   {
+	   AnnexContractId = Model.AnnexContractId,
+	   BroadcastDate = DateTime.Today,
+	   BookingType = Model.BookingType
+   })
+	</div>
+	<div class="flex flex-3">
+		@Html.Partial("_ListSpotBookingPartial", new SpotBookingIndexViewModel() {
+	   AnnexContractId = Model.AnnexContractId,
+	   SpotBookingCreateIndexViewModel = new SpotBookingCreateIndexViewModel() {
+		   BookingType = Model.BookingType
+	   }
+   })
+		@*<div class="panel panel-default">
+			<div class="panel-heading">
+				@Localizer["List spot booking in contract"]
+			</div>
+			<div class="panel-body">
+
+			</div>
+		</div>*@
+	</div>
+</div>

@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "";
+    Layout = "_Manager_Layout";
+}
+<div class="panel panel-flex panel-default">
+    <div class="panel-heading">
+        <div class="dashhead">
+            <div class="dashhead-titles">
+                <div class="dashhead-title">
+                    <h2> @Localizer["TimeBand Slice For Type"] </h2>
+                </div>
+            </div>
+            <div class="dashhead-toolbar btn-toolbar">
+				<button id="btn-create" class="btn btn-primary-outline create"> <span class="icon icon-plus"></span> @Localizer["Create"] </button>
+            </div>
+        </div>
+		<div class="flextable table-actions">
+			<div class="flextable-item flextable-primary">
+				<div class="btn-toolbar-item input-with-icon" style="width: 70%; max-width: 600px;">
+					<span class="icon icon-search"></span>
+					<input type="search" id="filterText" class="form-control input-block " placeholder="@Localizer["Search..."]">
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="clearFilter" class="btn btn-primary-outline"><span class="icon icon-erase"></span></button>
+				</div>
+			</div>
+			<div class="flextable-item">
+				<div class="checkbox custom-control custom-checkbox">
+					<label>
+						<input id="filterDisabled" type="checkbox" class="form-control">
+						<span class="custom-control-indicator"></span>
+						@Localizer["Include Disabled"]
+					</label>
+				</div>
+			</div>
+		</div>
+
+    </div>
+    <div class="panel-body">
+        <div id="grid"></div>
+    </div>
+</div>
+
+
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+
+<script id="edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete"><span class="icon icon-action-delete"></span> @Localizer["Delete"]</button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit"><span class="icon icon-action-edit"></span> @Localizer["Edit"]</button>
+	</div>
+</script>
+
+<script>
+    require(['module/timeband-slice-for-type'], function (module) {
+    	module.init({
+            url: {
+            	getAll: "GetAll",
+            	controller: "TimeBandSliceForType",
+            },
+            model: {
+            	id: 'Id',
+            	fields: {
+            		startDate: { field: "StartDate", type: "date" },
+            		endDate: { field: "EndDate", type: "date" },
+            		timeBandName: { field: "TimeBandName", type: "text" },
+            		timeBandSliceName: { field: "TimeBandSliceName", type: "text" },
+            		bookingTypeName: { field: "BookingTypeName", type: "text" },
+            	},
+            },
+            DOMid: {
+                grid: 'grid',
+            },
+            columns: [
+				{ field: 'timeBandName', title: "@Localizer["TimeBand"]" },
+				{ field: 'timeBandSliceName' , title: "@Localizer["Slice"]"},
+				{
+					field: 'startDate', title: "@Localizer["Start Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.startDate });
+					}
+				},
+				{
+					field: 'endDate', title: "@Localizer["End Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.endDate });
+					}
+				},
+				{ field: 'bookingTypeName', title: "@Localizer["Booking Type"]" },
+				{
+					field: "",
+					title: "@Localizer["edit"]",
+					template: kendo.template($("#edit-template").html()),
+					width: "160px",
+				}
+            ],
+        });
+    });
+
+</script>

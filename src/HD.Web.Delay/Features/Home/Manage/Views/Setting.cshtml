@@ -1,0 +1,49 @@
+﻿@{
+	ViewData["Title"] = "Setting";
+}
+<div class="col-lg-offset-4 col-lg-4 col-sm-offset-3 col-sm-6">
+	<section>
+			<form id="setting-form" class="form-horizontal text-center">
+				<h4>@ViewData["Title"]</h4>
+				<hr />
+				<div class="form-group">
+					<label class="col-md-4 control-label">@Localizer["Enable Notification"] </label>
+					<div class="col-md-8">
+						<input type="checkbox" data-bind="checked: enableNotifi" class="form-control" />
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-md-offset-4 col-md-8">
+						<button type="button" data-bind="click: onSaveBtn" class="btn btn-primary-outline">Save</button>
+					</div>
+				</div>
+			</form>
+	</section>
+</div>
+<script>
+	require(["jquery", "js.cookie", "knockout"], function ($, Cookies, ko) {
+
+		var notifiEnable = Cookies.get('notifiEnable');
+		console.log(typeof notifiEnable);
+		console.log(notifiEnable);
+		if (notifiEnable)
+		{
+			if (notifiEnable == 'true')
+				notifiEnable = true;
+			else notifiEnable = false;
+		}
+		else
+			notifiEnable = false;
+
+		console.log(typeof notifiEnable);
+		console.log(notifiEnable);
+		var viewModel = {
+			enableNotifi: ko.observable(notifiEnable),
+			onSaveBtn: function(){
+				Cookies.set('notifiEnable', viewModel.enableNotifi());
+				alert("Save susscess!");
+			}
+		}
+		ko.applyBindings(viewModel);
+	});
+</script>

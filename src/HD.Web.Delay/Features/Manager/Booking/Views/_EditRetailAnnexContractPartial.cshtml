@@ -1,0 +1,264 @@
+﻿@using HD.TVAD.ApplicationCore.Entities.Booking
+
+@inject ICustomerViewService _customerViewService
+@inject IGetTypeService _getTypeService
+@inject IAnnexContractViewService _annexContractViewService
+@{
+	var customerSelectItems = await _customerViewService.GetCustomerCodeAndNameListItemAsync();
+	var customerTypeSelectItems = await _customerViewService.GetCustomerTypeSelectListItemAsync();
+//	var codeListItems = await _annexContractViewService.GetCodeListAsync(BookingTypeEnum.Retail);
+}
+
+@model RetailContractForAPIEditViewModel
+
+<form id="edit-contract-form" data-bind="submit: onEditFormSubmit" asp-area="Manager" asp-controller="RetailContract" asp-action="EditAPI" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+	<input type="hidden" asp-for="BookingTypeId" value="@((int)BookingTypeEnum.Retail)"/>
+	@*<input type="hidden" asp-for="AnnexContractTypeId" value="" />*@
+	<input type="hidden" asp-for="Id"/>
+	<input type="hidden" asp-for="CustomerId" />
+
+	<div class="col-md-6">
+		<div class="form-group">
+			<div class="col-md-6 control-label">
+				<label asp-for="Code"></label>
+			</div>
+			<div class="col-md-6">
+				<input asp-for="Code" class="form-control" type="text" data-bind="value: code, event: { keyup: onCodeKeyUp}" list="codeItems" />
+				<datalist id="codeItems">
+					<select name="codeItems"></select>
+				</datalist>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="form-group">
+			<div class="col-md-3 control-label">
+				<label asp-for="ReceiveDate"></label>
+			</div>
+			<div class="col-md-6">
+				<input asp-for="ReceiveDate" class="form-control" type="date" />
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="form-group">
+			<div class="col-md-6 control-label">
+				<label asp-for="CustomerName"></label>
+			</div>
+			<div class="col-md-6">
+				<input asp-for="CustomerName" class="form-control" type="text"/> 
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-6">
+		<div class="form-group">
+			<div class="col-md-3 control-label">
+				<label asp-for="CustomerAddress"></label>
+			</div>
+			<div class="col-md-6">
+				<input asp-for="CustomerAddress" class="form-control" type="text" />
+			</div>
+		</div>
+	</div>
+	<div class="col-md-8 col-md-offset-4">
+		<button type="button" class="btn btn-primary-outline" data-bind="click: onCreateBtnClick"><span class="icon icon-plus"></span> @Localizer["Create new contract"]</button>
+		<button type="button" class="btn btn-warning-outline" data-bind="click: onSaveBtnClick"><span class="icon icon-action-save"></span> @Localizer["Save change"]</button>
+		<button type="button" class="btn btn-danger-outline" data-bind="click: onDeleteBtnClick"><span class="icon icon-action-delete"></span> @Localizer["Delete contract"]</button>
+		<button type="button" class="btn btn-success-outline" data-bind="click: onManageBtnClick"><span class="icon icon-action-detail"></span> @Localizer["Manage contract"]</button>
+	</div>
+</form>
+
+<script>
+	require(["jquery", "knockout", 'module/manager'], function ($, ko, manager) {
+		var localizer = {
+			delete: "@Localizer["Delete"]",
+			edit: "@Localizer["Edit"]",
+		inputNotValid: "@Localizer["Input not valid"]",
+		};
+
+
+		var viewModel = {
+			code: ko.observable("@Model.Code"),
+			onCodeKeyUp: function (d, e) {
+				console.log("onCodeKeyUp");
+				var _this = this;
+				if (e.keyCode == 13) {
+					_this.network.findByCode(_this.code());
+					return false; // ignore default event
+				}
+				return false;
+			},
+			onCreateBtnClick: function () {
+				var _this = this;
+				console.log("onCreateBtnClick");
+				_this.network.createAnnexContract();
+			},
+			onSaveBtnClick: function () {
+				console.log("onSaveBtnClick");
+				if (confirm(localizer.edit)) {
+					$("#edit-contract-form").submit();
+				}
+			},
+			onDeleteBtnClick: function () {
+				console.log("onDeleteBtnClick");
+				var _this = this;
+				if (confirm("@Localizer["Delete"]?"))
+				{
+					_this.network.deleteAnnexContract();
+			}
+			},
+			onManageBtnClick: function () {
+				console.log("onManageBtnClick");
+				var urlPath = location.origin + "/Manager/RetailContract";
+				window.location = urlPath;
+
+			},
+			onImportBtnClick: function () {
+				console.log("onImportBtnClick");
+
+			},
+			onEditFormSubmit: function (d, e) {
+				var _this = this;
+				console.log("onEditFormSubmit");
+				_this.network.editAnnexContract();
+			},
+			network: {
+				editAnnexContract: function () {
+					var form = $("#edit-contract-form");
+					if(form.valid())
+					{
+						$.ajax({
+							url: form.attr('action'),
+							method: form.attr('method'),
+							data: form.serialize(),
+							success: function (response) {
+								console.log(response);
+								if (typeof response == 'object') {
+									if (response.Succeeded) {
+										notification.show(response.Message);
+										$("#edit-contract-form").animate({ opacity: 0.1 }, 0).animate({ opacity: 1 }, 200);
+
+									}
+									else {
+										alert(response.Message);
+									}
+								}
+								else {
+									alert(response);
+								}
+							},
+							error: function () {
+
+							}
+						});
+
+					}
+					else
+						alert("@Localizer["Input not valid"]");
+				},
+				createAnnexContract: function () {
+					var form = $("#edit-contract-form");
+					var createUrl = "Manager/RetailContract/CreateFromEditFormAPI";
+					if(form.valid())
+					{
+						$.ajax({
+							url: createUrl,
+							method: form.attr('method'),
+							data: form.serialize(),
+							success: function (response) {
+								console.log(response);
+								if (typeof response == 'object') {
+									if (response.Succeeded) {
+										notification.show(response.Message);
+										var urlPath = location.origin + '/Manager/Booking/RetailBooking/' + response.Id;
+										//	window.history.pushState({}, "", urlPath);
+										//	location.reload();
+										window.location = urlPath;
+
+									}
+									else {
+										alert(response.Message);
+									}
+								}
+								else {
+									alert(response);
+								}
+							},
+							error: function () {
+
+							}
+						});
+
+					}
+					else
+						alert("@Localizer["Input not valid"]");
+				},
+				deleteAnnexContract: function () {
+					var form = $("#edit-contract-form");
+					var deleteUrl = "Manager/AnnexContract/DeleteAPI";
+					console.log(form.serialize());
+					$.ajax({
+						url: deleteUrl,
+						method: form.attr('method'),
+						data: form.serialize(),
+						success: function (response) {
+							console.log(response);
+							if (typeof response == 'object') {
+								if (response.Succeeded) {
+									notification.show(response.Message);
+									var urlPath = location.origin + '/Manager/Booking/RetailBooking';
+									//	window.history.pushState({}, "", urlPath);
+									//	location.reload();
+									window.location = urlPath;
+
+								}
+								else {
+									alert(response.Message);
+								}
+							}
+							else {
+								alert(response);
+							}
+						},
+						error: function () {
+
+						}
+					});
+				},
+				findByCode: function (code) {
+					var url = "Manager/AnnexContract/FindByCodeAPI"
+					$.ajax({
+						url: url,
+						method: 'GET',
+						data: {code: code, bookingType: @((int)BookingTypeEnum.Retail)},
+				success: function (response) {
+					console.log(response);
+					if (typeof response == 'object') {
+						if (response.Succeeded) {
+							notification.show(response.Message);
+							var urlPath = location.origin + '/Manager/Booking/RetailBooking/' + response.Id;
+							//	window.history.pushState({}, "", urlPath);
+							//	location.reload();
+							window.location = urlPath;
+
+						}
+						else {
+							alert(response.Message);
+						}
+					}
+					else {
+						alert(response);
+					}
+				},
+				error: function () {
+
+				}
+			});
+	}
+			}
+		}
+		ko.applyBindings(viewModel, $("#edit-contract-form")[0]);
+	});
+</script>

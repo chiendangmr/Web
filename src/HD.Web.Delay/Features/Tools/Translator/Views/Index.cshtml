@@ -1,0 +1,144 @@
+﻿@using HD.Localization.Repositories
+@using System.Globalization;
+
+@inject CultureProvider provider
+
+@{
+    ViewData["Title"] = Localizer["Translator"].Value;
+}
+
+<div style="position:absolute;top:5px;bottom:5px;left:5px;right:5px;">
+    <div id="grid"></div>
+</div>
+
+<script>
+    require(["jquery"], function ($) {
+        require(["devextreme/js/dx.all"], function () {
+            require(["devextreme-aspnet-data/js/dx.aspnet.data"], function (dxData) {
+                require(["devextreme/js/aspnet/dx.aspnet.mvc"], function () {
+                    var columns = [
+                        {
+                            "dataField": "Scope",
+                            "allowEditing": false,
+                            "fixedPosition": "left",
+                            "caption": "@Html.Raw(Localizer["Scope"].Value)",
+                            "sortOrder": "asc",
+                            "sortIndex": 0,
+                            "width": 250.0
+                        },
+                        {
+                            "dataField": "Key",
+                            "allowEditing": false,
+                            "fixedPosition": "left",
+                            "caption": "@Html.Raw(Localizer["Origin text"].Value)",
+                            "sortOrder": "asc",
+                            "sortIndex": 1,
+                            "width": 300.0
+                        }
+                    ];
+
+                    @{
+                        var cultures = provider.GetSupportedOriginCultureAsync().Result;
+                        foreach (var culture in cultures.Select(c => new CultureInfo(c)).OrderBy(c => c.NativeName))
+                        {
+                            <text>columns.push({
+                                "dataField": "@Html.Raw(culture.Name)",
+                                "caption": "@Html.Raw(culture.NativeName)",
+                                "width": 300.0
+                                });</text>
+                        }
+                    }
+
+                    columns.push({});
+
+                    $("#grid").dxDataGrid({
+                        "showBorders": true,
+                        "columnAutoWidth": false,
+                        "allowColumnResizing": true,
+                        "allowColumnReordering": true,
+                        "columnResizingMode": "widget",
+                        "columnChooser": {"enabled": true},
+                        "filterRow": {"visible": true},
+                        "headerFilter": { "visible": true },
+                        "selection": { "mode": "single" },
+                        "rowAlternationEnabled": true,
+                        "searchPanel": { "visible": true },
+                        "hoverStateEnabled": true,
+                        "sorting": { "mode": "multiple" },
+                        "groupPanel": {
+                            "visible": true,
+                            "allowColumnDragging": true
+                        },
+                        "height": "100%",
+                        "editing": {
+                            "mode": "batch",
+                            "allowUpdating": true,
+                            "allowDeleting" : true
+                        },
+                        "pager": {
+                            "showPageSizeSelector": true,
+                            "allowedPageSizes": [20, 50, 100],
+                            "showInfo": true
+                        },
+                        "onCellPrepared": onCellPrepared,
+                        "columns": columns,
+                        "dataSource": {
+                            "store": dxData.createStore({
+                                "key": "Id",
+                                "loadUrl": "/api/tools/TranslatorWebApi/Get",
+                                "insertUrl": "/api/tools/TranslatorWebApi/Post",
+                                "updateUrl": "/api/tools/TranslatorWebApi/Put",
+                                "deleteUrl": "/api/tools/TranslatorWebApi/Delete"
+                            })
+                        },
+                        //"remoteOperations": {
+                        //    "filtering": true,
+                        //    "sorting": true,
+                        //    "paging": true,
+                        //    "grouping": true,
+                        //    "summary": true
+                        //},
+                        "onContentReady": translatorContentReady,
+                    });
+                });
+            });
+        });
+    });
+
+    function onCellPrepared(e) {
+        if (e.rowType === "header") {
+            require(["jquery"], function ($) {
+                $links = e.cellElement.filter(".dx-datagrid-action");
+                $links.css("text-align", "center").css("font-weight", "bold");
+            });
+        }
+        else if (e.rowType === "data") {
+            if (e.column.command === "edit") {
+                require(["jquery"], function ($) {
+                    var isEditing = e.row.isEditing,
+                        $links = e.cellElement.find(".dx-link");
+
+                    $links.text("");
+                    $links.css('text-decoration', 'none').css('font-size', '18px').css('margin', '0 3px');
+
+                    if (isEditing) {
+                        $links.filter(".dx-link-save").addClass("dx-icon-save");
+                        $links.filter(".dx-link-cancel").addClass("dx-icon-revert");
+                    } else {
+                        $links.filter(".dx-link-add").addClass("dx-icon-add");
+                        $links.filter(".dx-link-edit").addClass("dx-icon-edit");
+                        $links.filter(".dx-link-delete").addClass("dx-icon-trash");
+                    }
+                });
+            }
+        }
+    }
+
+    function translatorContentReady(e) {
+        var ui = e.component;
+        ui.columnOption("command:edit", {
+            visibleIndex: -1,
+            width: 50
+        });
+    }
+</script>

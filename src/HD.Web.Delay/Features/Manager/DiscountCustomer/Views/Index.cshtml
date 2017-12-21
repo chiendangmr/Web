@@ -1,0 +1,160 @@
+﻿@{
+    ViewBag.Title = Localizer["Customer discount"].Value;
+    Layout = "_Manager_Layout";
+}
+@inject ICustomerViewService _customerViewService
+@inject IGetTypeService _getTypeService
+@{
+	var customerSelectItems = await _customerViewService.GetCustomerCodeAndNameListItemAsync();
+	var customerTypeSelectItems = await _customerViewService.GetCustomerTypeSelectListItemAsync();
+}
+<div class="panel panel-flex panel-default">
+    <div class="panel-heading">
+        <div class="dashhead">
+            <div class="dashhead-titles">
+                <div class="dashhead-title">
+                    <h2> @ViewBag.Title </h2>
+                </div>
+            </div>
+            <div class="dashhead-toolbar btn-toolbar">
+				<button class="btn btn-primary-outline create"> <span class="icon icon-plus"></span> @Localizer["Create"]  </button>
+            </div>
+        </div>
+		<div class="flextable table-actions">
+			<div class="flextable-item flextable-primary">
+				<div class="btn-toolbar-item input-with-icon" style="width: 70%; max-width: 600px;">
+					<span class="icon icon-search"></span>
+					<select type="search" id="filterText" data-bind="value: customerId,
+							event: {change: onFilterTextChange, keyup: onFilterTextKeyUp,blur: onFilterTextBlur}" asp-items="customerSelectItems" class="form-control input-block " placeholder="@Localizer["Search..."]">
+						<option value="">@Localizer["Choose customer..."]</option>
+					</select>
+					<datalist id="customers">
+						<select name="customers" asp-items="customerSelectItems"></select>
+					</datalist>
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="clearFilter" data-bind="click: onClearFilterClick" class="btn btn-primary-outline"><span class="icon icon-erase"></span></button>
+				</div>
+			</div>
+			<div class="flextable-item">
+				<div class="checkbox custom-control custom-checkbox">
+					<label>
+						<input id="filterDisabled" type="checkbox" class="form-control">
+						<span class="custom-control-indicator"></span>
+						@Localizer["Include Disabled"]
+					</label>
+				</div>
+			</div>
+		</div>
+    </div>
+    <div class="panel-body">
+        <div id="grid"></div>
+    </div>
+</div>
+
+
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+
+
+<script id="edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete"><span class="icon icon-action-delete"></span> @Localizer["Delete"]</button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit"><span class="icon icon-action-edit"></span> @Localizer["Edit"]</button>
+	</div>
+</script>
+
+<script id="customer-name-template" type="text/x-kendo-template">
+	#= code# <span> / </span> #= name#
+</script>
+<script>
+    require(['module/customer-discount', 'knockout'], function (module, ko) {
+    	module.init({
+        	url: {
+        		controller: "DiscountCustomer",
+        		getAll: "GetAllDiscountCustomer",
+        	},
+        	data: {
+        		customerId: $("#filterText").val(),
+        	},
+        	model: {
+        		id: 'Id',
+        		fields: {
+        			startDate: { field: "StartDate", type: "date" },
+        			endDate: { field: "EndDate", type: "date" },
+        			rate: { field: "Rate", type: "number" },
+        			description: { field: "Description", type: "text" },
+        		},
+        	},
+            columns: [
+				{
+					field: 'startDate', title: "@Localizer["Start Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.startDate });
+					}
+				},
+				{
+					field: 'endDate', title: "@Localizer["End Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.endDate });
+					}
+				},
+				{ field: 'rate' , title: "@Localizer["Rate"]"},
+				{ field: 'description', title: "@Localizer["Description"]" },
+				{
+					field: "",
+					title: "@Localizer["edit"]",
+					template: kendo.template($("#edit-template").html()),
+					width: "160px",
+				}
+
+            ]
+    	});
+
+
+    	var viewModel = {
+    		customerId: ko.observable(""),
+    		onFilterTextKeyUp: function (d, e) {
+    			var _this = this;
+    			if (e.keyCode == 13) {
+    				_this.onChange(_this.customerId());
+    				return false; // ignore default event
+    			}
+    			return false;
+    		},
+    		onFilterTextBlur: function (d, e) {
+    			var _this = this;
+    	//		_this.onChange(_this.customerId());
+    			return false; // ignore default event
+    		},
+    		onClearFilterClick: function (d, e) {
+    			var _this = this;
+    			_this.customerId("");
+    			_this.onChange(_this.customerId());
+    		},
+    		onFilterTextChange: function (d, e) {
+    			var _this = this;
+    			_this.onChange(_this.customerId());
+    		},
+    		onChange: function (customerId) {
+    			search(customerId);
+    			$('button.create').attr("data-link", "Manager/DiscountCustomer/Create/" + customerId);
+    		},
+    	};
+
+    	ko.applyBindings(viewModel);
+    });
+
+	function search(customerId) {
+		var grid = $("#grid").data("kendoGrid");
+		var dataSource = grid.dataSource;
+		dataSource.read({
+			customerId: customerId,
+		});
+	};
+</script>

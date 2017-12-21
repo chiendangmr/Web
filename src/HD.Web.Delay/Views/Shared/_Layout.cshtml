@@ -1,0 +1,173 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using HD.TVAD.Infrastructure.Identity
+@using HD.TVAD.Web.Models
+@using HD.TVAD.Entities.Entities.Security
+@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+
+@inject SignInManager<User> SignInManager
+<!DOCTYPE html>
+@{
+    var culture = @System.Globalization.CultureInfo.CurrentUICulture.Name;
+}
+<html style="" lang="@culture">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @{
+        string title = string.IsNullOrWhiteSpace(ViewData["Title"] as string) ? "" : (ViewData["Title"] as string) + " - ";
+    }
+    <title>@(title)Advertising</title>
+    <base href="/" />
+    <link rel="icon" href="/favicon.ico?" />
+
+    @* Kendo UI Style *@
+    @{
+        bool getFromSession = false;
+        string theme = Context.Request.Query["theme"];
+        if (string.IsNullOrWhiteSpace(theme))
+        {
+            theme = ViewData["Theme"] as string;
+            if (string.IsNullOrWhiteSpace(theme))
+            {
+                byte[] themeData;
+                if (Context.Session.TryGetValue("Theme", out themeData))
+                {
+                    theme = System.Text.Encoding.UTF8.GetString(themeData);
+                    getFromSession = true;
+                }
+            }
+        }
+        if (string.IsNullOrWhiteSpace(theme))
+        {
+            theme = "toolkit-inverse";
+        }
+        if (!getFromSession)
+        {
+            byte[] themeData = System.Text.Encoding.UTF8.GetBytes(theme);
+            Context.Session.Set("Theme", themeData);
+        }
+        ViewData["Theme"] = theme;
+
+        var navClassName = "";
+        var backgroundColor = "#efefef";
+        if (theme == "toolkit-inverse")
+        {
+            navClassName = "navbar-inverse";
+            backgroundColor = "#252830";
+        }
+    }
+    <link rel="stylesheet" href="~/lib/kendo/styles/kendo.common-@(theme).min.css" async />
+    <link rel="stylesheet" href="~/lib/kendo/styles/kendo.@(theme).min.css" async />
+    <link rel="stylesheet" href="~/lib/kendo/styles/kendo.@(theme).mobile.min.css" async />
+
+    <link rel="stylesheet" href="~/lib/dashboard/dist/@(theme).min.css" id="dashboard-css" media="all" async />
+    <link rel="stylesheet" href="~/css/kendo.@(theme).css" />
+    <link rel="stylesheet" href="~/css/station-@(theme).css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/site-small.css" />
+
+    <link rel="stylesheet" href="~/lib/flag-icon-css/css/flag-icon.min.css" async />
+
+    <link href="~/lib/devextreme/css/dx.common.css" rel="stylesheet" />
+    <link href="~/lib/devextreme/css/dx.spa.css" rel="stylesheet" />
+    @{
+        string devtheme = "dark.hd";
+        if (theme == "toolkit-light")
+        {
+            devtheme = "light";
+        }
+        string themeName = "generic." + devtheme;
+    }
+    <link rel="stylesheet" href="~/lib/devextreme/css/dx.@(devtheme).css" />
+
+    @Html.Raw(JavaScriptSnippet.FullScript)
+
+    <script src="~/lib/requirejs/require.js"></script>
+    <script src="~/js/config.js"></script>
+    <script>
+        require(['hd']);
+    </script>
+    <script src="~/js/site.js"></script>
+
+    <script>
+        var devextremeLocalizers = null;
+        function getDevextremeLocalizer(str) {
+            if (!devextremeLocalizers) {
+                devextremeLocalizers = {};
+                $.ajax({
+                    url: "@Url.Content("~/Home/Devextreme/GetAllLocalizer")",
+                    async: false,
+                    success: function (res) {
+                        devextremeLocalizers = res;
+                    }
+                });
+            }
+            var ret = devextremeLocalizers[str];
+            if (!ret) {
+                ret = str;
+                devextremeLocalizers[str] = str;
+                var isDev = "@_env.IsDevelopment()" == "True" ? true : false;
+                if (isDev) {
+                    $.ajax({
+                        url: "@Url.Content("~/Home/Devextreme/Localizer")",
+                        async: false,
+                        data: { text: str }
+                    });
+                }
+            }
+            return ret;
+        };
+    </script>
+</head>
+<body class="" style="background-color: @backgroundColor">
+    <nav class="navbar @navClassName navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#"><img src="~/images/ico-tvad.png" /></a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    @Html.Partial("_MenuPartial")
+                }
+
+                @Html.Partial("_LoginPartial")
+                @Html.Partial("_NotifiPartial")
+                @Html.Partial("_TopThemePartial")
+                @Html.Partial("_LanguagePartial")
+            </div>
+
+        </div>
+    </nav>
+
+    <div class="container-fluid content" style="width:100%;overflow-x:hidden;">
+        @RenderBody()
+    </div>
+
+    <span id="notification" style="display:none;"></span>
+
+    @Html.Partial("_KendoTemplate")
+    @Html.Partial("_CommonDOM")
+    @*<footer class="footer @navClassName navbar-fixed-bottom">
+            <div class="hidden-xs hidden-sm hidden-print" style="width:auto">
+                <vc:culture-select></vc:culture-select>
+            </div>
+            <div class="text-center">
+                <span class="text-muted credit">&copy;HD TVAD - @Localizer["Powered by"] HDVietNam</span>
+                <a asp-area="" asp-controller="Home" asp-action="Subscribe">@Localizer["Subscribe"]</a>
+            </div>
+            <div class="pull-right" style="width:auto">
+                @Html.Partial("_ThemeSelectPartial")
+            </div>
+        </footer>*@
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>

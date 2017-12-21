@@ -1,0 +1,71 @@
+﻿@{
+    Layout = "_Layout";
+}
+@{
+    bool getFromSession = false;
+    string theme = Context.Request.Query["theme"];
+    if (string.IsNullOrWhiteSpace(theme))
+    {
+        theme = ViewData["Theme"] as string;
+        if (string.IsNullOrWhiteSpace(theme))
+        {
+            byte[] themeData;
+            if (Context.Session.TryGetValue("Theme", out themeData))
+            {
+                theme = System.Text.Encoding.UTF8.GetString(themeData);
+                getFromSession = true;
+            }
+        }
+    }
+    if (string.IsNullOrWhiteSpace(theme))
+    {
+        theme = "toolkit-inverse";
+    }
+    if (!getFromSession)
+    {
+        byte[] themeData = System.Text.Encoding.UTF8.GetBytes(theme);
+        Context.Session.Set("Theme", themeData);
+    }
+    ViewData["Theme"] = theme;
+
+    string reportTheme = "dark-hd.min";
+    if (theme == "toolkit-light")
+    {
+        reportTheme = "light.min";
+    }
+    var reportThemeName = "web-document-viewer-" + reportTheme;
+}
+<link rel="stylesheet" href="~/lib/xtrareportsjs/css/@(reportThemeName).css" />
+<script type="text/html" src="~/lib/xtrareportsjs/html/web-document-viewer.html"></script>
+
+@*<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+
+<script src="~/lib/jquery-ui/jquery-ui.js" asp-fallback-test="window.jQuery.ui"></script>
+
+<script src="~/lib/knockout/dist/knockout.js" asp-fallback-test="window.ko"></script>
+
+<script src="~/lib/devextreme/js/cldr.min.js"></script>
+<script src="~/lib/devextreme/js/cldr/event.min.js"></script>
+<script src="~/lib/devextreme/js/cldr/supplemental.min.js"></script>
+<script src="~/lib/devextreme/js/cldr/unresolved.min.js"></script>
+
+<script src="~/lib/devextreme/js/globalize.min.js"></script>
+<script src="~/lib/devextreme/js/globalize/number.min.js"></script>
+<script src="~/lib/devextreme/js/globalize/currency.min.js"></script>
+<script src="~/lib/devextreme/js/globalize/date.min.js"></script>
+
+<script src="~/lib/devextreme/js/dx.all.js"></script>
+
+<script src="~/lib/devextreme-aspnet-data/js/dx.aspnet.data.js"></script>
+<script src="~/lib/devextreme/js/aspnet/dx.aspnet.mvc.js"></script>
+
+<script src="~/lib/xtrareportsjs/js/dx-designer.js"></script>
+<script src="~/lib/xtrareportsjs/js/web-document-viewer.js"></script>*@
+@*<script src="~/lib/xtrareportsjs/js/localization/web-document-viewer.en.js"></script>*@
+<style>
+    #reportViewerContainer {
+        width: 100%;
+    }
+</style>
+@RenderBody()

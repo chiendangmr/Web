@@ -1,0 +1,128 @@
+﻿@{
+	Layout = null;
+}
+@model SpotBookingViewModel
+@inject ITimeBandViewService _timeBandViewService
+@{
+	var timeBandSelectItems = await _timeBandViewService.GetSelectListItemAsync();
+	var timeBandSliceSelectItems = await _timeBandViewService.GetTimeBandSliceSelectItemsListAsync(Model.TimeBandId);
+}
+<form id="edit-spotBooking-modal-form" asp-area="Manager" asp-controller="SpotBooking" asp-action="Edit" method="post" enctype="multipart/form-data" class="form-horizontal">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4>@Localizer["Edit booking"]</h4>
+	</div>
+	<div class="modal-body">
+			<input type="hidden" asp-for="Id" />
+			<input type="hidden" asp-for="AnnexContractAssetId"/>
+			<div class="form-group">
+				<div class="col-md-4 control-label">
+					<label asp-for="BroadcastDate"></label>
+				</div>
+				<div class="col-md-8">
+					<input asp-for="BroadcastDate" disabled class="form-control BroadcastDate" type="date" placeholder="" />
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-md-4 control-label">
+					<label asp-for="TimeBandId"></label>
+				</div>
+				<div class="col-md-8">
+					<select asp-items="timeBandSelectItems" disabled class="form-control TimeBandId" asp-for="TimeBandId">
+						<option value=""> @Localizer["Choose..."] </option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-md-4 control-label">
+					<label asp-for="TimeBandSliceId"></label>
+				</div>
+				<div class="col-md-8">
+					<select class="form-control TimeBandSliceId" disabled asp-for="TimeBandSliceId" asp-items="timeBandSliceSelectItems" >
+						<option value="">@Localizer["Choose..."] </option>
+					</select>
+					<span asp-validation-for="TimeBandSliceId"></span>
+				</div>
+			</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<div class="checkbox-inline custom-checkbox custom-control">
+					<label>
+						<input type="checkbox" data-bind="checked: isPositionCost, event: {change: onIsPositionCostChange}" asp-for="IsPositionCost" />
+						<span class="custom-control-indicator"></span>
+						<span class="control-label">@Localizer["Position"]</span>
+					</label>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<input class="form-control" data-bind="enable: enablePositionInput, value: position" type="number" asp-for="Position" />
+			</div>
+
+		</div>
+		</div>
+
+		<div class="modal-footer">
+			<div class="col-md-12 text-center">
+				<button id="submit" type="submit" value="" class="btn btn-primary"><span class="icon icon-action-save"></span> @Localizer["Save"] </button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-action-back"></span> @Localizer["Back"]</button>
+			</div>
+		</div>
+</form>
+
+<script>
+	require(['module/manager'], function (manager) {
+		manager.common.submitForm.init({
+			formId: 'edit-spotBooking-modal-form',
+			responseCallback: function (response) {
+				console.log(response);
+				if (typeof response == 'object') {
+					if (response.result == "OK") {
+						$("#modal").modal("hide");
+						notification.show(response.message);
+
+						var grid = $("#grid-spotBooking").data('kendoGrid');
+						if (grid) {
+							if (response.id != "00000000-0000-0000-0000-000000000000")
+								grid.options.settings.dataItemId = response.id;
+							else
+								if (response.data)
+									grid.options.settings.dataItemId = response.data.Id;
+
+							grid.dataSource.read();
+						}
+					}
+					else {
+						alert(response.message);
+					}
+				}
+				else {
+					alert(response);
+				}
+			}
+		});
+	});
+
+
+	require(['jquery', 'knockout'], function ($, ko) {
+
+		var timebandSliceOption = function (id, name) {
+			this.name = name;
+			this.id = id;
+		};
+		var addBookingViewModel = {
+			isPositionCost: ko.observable(@Model.IsPositionCost.ToString().ToLower()),
+			enablePositionInput: ko.observable(@Model.IsPositionCost.ToString().ToLower()),
+			position: ko.observable("@Model.Position.ToString()"),
+			onIsPositionCostChange: function (data, event) {
+				var _this = this;
+				console.log(event);
+				var checked = event.target.checked;
+				_this.enablePositionInput(checked);
+				_this.position("");
+			},
+		};
+		ko.applyBindings(addBookingViewModel, $("#edit-spotBooking-form")[0]);
+
+	});
+</script>
+

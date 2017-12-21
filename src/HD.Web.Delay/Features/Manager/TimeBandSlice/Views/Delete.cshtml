@@ -1,0 +1,41 @@
+﻿@{
+	Layout = null;
+}
+@model TimeBandSliceDeleteViewModel
+
+
+
+<form id="delete-timeband-form" asp-area="Manager" asp-controller="TimeBandSlice" asp-action="Delete" method="post" enctype="multipart/form-data" class="form-horizontal">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	</div>
+	<div class="modal-body">
+
+		<h3 class="text-center text-danger"> @ViewBag.Message</h3>
+
+		<input type="hidden" asp-for="Id" />
+
+		<div class="h4 text-center"> @Localizer["Delete this timeband slice?"]</div>
+
+		<div class="modal-footer">
+			<div class="text-center">
+				<button id="submit" type="submit" value="" class="btn btn-danger" onclick=""><span class="icon icon-trash"></span> @Localizer["Delete"]  </button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-back"></span> @Localizer["Back"] </button>
+			</div>
+		</div>
+
+	</div>
+</form>
+
+
+
+<script>
+    require(['module/manager'], function (manager) {
+        manager.common.submitForm.init({
+        	formId: 'delete-timeband-form',
+        });
+    });
+</script>
+
+
+

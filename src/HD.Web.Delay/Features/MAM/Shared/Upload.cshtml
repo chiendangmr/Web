@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = @Localizer["Upload Result"].Value;
+    Layout = "_Content_Layout";
+}
+
+@model HD.TVAD.Web.Models.JsonResultViewModel
+
+@{
+    var lstOk = new List<Md5Obj>();
+    var lstFail = new List<Md5Obj>();
+    foreach (var temp in Model.Md5Str)
+    {
+        if (temp.Md5Code == Model.Md5Client.Find(a => a.FileName == temp.FileName).Md5Code)
+        {
+            lstOk.Add(temp);
+        }
+        else { lstFail.Add(temp); }
+    }
+    var okStr = "";
+    if (lstOk.Count == 0) { okStr = "None"; }
+    else
+    {
+        foreach (var temp in lstOk)
+        {
+            okStr += "File: "+ temp.FileName + " - Md5 Code: " + temp.Md5Code + "\n\n";
+        }
+    }
+    var failStr = "";
+    if (lstFail.Count == 0) { failStr = "None"; }
+    else
+    {
+        foreach (var temp in lstFail)
+        {
+            failStr += temp.FileName + " - Md5 Code Different between Server and Client" + "\n\n";
+        }
+    }
+}
+
+<form>
+    <div class="row">
+        <div class="text-center" style="margin-top: 10px">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div>Upload Result: @Model.Result</div>
+                    <div>Upload Message: @Model.Message</div>
+                    <div class="container-flex">
+                        <div class="flex flex-1">
+                            <div>File Upload Ok: </div>
+                            <div class="form-group" style="height:500px;">
+                                <div class="col-sm-12" style="height:100%;">
+                                    <textarea class="form-control" style="height:100%;" readonly>@okStr</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-1">
+                            <div>Fail Upload Fail: </div>
+                            <div class="form-group" style="height:500px;">
+                                <div class="col-sm-12" style="height:100%;">
+                                    <textarea class="form-control" style="height:100%;" readonly>@failStr</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <span class="icon icon-action-back"></span><a href="/MAM/Content">Back</a>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+
+</script>

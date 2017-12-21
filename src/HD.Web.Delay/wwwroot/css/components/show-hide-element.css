@@ -1,0 +1,24 @@
+﻿#arrow {
+    top: 25%; /* change this value to place the menu higher or lower */
+    left:0;
+    position: fixed;
+    z-index: 100;
+}
+
+.show, .hiden {
+    /* we specify the transition length for hiding and showing */
+    transition: margin-left .4s ease-in;
+    -webkit-transition: margin-left .4s ease-in;
+}
+
+.hiden {
+    margin-left: -100px;
+}
+
+.show {
+    margin-left: 0;
+}
+
+#arrow{
+    cursor: pointer;
+}

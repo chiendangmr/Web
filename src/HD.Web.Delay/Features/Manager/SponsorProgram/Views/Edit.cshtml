@@ -1,0 +1,99 @@
+﻿@{
+	Layout = null;
+}
+@model SponsorProgramViewModel
+@inject ISponsorProgramViewService _sponsorProgramViewService
+@{
+	var sponorProgramSelectItems = await _sponsorProgramViewService.GetCodeAndNameSelectListItemAsync();
+	var defaultContractTypeSelectItems = await _sponsorProgramViewService.GetContractTypeSelectListItemAsync();
+}
+<form id="create-form" asp-area="Manager" asp-controller="SponsorProgram" asp-action="Edit" method="post" enctype="multipart/form-data" class="form-horizontal">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">@Localizer["Edit Program"] </h4>
+	</div>
+	<div class="modal-body">
+		<h3 class="text-center text-danger"> @ViewBag.Message</h3>
+		<input asp-for="Id" type="hidden"/>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="ParentId"></label>
+			</div>
+			<div class="col-md-8">
+				<select asp-for="ParentId" class="form-control" asp-items="sponorProgramSelectItems">
+					<option value="">@Localizer["None"]</option>
+				</select>
+				<span asp-validation-for="ParentId" class="text-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="DefaultContractTypeId"></label>
+			</div>
+			<div class="col-md-8">
+				<select asp-for="DefaultContractTypeId" class="form-control" asp-items="defaultContractTypeSelectItems">
+					<option value="">@Localizer["Choose..."]</option>
+				</select>
+				<span asp-validation-for="DefaultContractTypeId" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="Code"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Code" class="form-control" type="text"/>
+				<span asp-validation-for="Code" class="text-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="Name"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Name" class="form-control" type="text" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="Description"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Description" class="form-control" type="text" />
+				<span asp-validation-for="Description" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="EndDate"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="EndDate" class="form-control" type="date" />
+				<span asp-validation-for="EndDate" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<div class="text-center">
+				<button id="submit" type="submit" value="" class="btn btn-primary"><span class="icon icon-save"></span> @Localizer["Save"]  </button>
+				<button type="button" class="btn btn-default" data-dismiss="modal"><span class="icon icon-back"></span> @Localizer["Back"] </button>
+			</div>
+		</div>
+
+	</div>
+</form>
+
+
+<script>
+    require(['module/manager'], function (manager) {
+        manager.common.submitForm.init({
+            formId: 'create-form',
+        });
+    });
+</script>
+
+
+

@@ -1,0 +1,55 @@
+﻿@using HD.TVAD.Web.Views.Shared.Components.CultureSelect
+
+@model CultureSelectViewModel
+
+<div id="@Model.Id"></div>
+
+<script>
+    require(["jquery"], function ($) {
+        require(["devextreme-aspnet-data/js/dx.aspnet.data"], function (dxData) {
+            require(["devextreme/js/aspnet/dx.aspnet.mvc"], function () {
+                $("#@Model.Id").dxMenu({ "dataSource": getLanguageData, "onItemClick": onLanguageClick });
+            });
+        });
+    });
+    var getLanguageData = {
+        load: function () {
+            var subMenus = [];
+            @foreach (var culture in Model.SupportedCulture)
+            {
+                if (culture.Culture != Model.CurentCulture.Culture)
+                {
+                    <text>subMenus.push({ "icon": "/lib/flag-icon-css/flags/" + "@culture.RegionCode" + ".svg", "text": "@culture.RegionCode", "lang": "@culture.Culture" });</text>
+                }
+            }
+
+            var menus = [];
+            menus.push({ "icon": "/lib/flag-icon-css/flags/" + "@Model.CurentCulture.RegionCode" + ".svg", "text": "@Model.CurentCulture.RegionCode", "items": subMenus });
+            return menus;
+        }
+    }
+
+	function onLanguageClick(e) {
+		if (e.itemData.lang) {
+            require(["jquery"], function ($) {
+                var lang = e.itemData.lang;
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Content("~/home/auth/setLanguage")',
+                    dataType: "json",
+                    data: JSON.stringify({
+                        culture: lang
+                    }),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (e) {
+                        DevExpress.ui.notify('@Localizer["Change language success."]');
+                        window.location.reload();
+                    },
+                    error: function (e) {
+                        DevExpress.ui.notify('@Localizer["Could not change language."]');
+                    }
+                });
+            });
+        }
+    }
+</script>

@@ -1,0 +1,91 @@
+﻿@{
+	Layout = null;
+}
+@model PositionRateCreateViewModel
+@inject ITimeBandViewService _timeBandViewService
+@{
+	var timeBandSelectItems = await _timeBandViewService.GetSelectListItemAsync();
+}
+<form id="create-form" asp-area="Manager" asp-controller="PositionRate" asp-action="Create" method="post" enctype="multipart/form-data" class="form-horizontal">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">@Localizer["Create"]</h4>
+	</div>
+	<div class="modal-body">
+
+		<h3 class="text-center text-danger"> @ViewBag.Message</h3>
+			<div class="form-group">
+				<div class="col-md-4 control-label">
+					<label asp-for="TimeBandId"></label>
+				</div>
+				<div class="col-md-8">
+					<select asp-for="TimeBandId" class="form-control" asp-items="timeBandSelectItems">
+						<option value="">@Localizer["None"]</option>
+					</select>
+					<span asp-validation-for="TimeBandId" class="text-danger"></span>
+				</div>
+			</div>
+
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="StartDate"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="StartDate" class="form-control" type="date" />
+				<span asp-validation-for="StartDate" class="text-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<div class="checkbox-inline custom-checkbox custom-control">
+					<label>
+						<input type='checkbox' data-bind="checked: hasEndDate" />
+						<span class="custom-control-indicator"></span>
+						<span class="control-label">
+							@Localizer["End Date"]
+						</span>
+					</label>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="EndDate" class="form-control" data-bind="enable: hasEndDate" type="date" />
+				<span asp-validation-for="EndDate" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="Rate"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Rate" class="form-control" type="number" />
+				<span asp-validation-for="Rate" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<div class="text-center">
+				<button id="submit" type="submit" value="" class="btn btn-primary" onclick=""><span class="icon icon-action-create"></span> @Localizer["Create"] </button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-action-back"></span> @Localizer["Back"] </button>
+			</div>
+		</div>
+
+	</div>
+</form>
+
+
+<script>
+    require(['module/manager', 'knockout'], function (manager, ko) {
+        manager.common.submitForm.init({
+            formId: 'create-form',
+        });
+
+        var viewModel = {
+        	hasEndDate: ko.observable(false)
+        };
+
+        ko.applyBindings(viewModel, $("div.modal-body")[0]);
+        });
+</script>
+
+
+

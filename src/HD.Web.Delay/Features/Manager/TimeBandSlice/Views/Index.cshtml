@@ -1,0 +1,81 @@
+﻿@model TimeBandSliceIndexViewModel
+@{
+	Layout = null;
+}
+
+<div class="container-vertical-flex">
+	<div class="flex flex-0">
+		<span class="h4">@Localizer["TimeBand"]: @Model.TimeBandName</span>
+		<button class="btn btn-sm btn-primary-outline create timeBandSlice pull-right"> <span class="icon icon-plus"></span> @Localizer["Add"] </button>
+	</div>
+	<div class="flex flex-2">
+		<div id="grid-timeBandSlice"></div>
+	</div>
+	<div id="timeBandSliceDetailPanel" class="flex flex-3">
+	</div>
+</div>
+<script id="edit-timeBandSlice-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete timeBandSlice"> @Localizer["Delete"]</button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit timeBandSlice"> @Localizer["Edit"]</button>
+	</div>
+</script>
+<script>
+
+	require(['module/timeband-slice'], function (module) {
+		module.init({
+			url: {
+				controller: "TimeBandSlice",
+				getAll: "GetAllTimeBandSliceByTimeBandId",
+				id: "@Model.TimeBandId"
+			},
+			DOMclass: {
+				entity: '.timeBandSlice',
+			},
+			data: { timeBandId: "@Model.TimeBandId" },
+			DOMid: {
+				grid: 'grid-timeBandSlice',
+			},
+			model: {
+				id: 'Id',
+				fields: {
+					name: { field: "Name", type: "text" },
+					nameForSort: { field: "NameForSort", type: "text" },
+					description: { field: "Description", type: "text" },
+					maxDuration: { field: "MaxDuration", type: "number" },
+				},
+			},
+			sort: [
+				{ field: 'nameForSort', dir: 'asc' }
+			],
+			columns: [
+				{
+					field: "nameForSort", title: "@Localizer["TimeBand"]",
+					width: "60px",
+					template: "#=name#",
+				},
+				{ field: "description", title: "@Localizer["Description"]", },
+				{
+					field: "maxDuration", title: "@Localizer["Max Duration"]",
+					width: "80px",
+				},
+				{
+					field: "",
+					title: "@Localizer["Edit"]",
+					template: kendo.template($("#edit-timeBandSlice-template").html()),
+					width: "160px",
+				}
+			],
+			function: {
+				onChange: function (arg) {
+
+					var grid = arg.sender;
+					var selected = grid.dataItem(this.select());
+					$("#timeBandSliceDetailPanel").load("Manager/TimeBandSlice/" + "Detail/" + selected.id);
+				}
+			}
+		});
+	});
+
+
+</script>

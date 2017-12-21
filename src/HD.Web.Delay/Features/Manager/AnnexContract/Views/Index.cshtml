@@ -1,0 +1,401 @@
+﻿@using HD.TVAD.ApplicationCore.Entities.Booking
+@using HD.TVAD.ApplicationCore.Entities.ContractSchema
+@{
+	ViewBag.Title = @Localizer["Annex contract"].Value;
+	Layout = "_Layout";
+}
+@model AnnexContractIndexViewModel
+@inject IAnnexContractViewService _annexContractViewService
+@inject ICustomerViewService _customerViewService
+@{
+//	var customerNameList = await _customerViewService.GetNameListAsync();
+//	var annexContractCodeList = await _annexContractViewService.GetCodeListAsync();
+	var customerTypeSelectItems = await _customerViewService.GetCustomerTypeSelectListItemAsync();
+}
+@functions {
+
+	public static string getIconBookingType(BookingTypeEnum bookingType)
+	{
+		var iconBookingType = "";
+		switch (bookingType)
+		{
+			case BookingTypeEnum.Contract_Booking:
+				iconBookingType = "<span class='label label-default'>No</span>";
+				break;
+			case BookingTypeEnum.Contract_Sponsor_InProgram:
+				iconBookingType = "<span class='label label-info'>In&ensp;</span>";
+				break;
+			case BookingTypeEnum.Contract_Sponsor_OutProgram:
+				iconBookingType = "<span class='label label-primary'>Out</span>";
+				break;
+			case BookingTypeEnum.Contract_Sponsor_Trailer:
+				iconBookingType = "<span class='label label-warning'>Tr&ensp;</span>";
+				break;
+			case BookingTypeEnum.Contract_Sponsor_Benefit:
+				iconBookingType = "<span class='label label-danger'>Be&ensp;</span>";
+				break;
+			case BookingTypeEnum.Retail:
+				iconBookingType = "<span class='label label-success'>Re&ensp;</span>";
+				break;
+			default:
+				break;
+		}
+		return iconBookingType;
+
+	}
+}
+<div class="panel panel-flex panel-default">
+	<div class="panel-heading">
+		<div class="dashhead">
+			<div class="dashhead-titles">
+				<div class="dashhead-title">
+					<h2>@ViewBag.Title</h2>
+				</div>
+			</div>
+			<div class="dashhead-toolbar btn-toolbar">
+				@*<button id="btn-create" class="btn btn-primary-outline create"> <span class="icon icon-plus"></span> @Localizer["Create"] </button>*@
+			</div>
+		</div>
+		<div class="flextable table-actions">
+			<div class="flextable-item flextable-primary">
+				<div class="btn-toolbar-item input-with-icon" style="width: 70%; max-width: 600px;">
+					<span class="icon icon-search"></span>
+					<input type="search" data-bind="value: filterText, event: {keyup: onFilterTextKeyUp,blur: onFilterTextBlur}" id="filterText" list="items" class="form-control input-block " placeholder="@Localizer["Search..."]" />
+					<datalist id="items">
+					</datalist>
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="clearFilter" data-bind="click: onClearFilterClick" class="btn btn-primary-outline"><span class="icon icon-erase"></span></button>
+				</div>
+				<div style="padding: 5px">
+					<div class="radio-inline custom-control custom-radio">
+						<label>
+							<input type="radio" data-bind="checked: bookingTypeId, click: onBookingTypeChooseClick" value="@((int)BookingTypeEnum.All)" name="BookingTypeId" class="form-control">
+							<span class="custom-control-indicator"></span><span class='label label-default'>All</span>
+							@Localizer[(BookingTypeEnum.All.GetDisplayName())]
+						</label>
+					</div>
+					<div class="radio-inline custom-control custom-radio">
+						<label>
+							<input type="radio" data-bind="checked: bookingTypeId, click: onBookingTypeChooseClick" name="BookingTypeId" value="@((int)BookingTypeEnum.Contract_Booking)" class="form-control">
+							<span class="custom-control-indicator"></span>@Html.Raw(getIconBookingType(BookingTypeEnum.Contract_Booking))
+							@Localizer[(BookingTypeEnum.Contract_Booking.GetDisplayName())]
+						</label>
+					</div>
+					<div class="radio-inline custom-control custom-radio">
+						<label>
+							<input  value="@((int)BookingTypeEnum.Contract_Sponsor_InProgram)" data-bind="checked: bookingTypeId, click: onBookingTypeChooseClick" name="BookingTypeId" type="radio" name="BookingTypeId" class="form-control">
+							<span class="custom-control-indicator"></span>@Html.Raw(getIconBookingType(BookingTypeEnum.Contract_Sponsor_InProgram))
+							@Localizer[(BookingTypeEnum.Contract_Sponsor_InProgram.GetDisplayName())]
+						</label>
+					</div>
+					<div class="radio-inline custom-control custom-radio">
+						<label>
+							<input value="@((int)BookingTypeEnum.Contract_Sponsor_OutProgram)" data-bind="checked: bookingTypeId, click: onBookingTypeChooseClick" name="BookingTypeId" type="radio" name="BookingTypeId" class="form-control">
+							<span class="custom-control-indicator"></span>@Html.Raw(getIconBookingType(BookingTypeEnum.Contract_Sponsor_OutProgram))
+							@Localizer[(BookingTypeEnum.Contract_Sponsor_OutProgram.GetDisplayName())]
+						</label>
+					</div>
+					<div class="radio-inline custom-control custom-radio">
+						<label>
+							<input value="@((int)BookingTypeEnum.Contract_Sponsor_Trailer)" data-bind="checked: bookingTypeId, click: onBookingTypeChooseClick" name="BookingTypeId" type="radio" name="BookingTypeId" class="form-control">
+							<span class="custom-control-indicator"></span>@Html.Raw(getIconBookingType(BookingTypeEnum.Contract_Sponsor_Trailer))
+							@Localizer[(BookingTypeEnum.Contract_Sponsor_Trailer.GetDisplayName())]
+						</label>
+					</div>
+					<div class="radio-inline custom-control custom-radio">
+						<label>
+							<input value="@((int)BookingTypeEnum.Contract_Sponsor_Benefit)" data-bind="checked: bookingTypeId, click: onBookingTypeChooseClick" name="BookingTypeId" type="radio" name="BookingTypeId" class="form-control">
+							<span class="custom-control-indicator"></span>@Html.Raw(getIconBookingType(BookingTypeEnum.Contract_Sponsor_Benefit))
+							@Localizer[(BookingTypeEnum.Contract_Sponsor_Benefit.GetDisplayName())]
+						</label>
+					</div>
+
+				</div>
+			</div>
+			<div class="flextable-item">
+				<button class="btn btn-primary-outline" data-bind="click: onPrintBtnClick"><span class="icon icon-print"></span> @Localizer["Print"]</button>
+				<button class="btn btn-primary-outline" data-bind="click: onPrintValueBtnClick"><span class="icon icon-print"></span> @Localizer["Print Value"]</button>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body">
+		<div id="grid"></div>
+	</div>
+</div>
+
+
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+		</div>
+	</div>
+</div>
+
+<script id="edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete"><span class="icon icon-action-delete"></span></button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit"><span class="icon icon-action-edit"></span></button>
+		<a href="Manager/SpotBooking/IndexContract/#=id#" target="_blank" data-id="#: id #" class="btn btn-success-outline btn-sm bookings"><span class="icon icon-book"></span> @Localizer["Bookings"]</a>
+		@*<a href="Report/Report/BroadcastCertificate/#=id#" target="_blank" data-id="#: id #" class="btn btn-success-outline btn-sm bookings"><span class="icon icon-print"></span> Print</a>
+		<a href="Report/Report/BroadcastCertificateWithValueContract/#=id#" target="_blank" data-id="#: id #" class="btn btn-success-outline btn-sm bookings"><span class="icon icon-print"></span> Print Value</a>*@
+	</div>
+</script>
+<script id="booking-type-template" type="text/x-kendo-template">
+	#if(type == 7){#
+	<div class="label label-warning">Tr&ensp;</div>
+	#}else{#
+	#if(type == 5){#
+	<div class="label label-info">In&ensp;</div>
+	#}else{#
+	#if(type == 6){#
+	<div class="label label-primary">Out</div>
+	#}else{#
+	#if(type == 3){#
+	<div class="label label-default">No</div>
+	#}else{#
+			#if(type == 8){#
+			<div class="label label-danger">Be</div>
+			#}else{#
+
+			#}#
+	#}#
+	#}#
+	#}#
+	#}#
+</script>
+<script id="sponsor-type-template" type="text/x-kendo-template">
+	#if(type == 1){#
+	<div class="label label-primary">Buy</div>
+	#}else{#
+	#if(type == 2){#
+	<div class="label label-info">Pro</div>
+	#}else{#
+	<span>x</span>
+	#}#
+	#}#
+</script>
+
+<script id="checkbox-template" type="text/x-kendo-template">
+	<div class="checkbox custom-control custom-checkbox">
+		<label>
+			<input type="checkbox" data-id="#=id#">
+			<span class="custom-control-indicator"></span>
+
+		</label>
+	</div>
+</script>
+<script id="checkbox-header-template" type="text/x-kendo-template">
+	<div class="checkbox custom-control custom-checkbox">
+		<label>
+			<input type="checkbox">
+			<span class="custom-control-indicator"></span>
+
+		</label>
+	</div>
+</script>
+
+
+<script>
+	require(['module/manager', 'knockout'], function (manager, ko) {
+
+		var viewModel = {
+			filterText : ko.observable(""),
+			bookingTypeId: ko.observable("@((int)BookingTypeEnum.All)"),
+			onBookingTypeChooseClick: function (e) {
+				var _this = this;
+				var bookingTypeId = parseInt(_this.bookingTypeId().toString());
+				console.log(bookingTypeId);
+				switch (bookingTypeId)
+				{
+					case @((int)BookingTypeEnum.Contract_Booking):
+						break;
+					case @((int)BookingTypeEnum.Contract_Sponsor_InProgram):
+						break;
+					case @((int)BookingTypeEnum.Contract_Sponsor_OutProgram):
+						break;
+					case @((int)BookingTypeEnum.Contract_Sponsor_Trailer):
+						break;
+					case @((int)BookingTypeEnum.Contract_Sponsor_Benefit):
+						break;
+				}
+
+				var grid = $("#grid").data("kendoGrid");
+				var dataSource = grid.dataSource;
+				dataSource.read({
+					bookingTypeId: bookingTypeId
+				});
+				return true;
+			},
+			onFilterTextKeyUp: function(d,e){
+				var _this = this;
+				if (e.keyCode == 13) {
+					search(_this.filterText(), _this.bookingTypeId());
+					return false; // ignore default event
+				}
+				return false;
+			},
+			onFilterTextBlur: function(d,e){
+				var _this = this;
+				search(_this.filterText(), _this.bookingTypeId());
+				return false; // ignore default event
+			},
+			onClearFilterClick: function(d,e){
+				var _this = this;
+				_this.filterText("");
+				_this.bookingTypeId("@((int)BookingTypeEnum.All)");
+				search(_this.filterText(), _this.bookingTypeId());
+			},
+			onPrintBtnClick: function(){
+				var grid = $("#grid").data("kendoGrid");
+				var rowSelect = grid.select();
+				var selectedItem = grid.dataItem(rowSelect);
+				var urlPath = location.origin + '/Report/Report/BroadcastCertificate/' + selectedItem.id;
+							window.open(urlPath,'_blank');
+			},
+			onPrintValueBtnClick: function(){
+				var grid = $("#grid").data("kendoGrid");
+				var rowSelect = grid.select();
+				var selectedItem = grid.dataItem(rowSelect);
+				var urlPath = location.origin + '/Report/Report/BroadcastCertificateWithValueContract/' + selectedItem.id;
+				window.open(urlPath,'_blank');
+			},
+
+		}
+		ko.applyBindings(viewModel);
+
+		function search(filterText, bookingTypeId) {
+			var grid = $("#grid").data("kendoGrid");
+			var dataSource = grid.dataSource;
+			var filter ={
+				logic : 'or',
+				filters : [
+						{ field: "code", operator: "contains", value: filterText },
+						{ field: "customerName", operator: "contains", value: filterText },
+						{ field: "scheduleCampaign", operator: "contains", value: filterText },
+						{ field: "content", operator: "contains", value: filterText }
+				],
+			};
+			dataSource.filter(filter);
+			dataSource.read({
+				bookingTypeId: bookingTypeId
+			});
+		};
+	});
+
+
+</script>
+<script>
+	require(['module/annex-contract', 'knockout'], function (module, ko) {
+		module.init({
+			url: {
+				controller: "AnnexContract",
+				getAll: "GetAllAnnexContract",
+			},
+			model: {
+				id: 'Id',
+				fields: {
+					receiveDate: { field: 'ReceiveDate', type: "date" },
+					signDate: { field: 'SignDate', type: "date" },
+					code: { field: 'Code', type: "text" },
+					customerName: { field: 'CustomerName', type: "text" },
+					bookingTypeName: { field: 'BookingTypeName', type: "text" },
+					bookingTypeId: { field: 'BookingTypeId', type: "number" },
+					sponsorProgramName: { field: 'SponsorProgramName', type: "text" },
+					sponsorTypeName: { field: 'SponsorTypeName', type: "text" },
+					sponsorTypeId: { field: 'SponsorTypeId', type: "number" },
+					scheduleCampaign: { field: 'ScheduleCampaign', type: "text" },
+					content: { field: 'Content', type: "text" },
+				},
+			},
+			data: {
+					customerId: "@Model.CustomerId",
+			},
+			sort: [
+				{ field: 'ReceiveDate', dir: 'desc' }
+			],
+			settings: {
+				//	selectFirstRow: false,
+				serverSorting: true,
+			},
+			columns: [
+				{
+					field: 'id',
+					title: "@Localizer["Select"]",
+					headerTemplate: function () {
+						return kendo.template($("#checkbox-header-template").html())({});
+					},
+					template: function (dataItem) {
+						return kendo.template($("#checkbox-template").html())({ id: dataItem.id });
+					},
+					width: '40px',
+				},
+				{
+					field: 'code',
+					title: "@Localizer["Code"]",
+					width: '60px',
+				},
+				{
+					field: 'customerName',
+					title: "@Localizer["Customer"]",
+					width: '250px',
+				},
+				{
+					field: 'bookingTypeName',
+					title: "@Localizer["Booking Type"]",
+					template: function (dataItem) {
+						return kendo.template($("#booking-type-template").html())({ type: dataItem.bookingTypeId });
+					},
+					width: '60px',
+				},
+				{
+					field: 'sponsorProgramName',
+					title: "@Localizer["Program"]",
+					width: '180px',
+				},
+				{
+					field: 'sponsorTypeName',
+					title: "@Localizer["Sponsor type"]",
+					template: function (dataItem) {
+						return kendo.template($("#sponsor-type-template").html())({ type: dataItem.sponsorTypeId });
+					},
+					width: '80px',
+				},
+				{
+					field: 'receiveDate',
+					title: "@Localizer["Receive Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.receiveDate });
+					},
+					width: '80px',
+				},
+				{
+					field: 'signDate', title: "@Localizer["Sign Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.signDate });
+					},
+					width: '80px',
+				},
+				{
+					field: 'scheduleCampaign',
+					title: "@Localizer["Schedule Campaign"]",
+
+				},
+				{
+					field: 'content',
+					title: "@Localizer["Content"]",
+				},
+				{
+					field: "",
+					title: "@Localizer["edit"]",
+					template: kendo.template($("#edit-template").html()),
+					width: "180px",
+				}
+
+			]
+		});
+
+
+	});
+</script>

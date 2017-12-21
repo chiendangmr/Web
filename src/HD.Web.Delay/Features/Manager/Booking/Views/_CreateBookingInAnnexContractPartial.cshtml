@@ -1,0 +1,340 @@
+﻿@using HD.TVAD.Web.Services
+@using Microsoft.EntityFrameworkCore
+@using HD.TVAD.ApplicationCore.Entities.Booking
+@using HD.TVAD.ApplicationCore.Entities.ContractSchema
+
+@inject ICustomerViewService _customerViewService
+@inject IGetTypeService _getTypeService
+@inject ISponsorProgramViewService _sponsorProgramViewService
+@inject IAnnexContractViewService _annexContractViewService
+@{
+	var sponorProgramSelectItems = await _sponsorProgramViewService.GetCodeAndNameSelectListItemAsync();
+	var bookingTypeSelectItems = await _annexContractViewService.GetBookingTypeSelectListItemAsync();
+	var sponsorTypeSelectItems = await _annexContractViewService.GetSponsorTypeSelectListItemAsync();
+
+	var annexContractSelectItems = await _sponsorProgramViewService.GetContractTypeSelectListItemAsync();
+	var annexContractTypes = await _getTypeService.GetAnnexContractTypes().ToListAsync();
+	var customerSelectItems = await _customerViewService.GetCustomerCodeAndNameListItemAsync();
+	var customerTypeSelectItems = await _customerViewService.GetCustomerTypeSelectListItemAsync();
+//	var codeListItems = await _annexContractViewService.GetCodeListAsync(BookingTypeEnum.Contract_Sponsor_InProgram);
+}
+
+@model AnnexContractViewModel
+
+<form id="create-contract-form" data-bind="submit: onCreateFormSubmit" asp-area="Manager" asp-controller="AnnexContract" asp-action="CreateAnnexContractAPI" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+	<input type="hidden" asp-for="BookingTypeId" value="@((int)BookingTypeEnum.Contract_Sponsor_InProgram)"/>
+	@*<input type="hidden" asp-for="AnnexContractTypeId" value="" />*@
+	<div class="col-md-9">
+		<div class="form-group">
+			<div class="col-md-2 control-label">
+				<label asp-for="CustomerId"></label>
+			</div>
+			<div class="col-md-10">
+				<select asp-for="CustomerId" class="form-control" type="text" asp-items="customerSelectItems" > 
+					</select>
+			</div>
+		</div>
+
+	</div>
+	<div class="col-md-3">
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="SignDate"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="SignDate" class="form-control" type="date" />
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-5">
+		<div class="form-group" data-bind="fadeVisible: sponsorProgramSelectShow">
+			<div class="col-md-4 control-label">
+				<label asp-for="SponsorProgramId"></label>
+			</div>
+			<div class="col-md-8">
+				<select asp-for="SponsorProgramId" data-bind="value: sponsorProgramId, event:{change: onSponsorProgramSelectChange}" class="form-control" asp-items="sponorProgramSelectItems">
+					<option value="">@Localizer["Select sponsor program"]</option>
+				</select>
+				<span asp-validation-for="SponsorProgramId" class="text-danger"></span>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-2">
+		<div class="form-group">
+			<div class="col-md-5 control-label">
+				<label asp-for="AnnexContractTypeId"></label>
+			</div>
+			<div class="col-md-7">
+				<select asp-for="AnnexContractTypeId" class="form-control" data-bind="value: annexContractTypeId, options: AnnexContractTypeSelects,
+								optionsText: 'name',
+								optionsValue: 'id'">
+					<option value="">@Localizer["Choose..."]</option>
+				</select>
+				<span asp-validation-for="AnnexContractTypeId" class="text-danger"></span>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-2">
+		<div class="form-group">
+			<div class="col-md-5 control-label">
+				<label asp-for="SponsorTypeId"></label>
+			</div>
+			<div class="col-md-7">
+				<select asp-for="SponsorTypeId" class="form-control">
+					<option value="@((int)SponsorTypeEnum.Copyright)">@Localizer[(SponsorTypeEnum.Copyright.GetDisplayName())]</option>
+					<option value="@((int)SponsorTypeEnum.Production)">@Localizer[(SponsorTypeEnum.Production.GetDisplayName())]</option>
+				</select>
+				<span asp-validation-for="SponsorTypeId" class="text-danger"></span>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="ReceiveDate"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="ReceiveDate" class="form-control" type="date" />
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<div class="form-group">
+			<div class="col-md-6 control-label">
+				<label asp-for="Code"></label>
+			</div>
+			<div class="col-md-6">
+				<input asp-for="Code" class="form-control" type="text" data-bind="value: code, event: { keyup: onCodeKeyUp}" list="codeItems" />
+				<datalist id="codeItems">
+					<select name="codeItems"></select>
+				</datalist>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-2">
+		<div class="form-group">
+			<div class="col-md-5 control-label">
+				<label asp-for="ScheduleCampaign"></label>
+			</div>
+			<div class="col-md-7">
+				<input asp-for="ScheduleCampaign" class="form-control" type="text" />
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="Content"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Content" class="form-control" type="text" />
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3">
+	</div>
+	<div class="col-md-4">
+		<div class="checkbox-inline custom-checkbox custom-control">
+			<label>
+				<input type="checkbox"/>
+				<span class="custom-control-indicator"></span>
+				@Localizer["Not to list"]
+			</label>
+		</div>
+		<div class="checkbox-inline custom-checkbox custom-control">
+			<label>
+				<input type="checkbox" checked/>
+				<span class="custom-control-indicator"></span>
+				@Localizer["Print with position"]
+			</label>
+		</div>
+		<div class="checkbox-inline custom-checkbox custom-control">
+			<label>
+				<input type="checkbox" />
+				<span class="custom-control-indicator"></span>
+				@Localizer["Not print *"]
+			</label>
+		</div>
+		@*<div class="checkbox-inline custom-checkbox custom-control">
+			<label>
+				<input type="checkbox" />
+				<span class="custom-control-indicator"></span>
+				@Localizer["Print current date"]
+			</label>
+		</div>*@
+	</div>
+	<div class="col-md-8">
+		<button type="button" class="btn btn-primary-outline" data-bind="click: onCreateBtnClick"><span class="icon icon-plus"></span> @Localizer["Create new contract"]</button>
+		<button type="button" class="btn btn-warning-outline" disabled data-bind="click: onSaveBtnClick"><span class="icon icon-action-save"></span> @Localizer["Save change"]</button>
+		<button type="button" class="btn btn-danger-outline" disabled data-bind="click: onDeleteBtnClick"><span class="icon icon-action-delete"></span> @Localizer["Delete contract"]</button>
+		<button type="button" class="btn btn-success-outline" data-bind="click: onManageBtnClick"><span class="icon icon-action-detail"></span> @Localizer["Manage contract"]</button>
+		<button type="button" class="btn btn-primary-outline" disabled data-bind="click: onImportBtnClick"><span class="icon icon-action-save"></span> @Localizer["Import from excel"]</button>
+	</div>
+</form>
+
+<script>
+	require(["jquery", "knockout", 'module/manager'], function ($, ko, manager) {
+
+		var AnnexContractType = function (id, name) {
+			this.id = id;
+			this.name = name;
+		};
+		var viewModel = {
+			code: ko.observable("@Model.Code"),
+			onCodeKeyUp: function (d, e) {
+				console.log("onCodeKeyUp");
+				var _this = this;
+				if (e.keyCode == 13) {
+					_this.network.findByCode(_this.code());
+					return false; // ignore default event
+				}
+				return false;
+			},
+			sponsorProgramSelectShow: ko.observable(true),
+			sponsorProgramId: ko.observable("@Model.SponsorProgramId"),
+			annexContractTypeId: ko.observable(),
+			AnnexContractTypeSelects: ko.observableArray(),
+
+			onSponsorProgramSelectChange: function (e) {
+				var _this = this;
+				GetDefaultAnnexContractTypeOfSponsorProgram(_this.sponsorProgramId());
+			},
+			onCreateBtnClick: function () {
+				console.log("onCreateBtnClick");
+				$("#create-contract-form").submit();
+			},
+			onSaveBtnClick: function () {
+				console.log("onSaveBtnClick");
+			},
+			onDeleteBtnClick: function () {
+				console.log("onDeleteBtnClick");
+
+			},
+			onManageBtnClick: function () {
+				console.log("onManageBtnClick");
+				var urlPath = location.origin + "/AnnexContract/BookingIn";
+				window.location = urlPath;
+
+			},
+			onImportBtnClick: function () {
+				console.log("onImportBtnClick");
+
+			},
+			onCreateFormSubmit: function (d, e) {
+				var _this = this;
+				console.log("onCreateFormSubmit");
+				_this.network.createAnnexContract();
+			},
+			network: {
+				createAnnexContract: function () {
+					var form = $("#create-contract-form");
+
+					if(form.valid())
+					{
+						$.ajax({
+							url: form.attr('action'),
+							method: form.attr('method'),
+							data: form.serialize(),
+							success: function (response) {
+								console.log(response);
+								if (typeof response == 'object') {
+									if (response.Succeeded) {
+										notification.show(response.Message);
+										var urlPath = location.href + '/' + response.Id;
+										//		window.history.pushState({}, "", urlPath);
+										//	location.reload();
+										window.location = urlPath;
+
+									}
+									else {
+										alert(response.Message);
+									}
+								}
+								else {
+									alert(response);
+								}
+							},
+							error: function () {
+
+							}
+						});
+
+					}
+					else
+						alert("@Localizer["Input not valid"]");
+				},
+				findByCode: function (code) {
+					var url = "Manager/AnnexContract/FindByCodeAPI"
+					$.ajax({
+						url: url,
+						method: 'GET',
+						data: {code: code, bookingType: @((int)BookingTypeEnum.Contract_Sponsor_InProgram)},
+				success: function (response) {
+					console.log(response);
+					if (typeof response == 'object') {
+						if (response.Succeeded) {
+							notification.show(response.Message);
+							var urlPath = location.origin + '/Manager/Booking/BookingIn/' + response.Id;
+							//	window.history.pushState({}, "", urlPath);
+							//	location.reload();
+							window.location = urlPath;
+
+						}
+						else {
+							alert(response.Message);
+						}
+					}
+					else {
+						alert(response);
+					}
+				},
+				error: function () {
+
+				}
+			});
+			}
+			}
+		}
+		ko.applyBindings(viewModel, $("#create-contract-form")[0]);
+
+
+		function GetRightAnnexContractTypes(bookingTypeId) {
+
+			$.ajax({
+				url: "Manager/AnnexContract/GetRightAnnexContractTypeByBookingTypeId",
+				type: 'get',
+				dataType: 'json',
+				data: { bookingTypeId: bookingTypeId },
+				success: function (response) {
+					console.log(response);
+					if (typeof response == 'object') {
+						$.each(response.Data, function (i, v) {
+							viewModel.AnnexContractTypeSelects.push(new AnnexContractType(v.Id.toUpperCase(), v.Name));
+						});
+					}
+				}
+			});
+		}
+		function GetDefaultAnnexContractTypeOfSponsorProgram(sponsorProgramId) {
+
+			$.ajax({
+				url: "Manager/SponsorProgram/GetDefaultAnnexContractTypeOfSponsorProgram",
+				type: 'get',
+				dataType: 'json',
+				data: { sponsorProgramId: sponsorProgramId },
+				success: function (response) {
+					console.log(response);
+					if (typeof response == 'string') {
+						var annexContractTypeId = response.toUpperCase();
+						console.log(annexContractTypeId);
+						viewModel.annexContractTypeId(annexContractTypeId);
+					}
+				}
+			});
+		}
+		// // GetRightAnnexContractTypes($("#BookingTypeId").val()); // init
+	});
+</script>

@@ -1,0 +1,58 @@
+﻿<div id="themeMenu"></div>
+
+<script>
+    require(["jquery"], function ($) {
+        require(["devextreme-aspnet-data/js/dx.aspnet.data"], function (dxData) {
+            require(["devextreme/js/aspnet/dx.aspnet.mvc"], function () {
+                $("#themeMenu").dxMenu({ "dataSource": getThemeData, "onItemClick": onThemeClick });
+            });
+        });
+    });
+
+    var getThemeData = {
+        load: function () {
+            var subMenus = [];
+            var icon = "";
+            var text = "";
+            @switch(ViewBag.Theme as string)
+            {
+                case "toolkit-light":
+                    <text>icon = "/images/themes/generic-light.svg"; text = "";</text>
+                    <text>subMenus.push({ "icon": "/images/themes/generic-dark.svg", "text": "", "theme": "toolkit-inverse" })</text>
+                    break;
+
+                default:
+                    <text>icon = "/images/themes/generic-dark.svg"; text = "";</text>
+                    <text>subMenus.push({ "icon": "/images/themes/generic-light.svg", "text": "", "theme": "toolkit-light"})</text>
+                    break;
+            }
+
+            var menus = [];
+            menus.push({ "icon": icon, "text": text, "items": subMenus });
+            return menus;
+        }
+    }
+
+    function onThemeClick(e) {
+        if (e.itemData.theme) {
+            require(["jquery"], function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Content("~/home/auth/setTheme")',
+                    dataType: "json",
+                    data: JSON.stringify({
+                        theme: e.itemData.theme
+                    }),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (e) {
+                        DevExpress.ui.notify('@Localizer["Change theme success."]');
+                        window.location.reload();
+                    },
+                    error: function (e) {
+                        DevExpress.ui.notify('@Localizer["Could not change theme."]');
+                    }
+                });
+            });
+        }
+    }
+</script>

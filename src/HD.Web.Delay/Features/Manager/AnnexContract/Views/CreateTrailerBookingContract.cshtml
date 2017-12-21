@@ -1,0 +1,362 @@
+﻿@using HD.TVAD.Web.Services
+@using Microsoft.EntityFrameworkCore
+@using HD.TVAD.ApplicationCore.Entities.Booking
+@using HD.TVAD.ApplicationCore.Entities.ContractSchema
+@{
+	Layout = "_layout";
+	ViewBag.Title = Localizer["Create Annex contract"].Value;
+}
+@model AnnexContractViewModel
+@inject ICustomerViewService _customerViewService
+@inject IGetTypeService _getTypeService
+@inject ISponsorProgramViewService _sponsorProgramViewService
+@inject IAnnexContractViewService _annexContractViewService
+@{
+	var customerSelectItems = await _customerViewService.GetCustomerCodeAndNameListItemAsync();
+	var sponorProgramSelectItems = await _sponsorProgramViewService.GetCodeAndNameSelectListItemAsync();
+	var bookingTypeSelectItems = await _annexContractViewService.GetBookingTypeSelectListItemAsync();
+	var sponsorTypeSelectItems = await _annexContractViewService.GetSponsorTypeSelectListItemAsync();
+
+	var annexContractSelectItems = await _sponsorProgramViewService.GetContractTypeSelectListItemAsync();
+	var annexContractTypes = await _getTypeService.GetAnnexContractTypes().ToListAsync();
+
+	@functions {
+
+		public static string getIconBookingType(BookingTypeEnum bookingType)
+		{
+			var iconBookingType = "";
+			switch (bookingType)
+			{
+				case BookingTypeEnum.Contract_Booking:
+					iconBookingType = "<span class='label label-default'>No</span>";
+					break;
+				case BookingTypeEnum.Contract_Sponsor_InProgram:
+					iconBookingType = "<span class='label label-info'>In&ensp;</span>";
+					break;
+				case BookingTypeEnum.Contract_Sponsor_OutProgram:
+					iconBookingType = "<span class='label label-primary'>Out</span>";
+					break;
+				case BookingTypeEnum.Contract_Sponsor_Trailer:
+					iconBookingType = "<span class='label label-warning'>Tr&ensp;</span>";
+					break;
+				case BookingTypeEnum.Contract_Sponsor_Benefit:
+					iconBookingType = "<span class='label label-danger'>Be&ensp;</span>";
+					break;
+				case BookingTypeEnum.Retail:
+					iconBookingType = "<span class='label label-success'>Re&ensp;</span>";
+					break;
+				default:
+					break;
+			}
+			return iconBookingType;
+
+		}
+	}
+}
+<div class="panel panel-flex panel-default">
+	<div class="panel-heading">
+		<div class="dashhead">
+			<div class="dashhead-titles">
+				<div class="dashhead-title">
+					<h2> @ViewBag.Title @Html.Raw(getIconBookingType(Model.BookingTypeId)) @Localizer[(Model.BookingTypeId.GetDisplayName())]</h2>
+				</div>
+			</div>
+		</div>
+		<div class="flextable table-actions">
+			<div class="flextable-item flextable-primary">
+			</div>
+			<div class="flextable-item">
+			</div>
+		</div>
+	</div>
+	<div class="panel-body">		
+		<div class="container-vertical-flex">
+			<div class="flex flex-0">
+				<div class="order-details__state js-shipping-state-container">
+					<div class="order-details__progress">
+						<div class="order-details__progress-bar">
+							<div class="order-details__progress-bar-item order-details__progress-bar-item_highlighted"></div>
+							<div class="order-details__progress-bar-item is-active order-details__progress-bar-item_highlighted"></div>
+							<div class="order-details__progress-bar-item order-details__progress-bar-item_highlighted"></div>
+							<div class="order-details__progress-bar-item  order-details__progress-bar-item_highlighted"></div>
+						</div>
+
+						<div class="order-details__progress-states">
+							<div class="order-details__progress-state is-active order-details__progress-state_highlighted">
+								<div class="order-details__progress-state__name is-active">
+									@Localizer["Create customer"]
+								</div>
+							</div>
+							<div class="order-details__progress-state is-active is-current order-details__progress-state_highlighted">
+								<div class="order-details__progress-state__name is-active">
+									@Localizer["Create annex contract"]
+								</div>
+							</div>
+							<div class="order-details__progress-state order-details__progress-state_highlighted">
+								<div class="order-details__progress-state__name">
+									@Localizer["Select asset"]
+								</div>
+							</div>
+							<div class="order-details__progress-state  order-details__progress-state_highlighted">
+								<div class="order-details__progress-state__name ">
+									@Localizer["Booking spot"]
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="flex flex-1">
+				<div class="col-md-offset-3 col-md-6">
+
+					<form id="create-form" asp-area="Manager" asp-controller="AnnexContract" asp-action="CreateContract" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+						<div class="form-group">
+							<div class="col-md-4 control-label">
+								<label asp-for="Code"></label>
+							</div>
+							<div class="col-md-8">
+								<input asp-for="Code" class="form-control" type="text" />
+								<span asp-validation-for="Code" class="text-danger"></span>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-4 control-label">
+								<label asp-for="CustomerId"></label>
+							</div>
+							<div class="col-md-8">
+								<select asp-for="CustomerId" class="form-control" asp-items="customerSelectItems"> </select>
+								<span asp-validation-for="CustomerId" class="text-danger"></span>
+							</div>
+						</div>
+
+						<hr />
+						<div class="form-group">
+							<div class="col-md-4 control-label">
+								<label asp-for="BookingTypeId"></label>
+							</div>
+							<div class="col-md-8">
+								<div class="radio-inline custom-radio custom-control">
+									<label>
+										<input type="radio" data-bind="checked: bookingTypeId, click: onBookingTypeChooseClick" value="@((int)BookingTypeEnum.Contract_Sponsor_Trailer)" asp-for="BookingTypeId" />
+										<span class="custom-control-indicator"></span>@Html.Raw(getIconBookingType(BookingTypeEnum.Contract_Sponsor_Trailer))
+										@Localizer[(BookingTypeEnum.Contract_Sponsor_Trailer.GetDisplayName())]
+									</label>
+								</div>
+								<span asp-validation-for="BookingTypeId" class="text-danger"></span>
+							</div>
+						</div>
+						<div class="form-group" data-bind="fadeVisible: sponsorProgramSelectShow" style="display: none;">
+							<div class="col-md-4 control-label">
+								<label asp-for="SponsorProgramId"></label>
+							</div>
+							<div class="col-md-8">
+								<select asp-for="SponsorProgramId" data-bind="value: sponsorProgramId, event:{change: onSponsorProgramSelectChange}" class="form-control" asp-items="sponorProgramSelectItems">
+									<option value="">@Localizer["Select sponsor program"]</option>
+								</select>
+								<span asp-validation-for="SponsorProgramId" class="text-danger"></span>
+							</div>
+						</div>
+						<div class="form-group" data-bind="fadeVisible: annexContractTypeSelectShow" style="display: none;">
+							<div class="col-md-4 control-label">
+								<label asp-for="AnnexContractTypeId"></label>
+							</div>
+							<div class="col-md-8">
+								<select asp-for="AnnexContractTypeId" class="form-control" data-bind="value: annexContractTypeId, options: AnnexContractTypeSelects,
+								optionsText: 'name',
+								optionsValue: 'id'">
+									<option value="">@Localizer["Choose..."]</option>
+								</select>
+								<span asp-validation-for="AnnexContractTypeId" class="text-danger"></span>
+							</div>
+						</div>
+						<div class="form-group" data-bind="fadeVisible: sponsorTypeSelectShow" style="display: none;">
+							<div class="col-md-4 control-label">
+								<label asp-for="SponsorTypeId"></label>
+							</div>
+							<div class="col-md-8">
+								<div class="radio-inline custom-radio custom-control">
+									<label>
+										<input type="radio" checked value="@((int)SponsorTypeEnum.Copyright)" asp-for="SponsorTypeId" />
+										<span class="custom-control-indicator"></span><span class="label label-primary">Buy</span>
+										@Localizer[(SponsorTypeEnum.Copyright.GetDisplayName())]
+									</label>
+								</div>
+								<div class="radio-inline custom-radio custom-control">
+									<label>
+										<input type="radio" checked value="@((int)SponsorTypeEnum.Production)" asp-for="SponsorTypeId" />
+										<span class="custom-control-indicator"></span><span class="label label-info">Pro</span>
+										@Localizer[(SponsorTypeEnum.Production.GetDisplayName())]
+									</label>
+								</div>
+								<span asp-validation-for="SponsorTypeId" class="text-danger"></span>
+							</div>
+						</div>
+						<hr />
+						<div class="form-group">
+							<div class="col-md-4 control-label">
+								<label asp-for="ReceiveDate"></label>
+							</div>
+							<div class="col-md-8">
+								<input asp-for="ReceiveDate" class="form-control" type="date" />
+								<span asp-validation-for="ReceiveDate" class="text-danger"></span>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-4 control-label">
+								<label asp-for="SignDate"></label>
+							</div>
+							<div class="col-md-8">
+								<input asp-for="SignDate" class="form-control" type="date" />
+								<span asp-validation-for="SignDate" class="text-danger"></span>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-4 control-label">
+								<label asp-for="ScheduleCampaign"></label>
+							</div>
+							<div class="col-md-8">
+								<textarea asp-for="ScheduleCampaign" class="form-control" type="text"> </textarea>
+								<span asp-validation-for="ScheduleCampaign" class="text-danger"></span>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-4 control-label">
+								<label asp-for="Content"></label>
+							</div>
+							<div class="col-md-8">
+								<textarea asp-for="Content" class="form-control" type="text">  </textarea>
+								<span asp-validation-for="Content" class="text-danger"></span>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="text-center">
+								<button id="submit" type="submit" value="" class="btn btn-primary-outline" onclick=""><span class="icon icon-plus"></span> @Localizer["Next"] </button>
+								<button type="button" class="btn btn-default-outline" data-dismiss="modal" onclick="goBack()"><span class="icon icon-back"></span> @Localizer["Back"] </button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script>
+	require(['module/manager', 'knockout'], function (manager, ko) {
+		// Here's a custom Knockout binding that makes elements shown/hidden via jQuery's fadeIn()/fadeOut() methods
+		// Could be stored in a separate utility library
+		ko.bindingHandlers.fadeVisible = {
+			init: function(element, valueAccessor) {
+				// Initially set the element to be instantly visible/hidden depending on the value
+				var value = valueAccessor();
+				$(element).toggle(ko.unwrap(value)); // Use "unwrapObservable" so we can handle values that may or may not be observable
+			},
+			update: function(element, valueAccessor) {
+				// Whenever the value subsequently changes, slowly fade the element in or out
+				var value = valueAccessor();
+				ko.unwrap(value) ? $(element).fadeIn() : $(element).fadeOut();
+			}
+		};
+
+		var AnnexContractType = function (id, name) {
+			this.id = id;
+			this.name = name;
+		};
+
+		var viewModel = {
+			AnnexContractTypeSelects: ko.observableArray(),
+			bookingTypeId: ko.observable("@((int)Model.BookingTypeId)"),
+			sponsorProgramSelectShow: ko.observable(true),
+			sponsorProgramId: ko.observable(),
+			annexContractTypeSelectShow: ko.observable(true),
+			annexContractTypeId: ko.observable(),
+			sponsorTypeSelectShow:  ko.observable(false),
+			onSponsorProgramSelectChange: function(e){
+				var _this = this;
+				GetDefaultAnnexContractTypeOfSponsorProgram(_this.sponsorProgramId());
+			},
+			onBookingTypeChooseClick: function (e) {
+				var _this = this;
+				var bookingTypeId = parseInt(_this.bookingTypeId().toString());
+				console.log(bookingTypeId);
+				switch (bookingTypeId)
+				{
+					case @((int)BookingTypeEnum.Contract_Booking):
+						_this.sponsorProgramSelectShow(false);
+						_this.sponsorTypeSelectShow(false);
+						_this.annexContractTypeSelectShow(false);
+						break;
+					case @((int)BookingTypeEnum.Contract_Sponsor_InProgram):
+						_this.sponsorProgramSelectShow(true);
+						_this.sponsorTypeSelectShow(true);
+						_this.annexContractTypeSelectShow(true);
+						break;
+					case @((int)BookingTypeEnum.Contract_Sponsor_OutProgram):
+						_this.sponsorProgramSelectShow(true);
+						_this.sponsorTypeSelectShow(true);
+						_this.annexContractTypeSelectShow(true);
+						break;
+					case @((int)BookingTypeEnum.Contract_Sponsor_Trailer):
+						_this.sponsorProgramSelectShow(true);
+						_this.sponsorTypeSelectShow(false);
+						_this.annexContractTypeSelectShow(true);
+						break;
+					case @((int)BookingTypeEnum.Contract_Sponsor_Benefit):
+						_this.sponsorProgramSelectShow(true);
+						_this.sponsorTypeSelectShow(false);
+						_this.annexContractTypeSelectShow(true);
+						break;
+				}
+
+				_this.AnnexContractTypeSelects([]);
+				GetRightAnnexContractTypes(bookingTypeId);
+				return true;
+			}
+
+		}
+		//  ko.cleanNode(document);
+		ko.applyBindings(viewModel);
+		function GetRightAnnexContractTypes(bookingTypeId) {
+
+			$.ajax({
+				url: "Manager/AnnexContract/GetRightAnnexContractTypeByBookingTypeId",
+				type: 'get',
+				dataType: 'json',
+				data: { bookingTypeId: bookingTypeId },
+				success: function (response) {
+					console.log(response);
+					if (typeof response == 'object') {
+						$.each(response.Data, function (i, v) {
+							viewModel.AnnexContractTypeSelects.push(new AnnexContractType(v.Id.toUpperCase(), v.Name));
+						});
+					}
+				}
+			});
+		}
+		function GetDefaultAnnexContractTypeOfSponsorProgram(sponsorProgramId) {
+
+			$.ajax({
+				url: "Manager/SponsorProgram/GetDefaultAnnexContractTypeOfSponsorProgram",
+				type: 'get',
+				dataType: 'json',
+				data: { sponsorProgramId: sponsorProgramId },
+				success: function (response) {
+					console.log(response);
+					if (typeof response == 'string') {
+						var annexContractTypeId = response.toUpperCase();
+						console.log(annexContractTypeId);
+						viewModel.annexContractTypeId(annexContractTypeId);
+					}
+				}
+			});
+		}
+		// GetRightAnnexContractTypes($("#BookingTypeId").val()); // init
+	});
+
+
+</script>
+
+
+

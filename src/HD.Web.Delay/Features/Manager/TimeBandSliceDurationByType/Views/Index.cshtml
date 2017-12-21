@@ -1,0 +1,66 @@
+﻿@model TimeBandSliceDurationByTypeIndexViewModel
+@{
+	Layout = null;
+}
+<div class="container-vertical-flex">
+	<div class="flex flex-0">
+		<span class="h4">@Localizer["TimeBand"]: @Model.TimeBandName > @Localizer["Slice"]: @Model.TimeBandSliceName > @Model.TimeBandSliceDurationDetail</span>
+		<button class="btn btn-sm btn-primary-outline create timeBandSliceDurationByType pull-right"> <span class="glyphicon glyphicon-plus"></span> @Localizer["Add"] </button>
+	</div>
+	<div class="flex flex-1">
+		<div id="grid-timeBandSliceDurationByType"></div>
+	</div>
+</div>
+
+<script id="timeBandSliceDurationByType-edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete timeBandSliceDurationByType"><span class="icon icon-action-delete"></span></button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit timeBandSliceDurationByType"><span class="icon icon-action-edit"></span></button>
+	</div>
+</script>
+
+<script>
+	require(['module/timeband-slice-duration-by-type'], function (module) {
+
+		module.init({
+			url: {
+				controller: "TimeBandSliceDurationByType",
+				getAll: "GetAllTimeBandSliceDurationByTypeByTimeBandSliceDurationId",
+				id: "@Model.TimeBandSliceDurationId",
+			},
+			DOMid: {
+				grid: 'grid-timeBandSliceDurationByType',
+			},
+			DOMclass: {
+				entity: ".timeBandSliceDurationByType",
+			},
+			data: {
+				timeBandSliceDurationId: "@Model.TimeBandSliceDurationId"
+			},
+			model: {
+				id: 'Id',
+				fields: {
+					bookingTypeName: { field: "BookingTypeName", type: "text" },
+					duration: { field: "Duration", type: "number" },
+				},
+			},
+			columns: [
+				{ field: "bookingTypeName",
+					title: "@Localizer["Booking Type"]", },
+				{ field: "duration",
+					title: "@Localizer["Duration"]",  },
+				{
+					field: "",
+					title: "@Localizer["Edit"]",
+					template: kendo.template($("#timeBandSliceDurationByType-edit-template").html()),
+					width: "120px",
+				}
+
+			],
+			function: {
+			//	onChange: onGirdTimeBandSlideDurationChange,
+			}
+		});
+	});
+
+</script>

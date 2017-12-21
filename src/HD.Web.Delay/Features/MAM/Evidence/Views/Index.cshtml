@@ -1,0 +1,463 @@
+﻿@{
+    ViewBag.Title = @Localizer["View Evidence"].Value;
+    Layout = "_Content_Layout";
+}
+<head>
+    <script type="text/javascript" src="~/js/asset/subTitle.js"></script>
+    <script type="text/javascript" src="~/js/asset/timecode.js"></script>
+    <script type="text/javascript" src="~/js/asset/mediaelement.js"></script>
+    <script type="text/javascript" src="~/js/asset/audioVisualizer.js"></script>
+    <script type="text/javascript" src="~/js/asset/mediaelement-and-player.js"></script>
+
+    <link rel="stylesheet" href="~/css/asset/subtitle.css">
+    <link rel="stylesheet" href="/css/asset/player.css">
+    <link rel="stylesheet" href="/css/asset/mediaelementplayer.css">
+    <link rel="stylesheet" href="/css/asset/audioVisualizer.css">
+
+</head>
+
+<div class="container-vertical-flex">
+    <div class="flex flex-2">
+        <div class="container-flex">
+            <div class="container-vertical-flex">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="fields ui-corner-bottom" style="background-color:#1a1c22">
+                            <div class="media-infor-content" style="width: 100%;">
+
+                            </div>
+                            <div id="player0" class="mejs-container mejs-video" style="width: 750px; height: 450px;margin: auto;">
+
+                            </div>
+
+                            <textarea id="subtitlePreview" rows="2" cols="60" spellcheck="false" disabled="" draggable="false"></textarea>
+
+                            <br />
+
+                            <form id="subTitleFormx">
+                                <div class="row" style="width:100%; text-align:center">
+                                    <div id="timeTrim" style="height:40px;">
+                                        <div id="status" style="height:14px;"></div>
+                                        <div class="subTitleTime hidden">Sub in</div>
+                                        <div id="startTimeSubCur" class="subTitleTime hidden" style="width: 65px; margin-left: 5px" converter="timeConverter"></div>
+                                        <div class="subTitleTime  hidden">--></div>
+                                        <div id="endTimeSubCur" class="subTitleTime hidden" style="width: 65px; margin-left: 5px" converter="timeConverter"></div>
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <select type="text" class="navbar-form-control" id="videoSpeedSelect">
+                                                    <option value="1"> X1 </option>
+                                                    <option value="4">X4</option>
+                                                    <option value="8"> X8 </option>
+                                                    <option value="16">X16</option>
+                                                </select>
+                                            </div>
+                                            @*<div class="col-md-2">
+                                                    <div style="float:right">
+                                                        <input id="enabledVuMeter" type="checkbox" style="width: 17px">
+                                                        <label onclick="changeEnabledVu()" style="font-size: 11px">VU meter</label>
+                                                    </div>
+                                                </div>*@
+                                            <div class="col-md-4">
+                                                <div class="hidden">
+                                                    <input id="enabledSpectrum" checked="checked" type="checkbox" style="width: 17px">
+                                                    <label onclick="changeEnabledSpectrum()" style="font-size: 11px">Spectrum</label>
+                                                </div>
+                                                <div id="timeCodeInput">
+                                                    <input id="startTimeTrim" disabled="disabled" value="00:00:00:00" converter="timeConverter" style="border-radius: 3px;  border: 1.4px solid;" size="8" />
+                                                    <span> : </span>
+                                                    <input id="endTimeTrim" disabled="disabled" value="00:00:00:00" converter="timeConverter" style="border-radius: 3px;  border: 1.4px solid;" size="8" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="controls" style="width:100%; text-align:center">
+                                        <button type="button" title="play" class="btn btn-default-outline" id="ppBtn" style="margin-right: 25px">
+                                            <span class="icon">
+                                                <i class="icon icon-play "></i>
+                                            </span>
+                                        </button>
+
+                                        <button type="button" class="btn btn-default-outline" title="to start" id="firstBtn">
+                                            <span class="icon">
+                                                <i class="icon icon-to-start "></i>
+                                            </span>
+                                        </button>
+
+                                        <button type="button" class="btn btn-default-outline" title="fast backward" id="ffbwBtn">
+                                            <span class="icon icon-stack">
+                                                <i class="icon-fast-backward icon-stack-1x" style="left: -0.125em"></i>
+                                                <i class="icon-fast-backward icon-stack-1x" style="left: 0.3em"></i>
+                                            </span>
+
+                                        </button>
+
+                                        <button type="button" class="btn btn-default-outline" title="backward" id="prevBtn">
+                                            <span class="icon">
+                                                <i class="icon icon-fast-backward "></i>
+                                            </span>
+                                        </button>
+                                        <button type="button" class="btn btn-default-outline" title="forward" id="fwdBtn">
+                                            <span class="icon">
+                                                <i class="icon icon-fast-forward "></i>
+                                            </span>
+                                        </button>
+
+                                        <button type="button" class="btn btn-default-outline" title="fast forward" id="fffwBtn">
+                                            <span class="icon icon-stack">
+                                                <i class="icon-fast-forward icon-stack-1x" style="left: -0.125em"></i>
+                                                <i class="icon-fast-forward icon-stack-1x" style="left: 0.3em"></i>
+                                            </span>
+                                        </button>
+                                        @*<button type="button" class="btn btn-default-outline" title="to end" id="lastBtn">
+                                                <span class="icon">
+                                                    <i class="icon icon-to-end "></i>
+                                                </span>
+                                            </button>*@
+
+                                        <button type="button" class="btn btn-default-outline" title="mark in" id="markInBtn">
+                                            <span class="icon">
+                                                <i class="icon icon-left-open"></i>
+                                            </span>
+                                        </button>
+
+                                        <button type="button" class="btn btn-default-outline" title="mark out" id="markOutBtn">
+                                            <span class="icon">
+                                                <i class="icon icon-right-open"></i>
+                                            </span>
+                                        </button>
+
+                                        @*<button type="button" class="btn btn-default-outline" title="play back" id="playBackBtn">
+                                                <span class="icon">
+                                                    <i class="icon icon-ccw "></i>
+                                                </span>
+                                            </button>*@
+
+                                        @*<button type="button" class="btn btn-default-outline" title="create thumbnail" id="captureBtn">
+                                                <span class="icon">
+                                                    <i class="icon icon-camera "></i>
+                                                </span>
+                                            </button>*@
+                                        <button type="button" class="btn btn-default-outline" title="save cut" id="btnSaveCut">
+                                            <span class="icon">
+                                                <i class="icon icon-floppy"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <br />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-1">
+                <div class="panel panel-default">
+                    @*<div class="panel-heading">@Localizer["Playlist"]:</div>*@
+                    <div class="panel-body container-vertical-flex">
+                        <form class="form-horizontal flex flex-0">
+                            <div class="form-group">
+                                <div class="col-md-4 col-sm-4">
+                                    <label class="control-label"> @Localizer["Choose Channel"]: </label>
+                                </div>
+                                <div class="col-md-8 col-sm-8">
+                                    <input class="form-control" id="inpChooseChannel" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4 col-sm-4">
+                                    <label class="control-label"> @Localizer["Choose Date"]: </label>
+                                </div>
+                                <div class="col-md-8 col-sm-8">
+                                    <input class="form-control" id="inpChooseDate" />
+                                </div>
+                            </div>
+                        </form>
+                        <div class="flex flex-1">
+                            <div id="grid" style="height:100%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-1">
+        <div class="container-flex">
+            <div class="panel panel-default" style="width:100%">
+                <div class="panel-heading">@Localizer["Detail Info"]:</div>
+                <div class="panel-body text-center">
+                    <p>@Localizer["To create a cut for an evidence video, Markin and Markout on player then click Save Cut to save as new cut video!"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    require(['content/evidence'], function (evidence) {
+        evidence.init({
+            channelId: '',
+            date: null,
+            recordTimeStr: '@Localizer["Record Time"]',
+            fileNameStr: '@Localizer["File Name"]',
+            pathStr: '@Localizer["Path"]',
+            assetNameStr:'@Localizer["Asset Name"]'
+        });
+        $("#inpChooseChannel").kendoComboBox({
+            dataTextField: "Name",
+            dataValueField: "Id",
+            placeholder: "@Localizer["Choose..."]",
+            dataSource: {
+                transport: {
+                    read: {
+                        type: "GET",
+                        dataType: "json",
+                        url: "/MAM/Evidence/GetAllChannel",
+                    }
+                }
+            },
+            change: onchange
+        });
+        $("#inpChooseDate").kendoDatePicker({
+            change: onChangeDate
+        });
+        var channelObj;
+        var dateObj;
+        function onchange(e) {
+            channelObj = this.value();//$("#inpChooseChannel").data('kendoComboBox').dataSource.get($("#inpChooseChannel").val()).Id;
+            if ($("#inpChooseChannel").val() !== '' && $("#inpChooseDate").data("kendoDatePicker").value() !== null)
+                evidence.init({
+                    channelId: channelObj,//$("#inpChooseChannel").data('kendoComboBox').dataSource.get($("#inpChooseChannel").val()).Id,
+                    date: $("#inpChooseDate").data("kendoDatePicker").value()
+                });
+        }
+        function onChangeDate() {
+            if ($("#inpChooseChannel").val() !== '' && $("#inpChooseDate").data("kendoDatePicker").value() !== null)
+                evidence.init({
+                    channelId: channelObj,
+                    date: this.value()
+                });
+        }
+        var _mediaAssetId;
+        $("#btnSaveCut").click(function () {
+        var markInVal = convertStringToMs($("#startTimeTrim").val());
+        var markOutVal = convertStringToMs($("#endTimeTrim").val());
+        if (markOutVal <= markInVal)
+            alert("@Localizer["Mark out value must be greater than Mark in value!"]")
+        else {
+            var vM = {
+                Id: _mediaAssetId,
+                MarkIn: markInVal,
+                MarkOut: markOutVal
+            };
+            $.ajax({
+                type: "POST",
+                url: "/MAM/Content/SaveVideoCut",
+                data: { viewModel: vM },
+                async: true,
+                success: function (msg) {
+                    //console.log(msg);
+                    alert("@Localizer["Save cut successfully!"]");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(textStatus + ' ' + errorThrown + ' ' + XMLHttpRequest.responseText);
+                }
+            });
+
+        }
+
+    });
+        $("#grid").on("mousedown", "tr[role='row']", function (e) {
+            if (e.which === 1) {
+                $("#grid tbody tr").removeClass("k-state-selected");
+                $(this).toggleClass("k-state-selected");
+                var gridData = $("#grid").data('kendoGrid');
+                var selectedRowData = gridData.dataItem($('.k-grid').find("tr.k-state-selected"));
+
+                var path = selectedRowData.Path;
+                _mediaAssetId = selectedRowData.MediaAssetId;
+                console.log(selectedRowData);
+                _basePath = "";
+                _translator = {};
+                _playerOptions = {
+                    "safetyFrame": false, "currentTime": false, "initVisualizer": false, "hiddenVuMeter": true, "hiddenSpectrum": true,
+                    "originUrl": "/origin/",
+                    "tempUrl": "/temp/",
+                    "startTime": "00:00:00.00", "endTime": "00:56:37.21",
+                    "startTimeOffset": "00:00:00.00", "endTimeOffset": "00:56:37.21",
+                    "src": path
+                };
+                loadPlayer(_playerOptions);
+                hdplayer.play();
+                hdplayer.addType = 1;
+                initControlButtons();
+            }
+        });
+        _basePath = "";
+        _translator = {};
+        _playerOptions = {
+            "safetyFrame": false, "currentTime": false, "initVisualizer": false, "hiddenVuMeter": true, "hiddenSpectrum": true,
+            "originUrl": "/origin/",
+            "tempUrl": "/temp/",
+            "startTime": "00:00:00.00", "endTime": "00:56:37.21",
+            "startTimeOffset": "00:00:00.00", "endTimeOffset": "00:56:37.21",
+            "src": "/Videos/TVC/placeHolder.mp4"
+        };
+        loadPlayer(_playerOptions);
+        hdplayer.addType = 1;
+        initControlButtons();
+    });
+
+        function getFileNameFromPath(path) {
+            path = path.replace(/\\/g, "/").replace(/\/\//g, "/");
+            var arr = path.split("/");
+            var fileName = path;
+            if (arr.length > 0) {
+                fileName = arr[arr.length - 1];
+            }
+            return fileName;
+        }
+
+
+        function mobilecheck() {
+            return false;
+        }
+
+        _disConvertSubToHtml = true;
+        _allSubItems = [{ "itemId": "21652", "startTime": "00:12:23.07", "endTime": "00:16:48.18", "type": 1, "text": "", "startTimeFloat": 743.28, "subIndex": 0, "fullName": "Lê Văn Thành", "subtitleId": "154", "userId": 1 }, { "itemId": "21653", "startTime": "00:20:13.13", "endTime": "00:22:37.15", "type": 1, "text": "comment", "startTimeFloat": 1213.52, "subIndex": 0, "fullName": "Lê Văn Thành", "subtitleId": "154", "userId": 1 }];
+        _subItems = _allSubItems;
+
+        _eventType = { "enabledSubtitle": false, "enabledQc": true, "enabledSecondaryEvent": false };
+        function checkCookies() {
+            return false;
+        }
+
+        function checkEnabledVu(that) {
+            var checked = $(that).attr("checked");
+            if (typeof checked != "undefined" && (checked === "checked" || checked === true)) {
+                if (typeof hdplayer != "undefined" && typeof hdplayer.audioVisual != "undefined") {
+                    hdplayer.audioVisual.options.vuDisabled = false;
+                    $(".vu_meter").css("visibility", "visible");
+                }
+                $.cookie("vu_meter_disabled", "false", { 'expires': 14 });
+            } else {
+                if (typeof hdplayer != "undefined" && typeof hdplayer.audioVisual != "undefined") {
+                    hdplayer.audioVisual.options.vuDisabled = true;
+                    hdplayer.audioVisual.clearVu();
+                }
+                $.cookie("vu_meter_disabled", "true", { 'expires': 14 });
+                $(".vu_meter").css("visibility", "hidden");
+            }
+        }
+
+        function checkEnabledSpectrum(that) {
+            var checked = $(that).attr("checked");
+            if (typeof checked != "undefined" && (checked == "checked" || checked === true)) {
+                if (typeof hdplayer != "undefined" && typeof hdplayer.audioVisual != "undefined") {
+                    hdplayer.audioVisual.options.drumDisabled = false;
+                    $("#fft").css("visibility", "visible");
+                }
+                $.cookie("spectrum_disabled", "false", { 'expires': 14 });
+            } else {
+                if (typeof hdplayer != "undefined" && typeof hdplayer.audioVisual != "undefined") {
+                    hdplayer.audioVisual.options.drumDisabled = true;
+                    hdplayer.audioVisual.clearDrum();
+                }
+                $.cookie("spectrum_disabled", "true", { 'expires': 14 });
+                $("#fft").css("visibility", "hidden");
+            }
+        }
+        function changeEnabledVu() {
+            var that = $("#enabledVuMeter");
+            var checked = that.attr("checked");
+            if (typeof checked != "undefined" && (checked === "checked" || checked === true)) {
+                that.attr("checked", false);
+            } else {
+                that.attr("checked", "checked");
+            }
+            checkEnabledVu(that);
+        }
+        function changeEnabledSpectrum() {
+            var that = $("#enabledSpectrum");
+            var checked = that.attr("checked");
+            if (typeof checked != "undefined" && (checked === "checked" || checked === true)) {
+                that.attr("checked", false);
+            } else {
+                that.attr("checked", "checked");
+            }
+            try {
+                checkEnabledSpectrum(that);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        function checkEnabledSubtile(that) {
+            var checked = $(that).attr("checked");
+            if (typeof checked != "undefined" && (checked == "checked" || checked === true)) {
+                $("#subtitlePreview").removeClass("hidden");
+            } else {
+                $("#subtitlePreview").addClass("hidden");
+            }
+        }
+
+        function initFormControl() {
+            checkCookies();
+            $("#enabledVuMeter").change(function () { checkEnabledVu(this) });
+            $("#enabledSpectrum").change(function () {
+                var that = this;
+                checkEnabledSpectrum(that);
+            });
+            $("#videoSpeedSelect").change(function () {
+                hdplayer.play();
+                hdplayer.rate(parseInt($(this).val()));
+                _rate = $(this).val();
+            });
+
+        }
+        if (!window.mobilecheck()) {
+            initFormControl();
+        }
+
+</script>
+<style>
+    #subtitlePreview {
+        margin-top: -115px;
+    }
+
+    #status {
+        margin-top: -5px;
+    }
+
+    .vu_meter {
+        height: 228px;
+        width: 60px;
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        opacity: .6;
+    }
+
+        .vu_meter .meter-channel {
+            width: calc(50% - 2px);
+            height: 100%;
+            margin: 0 1px 0 1px;
+        }
+
+    .media-infor-content .media-infor {
+        float: left;
+        margin-left: 7px;
+    }
+
+    .mejs-container {
+        position: relative;
+        font-family: Helvetica, Arial;
+        background: #1a1c22;
+    }
+    .panel-body{
+        padding:10px;
+    }
+    .form-group{
+        margin-top:10px;
+    }
+</style>

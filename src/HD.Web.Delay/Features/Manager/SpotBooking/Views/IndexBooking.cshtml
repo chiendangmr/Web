@@ -1,0 +1,198 @@
+﻿@model SpotBookingIndexViewModel
+@{
+	Layout = null;
+}
+<div class="flex flex-1">
+	@Html.Partial("_CreateBookingPartial", Model.SpotBookingCreateIndexViewModel)
+</div>
+<div class="flex flex-3">
+	<div class="panel panel-flex panel-default">
+		<div class="panel-heading">
+			<h4>@Localizer["Bookings"]</h4>
+		</div>
+
+		<div class="panel-body">
+			<div id="grid-spotBooking"></div>
+		</div>
+	</div>
+</div>
+<div id="viewEvidenceWindow" hidden></div>
+
+<script id="approve-template" type="text/x-kendo-template">
+	#if(approve == null){#
+	<div class="label label-warning"><span class="icon icon-clock"></span></div>
+	#}else{#
+	#if(approve == true){#
+	<div class="label label-success"><span class="icon icon-check"></span></div>
+	#}else{#
+	<div class="label label-danger"><span class="icon icon-block"></span></div>
+	#}#
+	#}#
+</script>
+<script id="edit-bookphatsong-template" type="text/x-kendo-template">
+	#if(approvedOnAir == true){#
+	<div class="btn-group">
+        <button data-id="#: id #" class="btn btn-info-outline viewEvidence btn-sm spotBooking" id="viewEvidence-btn"><span class="icon icon-action-view"></span> @Localizer["View Evidence"]</button>
+        <button data-id="#: id #" class="btn btn-warning-outline btn-sm edit spotBooking disabled"><span class="icon icon-action-edit"></span> @Localizer["Edit"]</button>
+        <button data-id="#: id #" class="btn btn-danger-outline btn-sm delete spotBooking disabled"><span class="icon icon-action-delete"></span>@Localizer["Del"]</button>
+    </div>
+	#}else{#
+
+	<div class="btn-group">
+        <button data-id="#: id #" class="btn btn-info-outline viewEvidence btn-sm spotBooking disabled" id="viewEvidence-btn"><span class="icon icon-action-view"></span> @Localizer["View Evidence"]</button>
+        <button data-id="#: id #" class="btn btn-warning-outline btn-sm edit spotBooking"><span class="icon icon-action-edit"></span> @Localizer["Edit"]</button>
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete spotBooking"><span class="icon icon-action-delete"></span>@Localizer["Del"]</button>		
+	</div>
+	#}#
+</script>
+<script type="text/html" id="durationByType-template">
+	<div>	
+		Max duration  <span data-bind="text: bookingTypeName" class="text-warning"></span>: <span data-bind="text: maxDuration" class="text-danger"></span>
+		Used: <span data-bind="attr: { 'data-bookingtypeid': bookingTypeId }" class="text-info"></span>
+	</div>
+</script>
+
+
+<script id="checkbox-template" type="text/x-kendo-template">
+	<div class="checkbox custom-control custom-checkbox">
+		<label>
+			#if(checked == true){#
+			<input checked type="checkbox">
+			<span class="custom-control-indicator"></span>
+			#}else{#
+			<input type="checkbox">
+			<span class="custom-control-indicator"></span>
+			#}#
+		</label>
+	</div>
+</script>
+
+<script>
+	require(['module/spot-booking-index'], function (module) {
+		module.init({
+			url: {
+				controller: "SpotBooking",
+				getAll: "GetAllByAnnexContractId",
+				id: "@Model.AnnexContractId",
+			},
+			DOMid: {
+				grid: 'grid-spotBooking',
+			},
+			DOMclass: {
+				entity: ".spotBooking",
+			},
+			data: {
+				annexContractId: "@Model.AnnexContractId"
+			},
+			model: {
+				id: 'Id',
+				fields: {
+					broadcastDate: { field: 'BroadcastDate', type: "date" },
+					timeBandName: { field: 'TimeBandName', type: "text" },
+					timeBandSliceName: { field: 'TimeBandSliceName', type: "text" },
+					position: { field: 'Position', type: "number" },
+					assetCode: { field: 'AssetCode', type: "text" },
+					isPositionCost: { field: 'IsPositionCost', type: "bool" },
+					cardRateSet: { field: 'CardRateSet', type: "number" },
+					positionRateSet: { field: 'PositionRateSet', type: "number" },
+					discountRateSet: { field: 'DiscountRateSet', type: "number" },
+					totalValue: { field: 'TotalValue', type: "number" },
+					approvedOnAir: { field: 'ApprovedOnAir', type: "bool" },
+				},
+			},
+			columns: [
+				{ field: "broadcastDate", title: "@Localizer["Broadcast Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.broadcastDate });
+					} },
+				{ field: "timeBandName", title: "@Localizer["TimeBand"]", width: "80px" },
+				{ field: "timeBandSliceName", title: "@Localizer["Slice"]", width: "60px" },
+				{ field: "position", title: "@Localizer["Position"]", width: "60px" },
+				{ field: "assetCode", title: "@Localizer["Asset Code"]" },
+				{
+					field: "isPositionCost", title: "@Localizer["Position Choose"]",
+					template: function (dataItem) {
+						return kendo.template($("#checkbox-template").html())({ checked: dataItem.isPositionCost });
+					},
+					width: "80px",
+				},
+				{
+					field: "cardRateSet",
+					title: "@Localizer["Card Rate"]",
+					template: function (dataItem) {
+						return kendo.template($("#money-template").html())({ value: dataItem.cardRateSet });
+					},
+				},
+				{
+					field: "positionRateSet", title: "@Localizer["Position Cost"]",
+					template: function (dataItem) {
+						return kendo.template($("#money-template").html())({ value: dataItem.positionRateSet });
+					},
+				},
+				{
+					field: "discountRateSet", title: "@Localizer["Discount Value"]",
+					template: function (dataItem) {
+						return kendo.template($("#money-template").html())({ value: dataItem.discountRateSet });
+					},
+				},
+				{
+					field: "totalValue", title: "@Localizer["Total"]",
+					template: function (dataItem) {
+						return kendo.template($("#money-template").html())({ value: dataItem.totalValue });
+					},
+				},
+				{
+					field: "approvedOnAir",
+					title: "@Localizer["Approved OnAir"]",
+					template: function(dataItem){
+						return kendo.template($("#approve-template").html())({ approve: dataItem.approvedOnAir });
+					},
+					width: "80px",
+				},
+				{
+					field: "",
+					title: "@Localizer["Edit"]",
+					template: kendo.template($("#edit-bookphatsong-template").html()),
+					width: "280px",
+				}
+			],
+			function: {
+                onChange: onGirdspotBookingChange
+			}
+		});
+
+		function onGirdspotBookingChange(arg) {
+			var grid = arg.sender;
+            var selected = grid.dataItem(this.select());
+            //console.log(selected.id);
+            //	$("#grid-annexDetail").load("Manager/SpotBooking/" + selected.id + "/AnnexContractDetail");
+        };
+        //function onGridBound(arg) {
+        //    //alert("bound");
+        //    //var grid = arg;
+        //    //console.log(grid);
+        //    //var selected = grid.dataItem(grid.select());
+        //    $(".spotBooking.viewEvidence").off().on('click', function () {
+        //        var id = this.dataset.id;
+        //        //console.log(id);
+        //        var viewEvidenceWindow = $("#viewEvidenceWindow").kendoWindow({
+        //            width: "1600px",
+        //            height: "800px",
+        //            title: "View Booked Evidence",
+        //            content: {
+        //                url: "/Manager/SpotBooking/ViewEvidence", data: { spotBookingId: id }
+        //            }
+        //            //,
+        //            //deactivate: function () {
+        //            //    this.destroy();
+        //            //}
+        //        }).data("kendoWindow").center().open();
+        //    });
+
+        //}
+
+        $("#div-annexDetail").load("Manager/AnnexContractAsset" + "/Index/" + "@Model.AnnexContractId");
+
+	});
+
+</script>

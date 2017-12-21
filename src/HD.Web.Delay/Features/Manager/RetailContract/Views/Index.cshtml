@@ -1,0 +1,214 @@
+﻿@{
+	ViewBag.Title = Localizer["Retail contract"].Value;
+	Layout = "_Manager_Layout";
+}
+@inject IRetailContractViewService _retailContractViewService
+@inject IRetailCustomerViewService _retailCustomerViewService
+@{
+//	var retailCustomerSelectItems = await _retailCustomerViewService.GetNameListAsync();
+//	var retailContractSelectItems = await _retailContractViewService.GetCodeListAsync();
+}
+<div class="panel panel-flex panel-default">
+	<div class="panel-heading">
+		<div class="dashhead">
+			<div class="dashhead-titles">
+				<div class="dashhead-title">
+					<h2>@ViewBag.Title</h2>
+				</div>
+			</div>
+			<div class="dashhead-toolbar btn-toolbar">
+				<button class="btn btn-primary-outline create"> <span class="icon icon-plus"></span> @Localizer["Create"] </button>
+			</div>
+		</div>
+		<div class="flextable table-actions">
+			<div class="flextable-item flextable-primary">
+				<div class="btn-toolbar-item input-with-icon" style="width: 70%; max-width: 600px;">
+					<span class="icon icon-search"></span>
+					<input type="search" id="filterText" data-bind="value: filterText, event: {keyup: onFilterTextKeyUp,blur: onFilterTextBlur}" list="items" class="form-control input-block " placeholder="@Localizer["Search..."]" />
+					<datalist id="items">
+						<select name="annexContracts"></select>
+						<select name="customers"></select>
+					</datalist>
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="search-btn" data-bind="click: onSearchBtnClick" class="btn btn-primary-outline"><span class="icon icon-search"></span></button>
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="clearFilter" data-bind="click: onClearFilterClick" class="btn btn-primary-outline"><span class="icon icon-erase"></span></button>
+				</div>
+			</div>
+			<div class="flextable-item">
+				<button id="btn-Print" class="btn btn-primary-outline"><span class="icon icon-print"></span> @Localizer["Print"]</button>
+				<button id="btn-PrintValue" class="btn btn-primary-outline"><span class="icon icon-print"></span> @Localizer["Print Value"]</button>			
+			</div>
+		</div>
+	</div>
+	<div class="panel-body">
+		<div id="grid"></div>
+	</div>
+</div>
+
+
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+		</div>
+	</div>
+</div>
+
+<script id="edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete"><span class="icon icon-action-delete"></span></button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit"><span class="icon icon-action-edit"></span></button>
+		@*<a href="Manager/SpotBooking/IndexContract/#=id#" target="_blank" data-id="#: id #" class="btn btn-success-outline btn-sm bookings"><span class="icon icon-book"></span> @Localizer["Bookings"]</a>*@
+		<a href="Manager/Booking/RetailBooking/#=id#" data-id="#: id #" class="btn btn-success-outline btn-sm bookings"><span class="icon icon-book"></span> @Localizer["Bookings"]</a>
+		@*<a href="Report/Report/BroadcastCertificate/#=id#" target="_blank" data-id="#: id #" class="btn btn-success-outline btn-sm bookings"><span class="icon icon-print"></span> @Localizer["Print"]</a>
+		<a href="Report/Report/BroadcastCertificateWithValueContract/#=id#" target="_blank" data-id="#: id #" class="btn btn-success-outline btn-sm bookings"><span class="icon icon-print"></span> @Localizer["Print Value"]</a>*@
+	</div>
+</script>
+
+<script id="checkbox-template" type="text/x-kendo-template">
+	<div class="checkbox custom-control custom-checkbox">
+		<label>
+			<input type="checkbox" data-id="#=id#" class="contract">
+			<span class="custom-control-indicator"></span>
+
+		</label>
+	</div>
+</script>
+<script id="checkbox-header-template" type="text/x-kendo-template">
+	<div class="checkbox custom-control custom-checkbox">
+		<label>
+			<input type="checkbox" class="header">
+			<span class="custom-control-indicator"></span>
+
+		</label>
+	</div>
+</script>
+
+<script>
+
+	require(['module/retail-contract'], function (module) {
+
+		var viewModel = {
+			onPrintBtnClick: function () {
+				var itemChecked = $('input.contract[type="checkbox"]:checked');
+				var urlPath = "";
+				if (itemChecked.length > 1) {
+					var query = "?";
+					itemChecked.each(function (i, v) {
+						query += '&ids=' + v.dataset.id;
+					});
+					urlPath = location.origin + '/Report/Report/BroadcastCertificateSomeContract' + query;
+				}
+				else {
+					var grid = $("#grid").data("kendoGrid");
+					var rowSelect = grid.select();
+					var selectedItem = grid.dataItem(rowSelect);
+					urlPath = location.origin + '/Report/Report/BroadcastCertificate/' + selectedItem.id;
+				}
+				window.open(urlPath, '_blank');
+			},
+			onPrintValueBtnClick: function () {
+				var itemChecked = $('input.contract[type="checkbox"]:checked');
+				var urlPath = "";
+				if (itemChecked.length > 1) {
+					var query = "?";
+					itemChecked.each(function (i, v) {
+						query += '&ids=' + v.dataset.id;
+					});
+					urlPath = location.origin + '/Report/Report/BroadcastCertificateWithValueSomeRetailContract' + query;
+				}
+				else {
+					var grid = $("#grid").data("kendoGrid");
+					var rowSelect = grid.select();
+					var selectedItem = grid.dataItem(rowSelect);
+					urlPath = location.origin + '/Report/Report/BroadcastCertificateWithValueRetailContract/' + selectedItem.id;
+				}
+				window.open(urlPath, '_blank');
+			},
+		}
+		$("#btn-Print").off().on('click', function () {
+			viewModel.onPrintBtnClick();
+		});
+		$("#btn-PrintValue").off().on('click', function () {
+			viewModel.onPrintValueBtnClick();
+		});
+
+		module.init({
+			url: {
+				controller: "RetailContract",
+				getAll: "GetAll",
+			},
+			model: {
+				id: 'Id',
+				fields: {
+					receiveDate: { field: "ReceiveDate", type: "date" },
+					code: { field: "Code", type: "text" },
+					customerName: { field: "CustomerName", type: "text" },
+					customerAddress: { field: "CustomerAddress", type: "text" },
+				},
+			},
+			columns: [
+				{
+					field: 'id',
+					title: "@Localizer["Select"]",
+					headerTemplate: function () {
+						return kendo.template($("#checkbox-header-template").html())({});
+					},
+					template: function (dataItem) {
+						return kendo.template($("#checkbox-template").html())({ id: dataItem.id });
+					},
+					width: '40px',
+					sortable: false,
+				},
+				{
+					field: 'code',
+					title: "@Localizer["Code"]",
+					width: '60px',
+				},
+				{ field: 'customerName', title: "@Localizer["Customer Name"]" },
+				{ field: 'customerAddress', title: "@Localizer["Customer Address"]" },
+				{
+					field: 'receiveDate', title: "@Localizer["Receive Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.receiveDate });
+					},
+					width: '80px',
+				},
+				{
+					field: "",
+					title: "@Localizer["Edit"]",
+					template: kendo.template($("#edit-template").html()),
+					width: "180px",
+				}
+
+			],
+			filter:	function (filterText) {
+			var grid = $("#grid").data("kendoGrid");
+			var dataSource = grid.dataSource;
+			dataSource.filter({
+				logic: "or",
+				filters: [
+    			{ field: "code", operator: "contains", value: filterText },
+    			{ field: "customerName", operator: "contains", value: filterText },
+				]
+			});
+			},
+			function: {
+				customOnBound: function (grid) {
+
+					$('input.header[type="checkbox"]').off().on('change', function (e) {
+						console.log(e);
+						var checked = e.target.checked;
+						$('input.contract[type="checkbox"]').each(function (i, v) {
+							v.checked = checked;
+						});
+					});
+				}
+			}
+		});
+
+	});
+</script>

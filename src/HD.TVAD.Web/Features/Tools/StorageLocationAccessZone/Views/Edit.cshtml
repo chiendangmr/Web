@@ -1,0 +1,71 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Edit Storage Location Access Zone";
+}
+@model HD.TVAD.Web.Storage.Models.StorageLocationAccessZoneViewModel
+@inject IAcessZoneService _accessZoneService
+@inject IStorageLocationAccessService _storageLocationAccessService
+@{
+    var _storageLocationAccessItems = await _storageLocationAccessService.GetAll()
+        .Select(p => new SelectListItem()
+        {
+            Value = p.Id.ToString(),
+            Text = p.Name,
+        }).ToListAsync();
+    var _accessZoneItems = await _accessZoneService.GetAll()
+        .Select(p => new SelectListItem()
+        {
+            Value = p.Id.ToString(),
+            Text = p.Name,
+        }).ToListAsync();
+}
+
+<form id="edit-form" method="post" enctype="multipart/form-data" asp-area="Tools" asp-controller="StorageStorageLocationAccessZone" asp-action="Edit" class="form-horizontal">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">@Localizer["Edit Storage Location Access Zone"]</h4>
+    </div>
+    <div class="modal-body">
+
+        <h3 class="text-center text-danger"> @ViewBag.Message</h3>
+        <div class="form-group" hidden>
+            <input asp-for="Id" class="form-control" value="@Model.Id" />
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="StorageLocationAccessId">@Localizer["Storage Location Access"]:</label>
+            </div>
+            <div class="col-md-8">
+                <select asp-for="StorageLocationAccessId" class="form-control" asp-items="_storageLocationAccessItems"></select>
+                <span asp-validation-for="StorageLocationAccessId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="AccessZoneId">@Localizer["Access Zone"]:</label>
+
+            </div>
+            <div class="col-md-8">
+                <select asp-for="AccessZoneId" class="form-control" asp-items="_accessZoneItems"></select>
+                <span asp-validation-for="AccessZoneId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="text-center">
+                <button id="submit" type="submit" value="Update" class="btn btn-primary"><span class="icon icon-action-edit"></span> @Localizer["Update"] </button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-action-back"></span> @Localizer["Back"]</button>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    require(['module/manager'], function (manager) {
+        manager.common.submitForm.init({
+            formId: 'edit-form',
+        });
+    });
+
+</script>
+
+
+

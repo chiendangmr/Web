@@ -1,0 +1,59 @@
+﻿body{
+    padding-top: 50px;
+    padding-bottom: 50px;
+    overflow-y: auto;
+    margin: 0;
+    min-width: 240px;
+}
+
+.body {
+    position: relative;
+    margin-top: 50px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.dx-header {
+    -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+.container {
+    width: auto;
+}
+
+.dx-header .logo {
+    font-size: 24px;
+    text-decoration: none;
+    float: left;
+    margin: 5px 10px 10px 30px;
+    color: #ffc90e;
+}
+
+.navbar-nav .dx-menu{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 20px;
+}
+
+.dx-label-align-right {
+    text-align: right;
+}
+
+.dx-command-edit .dx-link {
+    text-decoration: none;
+    font-size: 18px;
+    margin: 0 3px;
+}
+
+.dx-command-edit .dx-link:hover {
+    opacity: 0.8;
+}

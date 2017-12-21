@@ -1,0 +1,100 @@
+﻿@{
+	ViewBag.Title = Localizer["Register"].Value;
+	Layout = "_Content_Layout";
+}
+@{
+	var isDisableClass = "";
+}
+
+<div class="panel panel-flex panel-default">
+	<div class="panel-heading">
+		<div class="dashhead">
+			<div class="dashhead-titles">
+				<div class="dashhead-title">
+					<h2>@ViewBag.Title</h2>
+				</div>
+			</div>
+			<div class="dashhead-toolbar btn-toolbar">
+				<button class="btn btn-primary-outline create"> <span class="icon icon-plus"></span> @Localizer["Create"]</button>
+			</div>
+		</div>
+		<div class="flextable table-actions">
+			<div class="flextable-item flextable-primary">
+				<div class="btn-toolbar-item input-with-icon" style="width: 70%; max-width: 600px;">
+					<span class="icon icon-search"></span>
+					<input type="search" id="filterText" data-bind="value: filterText, 
+						   event: {keyup: onFilterTextKeyUp,blur: onFilterTextBlur}" list="items" class="form-control input-block" placeholder="@Localizer["Search..."]">					
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="search-btn" data-bind="click: onSearchBtnClick" class="btn btn-primary-outline"><span class="icon icon-search"></span></button>
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="clearFilter" data-bind="click: onClearFilterClick" class="btn btn-primary-outline"><span class="icon icon-erase"></span></button>
+				</div>
+			</div>
+			<div class="flextable-item">
+				<div class="checkbox custom-control custom-checkbox">
+					<label>
+						<input id="filterDisabled" type="checkbox" class="form-control">
+						<span class="custom-control-indicator"></span>
+						@Localizer["Include Disabled"]
+					</label>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<div class="panel-body">
+		<div id="grid"></div>
+	</div>
+</div>
+
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+		</div>
+	</div>
+</div>
+
+<script id="edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit @isDisableClass"><span class="icon icon-action-edit"></span> @Localizer["Edit"]</button>
+        <button data-id="#: id #" class="btn btn-danger-outline btn-sm delete @isDisableClass"> <span class="icon icon-action-delete"></span> @Localizer["Delete"]</button>
+	</div>
+</script>
+
+<script>
+    require(['content/register'], function (channel) {
+    	channel.init({
+    		url: {
+    			controller: "Register",
+				area: 'MAM',
+    		},
+    		columns: [
+				{ field: "Name", title: "@Localizer["Name"]" },
+				{ field: "Code", title: "@Localizer["Code"]" },
+				{ field: "Description", title: "@Localizer["Description"]" },
+				{
+					field: "",
+					title: "@Localizer["Edit"]",
+					template: kendo.template($("#edit-template").html()),
+					width: "200px",
+				}
+
+    		],
+    		filter:	function (filterText) {
+    		var grid = $("#grid").data("kendoGrid");
+    		var dataSource = grid.dataSource;
+    		dataSource.filter({
+    			logic: "or",
+    			filters: [
+    			{ field: "Name", operator: "contains", value: filterText },
+    			{ field: "Description", operator: "contains", value: filterText }
+    			]
+    		});
+    	}
+    	});
+	});
+
+</script>

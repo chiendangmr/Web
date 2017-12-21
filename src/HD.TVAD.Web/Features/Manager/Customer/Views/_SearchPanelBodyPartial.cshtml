@@ -1,0 +1,90 @@
+﻿@{
+	Layout = null;
+}
+@model AnnexContractViewModel
+@inject IAnnexContractViewService _annexContractViewService
+@inject ICustomerViewService _customerViewService
+@{
+	var customerTypeSelectItems = await _customerViewService.GetCustomerTypeSelectListItemAsync();
+}
+
+<form id="search-form" class="form-horizontal">
+	<div class="form-group">
+		<div class="col-md-4 control-label">
+			<label asp-for="Code"></label>
+		</div>
+		<div class="col-md-8">
+			<input asp-for="Code" list="contractCodeItems" data-bind="{textInput: code, event: { keyup: onCodeKeyUp, blur: onAssetCodeBlur}}" class="form-control" />
+			<datalist id="contractCodeItems">
+				<select name="contractCodeItems"></select>
+			</datalist>
+		</div>
+	</div>
+	<hr />
+		<div class="text-center" style="margin-top: 10px">
+			<div class="btn-group">
+				<button data-bind="{event: { click: onSubmitBtnClick}}" type="button" class="btn btn-primary-outline"><span class="icon icon-search"></span> @Localizer["Search"] </button>
+				<button data-bind="{event: { click: onClearBtnClick}}" type="reset" value="Reset" class="btn btn-primary-outline"><span class="icon icon-action-cancel"></span> @Localizer["Clear"] </button>
+
+			</div>
+		</div>
+</form>
+
+<script>
+	require(['module/manager', 'knockout'], function (manager, ko) {
+		$("#search-form").submit(function () {
+			return false;
+		});;
+		var searchViewModel = {
+			code: ko.observable(""),
+			onCodeKeyPress: function () {
+			},
+			onCodeKeyUp: function (d, e) {
+				var _this = this;
+				if (e.keyCode == 13) {
+					this.search();
+					return false; // ignore default event
+				}
+				return false;
+			//	this.search();
+			},
+			onAssetCodeBlur: function () {
+			//	this.search();
+			},
+			onProducerNameKeyUp: function () {
+				this.search();
+			},
+			onProducerIdChange: function () {
+				this.search();
+			},
+			onSubmitBtnClick: function () {
+				this.search();
+			},
+			onClearBtnClick: function () {
+				$("#search-form")[0].reset();
+				var tree = $("#tree-list").data("kendoTreeList");
+				var dataSource = tree.dataSource;
+				dataSource.filter({});
+				searchViewModel.code = ko.observable("");
+			}
+    		,
+			search: function () {
+				var _this = searchViewModel;
+				var tree = $("#tree-list").data("kendoTreeList");
+				var dataSource = tree.dataSource;
+				var _filter = {};
+				_filter = {
+					logic: "and",
+					filters: [
+						{ field: "Code", operator: "eq", value: searchViewModel.code() },
+					]
+				};
+				dataSource.filter(_filter);
+			}
+		};
+		ko.applyBindings(searchViewModel, $("#search-form")[0]);
+	});
+</script>
+
+
+

@@ -1,0 +1,70 @@
+﻿@{
+	 Layout = null;
+}
+@model TemplateItemIndexViewModel
+
+<div class="container-vertical-flex">
+	<div class="flex flex-0">
+		<span class="h4">@Localizer["Template"]: @Model.TemplateName</span>
+		<button class="btn btn-sm btn-primary-outline create templateItem pull-right"> <span class="glyphicon glyphicon-plus"></span> @Localizer["Add"] </button>
+	</div>
+	<div class="flex flex-1">
+		<div id="grid-templateItem"></div>
+	</div>
+</div>
+
+<script id="template-item-edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete templateItem"><span class="icon icon-action-delete"></span> </button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit templateItem"><span class="icon icon-action-edit"></span> </button>
+	</div>
+</script>
+
+<script>
+	require(['module/template-item'], function (template_item) {
+		template_item.init({
+        	url: {
+        		controller: "TemplateItem",
+        		getAll: "GetAll",
+        		id: "@Model.TemplateId",
+        	},
+        	DOMclass: {
+        		entity: '.templateItem',
+        	},
+        	DOMid: {
+        		grid: 'grid-templateItem',
+        	},
+        	model: {
+        		id: 'Id',
+        		fields: {
+        			name: { field: 'Name', type: "text" },
+        			index: { field: 'Index', type: "number" },
+        		},
+        	},
+            columns: [
+				{ field: "name", title: "@Localizer["Name"] " },
+				{ field: "index", title: "@Localizer["Index"] " },
+				{
+					field: "",
+					title: "Edit",
+					template: kendo.template($("#template-item-edit-template").html()),
+					width: "120px",
+				},
+
+            ],
+            data: {
+				templateId: "@Model.TemplateId",
+            }
+			,
+            function: {
+            	onChange: function (arg) {
+
+            		var grid = arg.sender;
+            		var selected = grid.dataItem(this.select());
+            		$("#template-item-asset-type-panel").load("Manager/TemplateItemAssetTypeRequest" + "/Index/" + selected.id);
+            	 }
+            }
+        });
+    });
+
+</script>

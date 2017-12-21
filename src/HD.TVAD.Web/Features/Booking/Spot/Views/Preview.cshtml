@@ -1,0 +1,64 @@
+﻿@{
+	Layout = null;
+}
+@model PreviewIndexViewModel
+
+<link rel="stylesheet" href="~/lib/mediaelement/build/mediaelementplayer.css" />
+<link rel="stylesheet" href="~/lib/mediaelement-plugins/dist/playlist/playlist.min.css" />
+
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">@Localizer["Preview cut"]</h4>
+</div>
+<div class="modal-body">
+	<h3 class="text-center text-danger"> @ViewBag.Message</h3>
+	<div class="embed-responsive embed-responsive-16by9">
+		@if (Model.LowresFiles.Count > 0)
+		{
+			<video id="player" autoplay="autoplay">
+				@foreach (var file in Model.LowresFiles)
+				{
+					<source src="@file.src" title="@file.title" type="video/mp4" />
+				}
+			</video>
+		}
+		else
+		{
+			<div class="text-center text-danger">
+				<h1 class="text-info" style="color:blueviolet">Not ready for preview!</h1>
+			</div>
+		}
+	</div>
+	<div class="modal-footer">
+		<div class="text-center">
+			<button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-back"></span> @Localizer["Back"]</button>
+		</div>
+	</div>
+</div>
+<script src="~/lib/mediaelement/build/mediaelement-and-player.js"></script>
+<script src="~/lib/mediaelement-plugins/dist/playlist/playlist.js"></script>
+<script>
+
+	var sources = @Json.Serialize(Model.LowresFiles);
+	console.log('srcs: ', sources);
+	var features = [ 'prevtrack', 'playpause', 'nexttrack','progress', 'duration', 'volume','playlist','loop', 'shuffle',];
+	var player = new MediaElementPlayer('player', {
+		stretching: 'responsive',
+		features: features,
+		autoRewind: false,
+		//playlist: [
+		//	{'src': "Videos/Evidence/testEvidence.mp4", title: "video 1"},
+		//	{'src': "Videos/TVC/placeHolder.mp4", title: "video 2"},
+		//],
+	});
+	console.log(player.getSrc())
+
+	$('#modal').on('hide.bs.modal', function (e) {
+		//  if (!data) return e.preventDefault() // stops modal from being shown
+		$("#player").empty();
+	});
+
+</script>
+
+
+

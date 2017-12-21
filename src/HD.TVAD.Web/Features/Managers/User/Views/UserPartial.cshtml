@@ -1,0 +1,581 @@
+﻿@model HD.TVAD.Web.Features.Managers.User.Models.UserViewModel
+
+@{
+    var canEditUser = User.IsInRole(HD.TVAD.Web.StartData.UserPermissions.Manager_User_Edit.ToString());
+
+    var canSetGroup = User.IsInRole(HD.TVAD.Web.StartData.UserPermissions.Manager_User_SetUserGroup.ToString());
+
+    var canSetPermission = User.IsInRole(HD.TVAD.Web.StartData.UserPermissions.Manager_User_SetPermission.ToString());
+}
+
+<div style="position:absolute;top:2px;bottom:2px;left:2px;right:2px;">
+    @(Html.DevExtreme().DataGrid()
+        .ID("gridUser")
+        .ShowBorders(true)
+        .Selection(s => s.Mode(SelectionMode.Single))
+        .RowAlternationEnabled(true)
+        .HoverStateEnabled(true)
+        .ColumnAutoWidth(true)
+        .AllowColumnResizing(true)
+        .AllowColumnReordering(true)
+        .ColumnMinWidth(50)
+        .Height("100%")
+        .DataSource(ds => ds.WebApi().RouteName("managersApiRoute").Controller("UserWebAPI").Key(nameof(Model.id)))
+        .Columns(columns =>
+        {
+            columns.Add().DataField(nameof(Model.userName)).Caption(Html.DisplayNameFor(m => m.userName))
+                .ValidationRules(rules => rules.AddRequired()).SortOrder(SortOrder.Asc);
+
+            columns.Add().DataField(nameof(Model.name)).Caption(Html.DisplayNameFor(m => m.name));
+
+            columns.Add().DataField(nameof(Model.password)).Caption(Html.DisplayNameFor(m => m.password))
+                .EditCellTemplate(@<text>
+                    @(Html.DevExtreme().TextBox()
+                                .Value(new JS("data.password"))
+                                .Mode(TextBoxMode.Password)
+                                .OnValueChanged(@"function(args){
+                                    setValue(args.value);}"))
+                    </text>)
+                .Visible(false);
+
+            columns.Add().DataField(nameof(Model.fullName)).Caption(Html.DisplayNameFor(m => m.fullName));
+
+            columns.Add().DataField(nameof(Model.email)).Caption(Html.DisplayNameFor(m => m.email))
+                .ValidationRules(rules => rules.AddEmail().Message(Localizer["Please enter an email address"].Value));
+
+            columns.Add().DataField(nameof(Model.phoneNumber)).Caption(Html.DisplayNameFor(m => m.phoneNumber));
+
+            columns.Add().DataField(nameof(Model.active)).Caption(Html.DisplayNameFor(m => m.active))
+                .DataType(GridColumnDataType.Boolean);
+        })
+        .Editing(e => e.Mode(DevExtreme.AspNet.Mvc.GridEditMode.Form)
+            .AllowAdding(canEditUser)
+            .AllowUpdating(canEditUser)
+            .AllowDeleting(canEditUser)
+            .Texts(texts =>
+            {
+                texts.AddRow(Localizer["Add user"].Value);
+                texts.EditRow(Localizer["Edit"].Value);
+                texts.CancelRowChanges(Localizer["Cancel"].Value);
+                texts.DeleteRow(Localizer["Delete"].Value);
+                texts.ConfirmDeleteTitle(Localizer["Delete user"].Value);
+                texts.ConfirmDeleteMessage(Localizer["Are you sure delete user?"].Value);
+                texts.SaveAllChanges(Localizer["Save all changes"].Value);
+                texts.SaveRowChanges(Localizer["Save"].Value);
+                texts.UndeleteRow(Localizer["Recover delete"].Value);
+                texts.ValidationCancelChanges(Localizer["Validation cancel changes"].Value);
+            })
+            .Popup(popups =>
+            {
+                popups.MaxWidth(720);
+                popups.Title(Localizer["User information"].Value);
+                popups.ShowTitle(true);
+                popups.Height("auto");
+                popups.ShowCloseButton(true);
+                popups.ResizeEnabled(true);
+            })
+        )
+        .Sorting(s => s.Mode(GridSortingMode.Multiple))
+        .FilterRow(f =>
+        {
+            f.Visible(true);
+            f.OperationDescriptions(des =>
+            {
+                des.Contains(Localizer["Contains"].Value);
+                des.NotContains(Localizer["Does not contain"].Value);
+                des.StartsWith(Localizer["Starts with"].Value);
+                des.EndsWith(Localizer["Ends with"].Value);
+                des.Equal(Localizer["Equals"].Value);
+                des.NotEqual(Localizer["Does not equal"].Value);
+            });
+            f.ResetOperationText(Localizer["Reset"].Value);
+        })
+        .SearchPanel(searchPanel => searchPanel.Visible(true)
+            .Width(240)
+            .Placeholder(Localizer["Search..."].Value))
+        .HeaderFilter(f => f.Visible(true))
+        .Paging(paging => paging.PageSize(20))
+        .Pager(pager =>
+        {
+            pager.ShowPageSizeSelector(true);
+            pager.AllowedPageSizes(new List<int> { 10, 20, 30, 50 });
+            pager.ShowInfo(true);
+            pager.InfoText(Localizer["Page {0} of {1} ({2} items)"].Value);
+        })
+        .OnContentReady("userContentReady")
+        .OnCellPrepared("userCellPrepared")
+        .OnToolbarPreparing("userToolbarPreparing")
+        .OnContextMenuPreparing("userContextMenuPreparing")
+    )
+</div>
+
+@(Html.DevExtreme().Popup()
+    .ID("popupGroup")
+    .ShowTitle(true)
+    .ShowCloseButton(true)
+    .Height("auto")
+    .Visible(false)
+    .Width(720)
+    .Height(500)
+    .ToolbarItems(itms =>
+    {
+        if (canSetGroup)
+        {
+            itms.Add()
+                .Widget(w => w.Button().Text(Localizer["Save"].Value).OnClick("saveUserGroupPopupClick"))
+                .Location(ToolbarItemLocation.After)
+                .Toolbar(Toolbar.Bottom);
+        }
+
+        itms.Add()
+            .Widget(w => w.Button().Text(Localizer["Cancel"].Value).OnClick("closePopupGroup"))
+            .Location(ToolbarItemLocation.After)
+            .Toolbar(Toolbar.Bottom);
+    })
+)
+
+@(Html.DevExtreme().Popup()
+    .ID("popupPermission")
+    .ShowTitle(true)
+    .ShowCloseButton(true)
+    .Height("auto")
+    .Visible(false)
+    .Width(720)
+    .Height(500)
+    .ToolbarItems(itms =>
+    {
+        if (canSetPermission)
+        {
+            itms.Add()
+                .Widget(w => w.Button().Text(Localizer["Save"].Value).OnClick("saveUserPermissionPopupClick"))
+                .Location(ToolbarItemLocation.After)
+                .Toolbar(Toolbar.Bottom);
+        }
+
+        itms.Add()
+            .Widget(w => w.Button().Text(Localizer["Cancel"].Value).OnClick("closePopupPermission"))
+            .Location(ToolbarItemLocation.After)
+            .Toolbar(Toolbar.Bottom);
+    })
+)
+
+<script>
+    function getUserGrid() {
+        return $("#gridUser").dxDataGrid("instance");
+    }
+
+    function userContentReady(e) {
+        var ui = e.component;
+        ui.columnOption("command:edit", {
+            visibleIndex: -1,
+            width: 80
+        });
+    }
+
+    function userCellPrepared(e) {
+        if (e.rowType === "data") {
+            if (e.column.command === "edit") {
+                var isEditing = e.row.isEditing,
+                    $links = e.cellElement.find(".dx-link");
+
+                $links.text("");
+                $links.css('text-decoration', 'none').css('font-size', '18px').css('margin', '0 3px');
+
+                if (isEditing) {
+                    $links.filter(".dx-link-save").addClass("dx-icon-save");
+                    $links.filter(".dx-link-cancel").addClass("dx-icon-revert");
+                } else {
+                    $links.filter(".dx-link-edit").addClass("dx-icon-edit");
+                    $links.filter(".dx-link-delete").addClass("dx-icon-trash");
+                }
+            }
+        }
+        else if (e.rowType === "header") {
+            $links = e.cellElement.filter(".dx-datagrid-action");
+            $links.css("text-align", "center");
+        }
+    }
+
+    function userToolbarPreparing(e) {
+        var dataGrid = e.component;
+        var allowSetUserGroup = '@canSetGroup'.toLowerCase() == "true" ? true : false;
+        var allowSetPermission = '@canSetPermission'.toLowerCase() == "true" ? true : false;
+        e.toolbarOptions.items.unshift(
+            {
+                location: "before",
+                widget: "dxButton",
+                options: {
+                    icon: "refresh",
+                    hint: '@Localizer["Refresh"]',
+                    onClick: function () {
+                        dataGrid.refresh();
+                    }
+                }
+            }, {
+                location: "before",
+                widget: "dxButton",
+                options: {
+                    icon: "group",
+                    text: '@Localizer["Set group"]',
+                    disabled: !allowSetUserGroup,
+                    hint: '@Localizer["Set group for user"]',
+                    onClick: function () { userSetGroupToolbarClick();}
+                }
+            }, {
+                location: "before",
+                widget: "dxButton",
+                options: {
+                    icon: "key",
+                    text: '@Localizer["Set permission"]',
+                    disabled: !allowSetPermission,
+                    hint: '@Localizer["Set permission for user"]',
+                    onClick: function () { userSetPermissionToolbarClick(); }
+                }
+            });
+
+        for (var i = 0; i < e.toolbarOptions.items.length; ++i) {
+            var item = e.toolbarOptions.items[i];
+            if (item.name == 'addRowButton') {
+                var btn = e.toolbarOptions.items[i];
+                e.toolbarOptions.items.splice(i, 1);
+                btn.location = "before";
+                e.toolbarOptions.items.splice(1, 0, btn)
+                break;
+            }
+        }
+    }
+
+    function userContextMenuPreparing(e) {
+        var dataGrid = e.component;
+
+        var allowEditUser = '@canEditUser'.toLowerCase() == "true" ? true : false;
+        var allowSetGroup = '@canSetGroup'.toLowerCase() == "true" ? true : false;
+        var allowSetPermission = '@canSetPermission'.toLowerCase() == "true" ? true : false;
+
+        if (e.row.rowType == "data") {
+            e.items = [
+                {
+                    text: '@Localizer["Refresh"]',
+                    icon: "refresh",
+                    onClick: function () {
+                        dataGrid.refresh();
+                    }
+                }, {
+                    beginGroup: true,
+                    text: '@Localizer["Add user"]',
+                    icon: "add",
+                    disabled: !allowEditUser,
+                    onItemClick: function () {
+                        dataGrid.insertRow();
+                    }
+                }, {
+                    text: '@Localizer["Edit user"]',
+                    icon: "edit",
+                    disabled: !allowEditUser,
+                    onItemClick: function () {
+                        dataGrid.editRow(e.row.rowIndex);
+                    }
+                }, {
+                    text: '@Localizer["Delete user"]',
+                    icon: "remove",
+                    disabled: !allowEditUser,
+                    onItemClick: function () {
+                        dataGrid.removeRow(e.row.rowIndex);
+                    }
+                }, {
+                    beginGroup: true,
+                    text: '@Localizer["Set group"]',
+                    icon: "group",
+                    disabled: !allowSetGroup,
+                    onItemClick: function () {
+                        userSetGroupClick(e.row.rowIndex);
+                    }
+                }, {
+                    beginGroup: true,
+                    text: '@Localizer["Set permission"]',
+                    icon: "key",
+                    disabled: !allowSetPermission,
+                    onItemClick: function () {
+                        userSetPermissionClick(e.row.rowIndex);
+                    }
+                }];
+        }
+    }
+
+    function getPopupGroup() {
+        return $("#popupGroup").dxPopup("instance");
+    }
+
+    function userSetGroupToolbarClick() {
+        var dataGrid = getUserGrid();
+        if (dataGrid.getSelectedRowsData().length > 0)
+            userSetGroupClick(dataGrid.getRowIndexByKey(dataGrid.getSelectedRowsData()[0].id));
+    }
+
+    function userSetGroupClick(rowIndex) {
+        var userId = getUserGrid().getKeyByRowIndex(rowIndex);
+
+        getPopupGroup().option("title", '@Localizer["Set group for "]' + ' ' + getUserGrid().cellValue(rowIndex, "userName"));
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "/Managers/User/SetGroupPartial",
+            data: { userId: userId },
+            success: function (data) {
+                getPopupGroup().option('contentTemplate', function (contentElement) {
+                    contentElement.append(data);
+                });
+                getPopupGroup().show();
+            },
+            error: function (e) {
+                var diag = DevExpress.ui.dialog.custom({
+                    title: '@Localizer["Error"]',
+                    message: '@Localizer["Could not get config for set group"]'
+                });
+                diag.show();
+            }
+        });
+    }
+
+    function getPopupPermission() {
+        return $("#popupPermission").dxPopup("instance");
+    }
+
+    function userSetPermissionToolbarClick() {
+
+        var dataGrid = getUserGrid();
+        if (dataGrid.getSelectedRowsData().length > 0)
+            userSetPermissionClick(dataGrid.getRowIndexByKey(dataGrid.getSelectedRowsData()[0].id));
+    }
+
+    function userSetPermissionClick(rowIndex) {
+        var userId = getUserGrid().getKeyByRowIndex(rowIndex);
+
+        getPopupPermission().option("title", '@Localizer["Set permission for "]' + ' ' + getUserGrid().cellValue(rowIndex, "userName"));
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "/Managers/User/SetPermissionPartial",
+            data: { userId: userId },
+            success: function (data) {
+                getPopupPermission().option('contentTemplate', function (contentElement) {
+                    contentElement.append(data);
+                });
+                getPopupPermission().show();
+            },
+            error: function (e) {
+                var diag = DevExpress.ui.dialog.custom({
+                    title: '@Localizer["Error"]',
+                    message: '@Localizer["Could not get config for set group"]'
+                });
+                diag.show();
+            }
+        });
+    }
+
+    function closePopupGroup() {
+        getPopupGroup().hide();
+    }
+
+    function closePopupPermission() {
+        getPopupPermission().hide();
+    }
+
+    function getTreeSetGroup() {
+        return $("#treeSetGroup").dxTreeList("instance");
+    }
+
+    function userSetGroupOnToolbarPreparing(e) {
+        var treeList = e.component;
+
+        for (var i = 0; i < e.toolbarOptions.items.length; ++i) {
+            var item = e.toolbarOptions.items[i];
+            if (item.name == 'saveButton' || item.name == 'revertButton') {
+                e.toolbarOptions.items.splice(i, 1);
+                --i;
+            }
+        }
+    }
+
+    function userSetGroupCheck(node, value) {
+        if (node.data && node.data.check != value) {
+            node.data.check = value;
+            var rowIndex = getTreeSetGroup().getRowIndexByKey(node.key);
+            getTreeSetGroup().cellValue(rowIndex, "check", value);
+            if (!value) {
+                // Bỏ nhóm cha
+                if (node.parent && node.parent.key != 0)
+                {
+                    userSetGroupCheck(node.parent, false);
+                }
+            }
+            else {
+                // Chọn các nhóm con
+                if (node.children.length > 0) {
+                    for (var i = 0; i < node.children.length; ++i)
+                        userSetGroupCheck(node.children[i], true);
+                }
+            }
+        }
+    }
+
+    function userSetGroupOnEditorPrepared(options) {
+        if (options.parentType == "dataRow" && options.dataField == "check") {
+            var ckBox = options.editorElement.dxCheckBox('instance').option("onValueChanged", function (e) {
+                var rowData = options.row;
+
+                userSetGroupCheck(rowData.node, e.value);
+            });
+        }
+    }
+
+    function getGroupChecks(node, groupIds) {
+        if (node.data.check)
+            groupIds.push(node.key);
+        else {
+            for (var i = 0; i < node.children.length; ++i)
+                getGroupChecks(node.children[i], groupIds);
+        }
+    }
+
+    function saveUserGroupPopupClick(e) {
+        if (getUserGrid().getSelectedRowsData().length == 0) {
+            var diag = DevExpress.ui.dialog.custom({
+                title: '@Localizer["Error"]',
+                message: '@Localizer["Please selected user set groups"]'
+            });
+            diag.show();
+        }
+        else if (!getTreeSetGroup().hasEditData()) {
+            var diag = DevExpress.ui.dialog.custom({
+                title: '@Localizer["Error"]',
+                message: '@Localizer["Did not change groups"]'
+            });
+            diag.show();
+        }
+        else {
+            var userId = getUserGrid().getSelectedRowsData()[0].id;
+
+            var groupIds = [];
+            for (var i = 0; i < getTreeSetGroup().getRootNode().children.length; ++i)
+            {
+                getGroupChecks(getTreeSetGroup().getRootNode().children[i], groupIds);
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: "@Url.Content("~/api/managers/UserWebApi/SetGroupsOfUser")",
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({
+                    userId: userId,
+                    groupIds: JSON.stringify(groupIds)
+                }),
+                success: function (e) {
+                    DevExpress.ui.notify('@Localizer["Set groups success."]');
+                    closePopupGroup(null);
+                },
+                error: function (e) {
+                    var diag = DevExpress.ui.dialog.custom({
+                        title: '@Localizer["Error"]',
+                        message: e.responseText
+                    });
+                    diag.show();
+                }
+            });
+        }
+    }
+
+    function getTreeSetPermission() {
+        return $("#treeSetPermission").dxTreeList("instance");
+    }
+
+    function userSetPermissionCheck(node, value) {
+        if (node.data && node.data.check != value) {
+            node.data.check = value;
+            var rowIndex = getTreeSetPermission().getRowIndexByKey(node.key);
+            getTreeSetPermission().cellValue(rowIndex, "check", value);
+            if (!value) {
+                // Bỏ các quyền trong
+                if (node.children.length > 0) {
+                    for (var i = 0; i < node.children.length; ++i) {
+                        userSetPermissionCheck(node.children[i], false);
+                    }
+                }
+            }
+            else {
+                // Set quyền cha
+                if (node.parent && node.parent.key != 0)
+                    userSetPermissionCheck(node.parent, true);
+            }
+        }
+    }
+
+    function userSetPermissionOnEditorPrepared(options) {
+        if (options.parentType == "dataRow" && options.dataField == "check") {
+            var ckBox = options.editorElement.dxCheckBox('instance').option("onValueChanged", function (e) {
+                var rowData = options.row;
+
+                userSetPermissionCheck(rowData.node, e.value);
+            });
+        }
+    }
+
+    function getPermissionChecks(node, permissionIds) {
+        if (node.data.check) {
+            permissionIds.push(node.key);
+            for (var i = 0; i < node.children.length; ++i)
+                getPermissionChecks(node.children[i], permissionIds);
+        }
+    }
+
+    function saveUserPermissionPopupClick(e) {
+        if (getUserGrid().getSelectedRowsData().length == 0) {
+            var diag = DevExpress.ui.dialog.custom({
+                title: '@Localizer["Error"]',
+                message: '@Localizer["Please selected user set permissions"]'
+            });
+            diag.show();
+        }
+        else if (!getTreeSetPermission().hasEditData()) {
+            var diag = DevExpress.ui.dialog.custom({
+                title: '@Localizer["Error"]',
+                message: '@Localizer["Did not change permissions"]'
+            });
+            diag.show();
+        }
+        else {
+            var userId = getUserGrid().getSelectedRowsData()[0].id;
+
+            var permissionIds = [];
+            for (var i = 0; i < getTreeSetPermission().getRootNode().children.length; ++i)
+            {
+                getPermissionChecks(getTreeSetPermission().getRootNode().children[i], permissionIds);
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: "@Url.Content("~/api/managers/UserWebApi/SetPermissionsOfUser")",
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({
+                    userId: userId,
+                    permissionIds: JSON.stringify(permissionIds)
+                }),
+                success: function (e) {
+                    DevExpress.ui.notify('@Localizer["Set permissions success."]');
+                    closePopupPermission(null);
+                },
+                error: function (e) {
+                    var diag = DevExpress.ui.dialog.custom({
+                        title: '@Localizer["Error"]',
+                        message: e.responseText
+                    });
+                    diag.show();
+                }
+            });
+        }
+    }
+</script>

@@ -1,0 +1,151 @@
+﻿@{
+	Layout = null;
+}
+@model SpotAssetViewModel
+
+
+<style>
+	.modal-dialog {
+		width: 900px;
+	}
+</style>
+
+
+@{
+	var theme = ViewBag.Theme ?? "toolkit-inverse";
+	var backgroundColor = "#fff";
+	if (theme == "toolkit-inverse")
+	{
+		backgroundColor = "#252830";
+	}
+}
+<style>
+	.modal-content > form > .panel > .panel-body {
+		background: @backgroundColor
+	}
+</style>
+
+
+
+<form id="create-block-form" asp-area="Booking" asp-controller="Spot" asp-action="AddSpotAsset" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+
+	<div class="panel panel-default panel-flex">
+		<div class="panel-heading">
+			<h4> @Localizer["Add asset"]</h4>
+		</div>
+		<div class="panel-body">
+			<div class="col-md-6">
+				<div class="panel panel-default">
+					@Html.Partial("_AssetChoosePartial")
+				</div>
+			</div>
+			<div class="col-md-6">
+				<input asp-for="SpotId" type="hidden" />
+				<input type="hidden" asp-for="AssetId" />
+				<input type="hidden" asp-for="BookingAssetType" />
+
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="AssetCodeDisplay"></label>
+					</div>
+					<div class="col-md-8">
+						<input asp-for="AssetCodeDisplay" class="form-control" type="text" />
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="Index"></label>
+					</div>
+					<div class="col-md-8">
+						<input asp-for="Index" class="form-control" type="number" />
+						<span asp-validation-for="Index" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel-footer text-center">
+			<button id="submit" type="submit" class="btn btn-primary-outline"><span class="icon icon-action-create"></span> @Localizer["Add"] </button>
+			<button type="button" class="btn btn-default-outline" data-dismiss="modal"><span class="icon icon-action-back"></span> @Localizer["Back"] </button>
+		</div>
+	</div>
+</form>
+<script>
+    require(['module/manager'], function (manager) {
+        manager.common.submitForm.init({
+        	formId: 'create-block-form',
+        	responseCallback: function (response) {
+        		console.log(response);
+        		if (typeof response == 'object') {
+        			if (response.result == "ok") {
+
+        				$("#modal").modal("hide");
+        				//	$("button.save[data-spotid='@Model.SpotId']").click();
+
+        				$("#btn-search").click();
+        			}
+        			else {
+        				alert(response.message);
+        			}
+        		}
+        		else {
+        			alert(response);
+        		}
+        	}
+        });
+    });
+    require(['module/manager'], function (manager) {
+    	$("#asset-grid").kendoGrid({
+    		dataSource: {
+    			transport: {
+    				read: {
+    					url: "MAM/Content/GetAllAssetForGrid",
+    					dataType: "JSON",
+    					type: "GET",
+    				}
+    			},
+    			schema: {
+    				model: {
+    					id: 'Id',
+    					fields: {
+    						code: { field: "Code", type: "text" },
+    						productName: { field: "ProductName", type: "text" },
+    						blockDuration: { field: "BlockDuration", type: "number" },
+    					}
+    				},
+    				data: "Data",
+    				total: "Total"
+    			},
+    		},
+    		columns: [
+				{ field: "code", title: "@Localizer["Code"]" },
+				{ field: "productName",  title: "@Localizer["Product"]" },
+				{ field: "blockDuration", title: "@Localizer["Duration"]" },
+    		],
+    		selectable: "single",
+    		dataBound: onGirdTapeBound,
+    		change: onGirdTapeChange,
+
+    	});
+    	function onGirdTapeBound() {
+
+    		var grid = this;
+    		if (grid.dataSource.at(0)) {
+    			var uid = grid.dataSource.at(0).uid;
+    			grid.select("tr[data-uid='" + uid + "']");
+
+    		}
+    	};
+
+    	function onGirdTapeChange(arg) {
+    		var grid = arg.sender;
+    		var selected = grid.dataItem(this.select());
+
+    		$("#AssetId").val(selected.id);
+    		$("#asset-code").val(selected.code);
+    	};
+    });
+</script>
+
+
+

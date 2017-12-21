@@ -1,0 +1,112 @@
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="~/lib/devextreme/css/dx.common.css" rel="stylesheet" />
+    <link href="~/lib/devextreme/css/dx.spa.css" rel="stylesheet" />
+    @{
+        string theme = Context.Request.Query["theme"];
+
+        if (string.IsNullOrEmpty(theme))
+        {
+            theme = "dark";
+
+            byte[] themeData = null;
+            if (Context.Session.TryGetValue("theme", out themeData) && themeData != null && themeData.Length > 0)
+            {
+                theme = System.Text.Encoding.UTF8.GetString(themeData);
+            }
+        }
+        else
+        {
+            var themeData = System.Text.Encoding.UTF8.GetBytes(theme);
+            Context.Session.Set("theme", themeData);
+        }
+        var themeName = "generic." + theme;
+    }
+    <link rel="stylesheet" href="~/lib/devextreme/css/dx.@(theme).css" />
+
+    <title>@ViewData["Title"] - HDAdvertising</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    @Html.Raw(JavaScriptSnippet.FullScript)
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="~/lib/devextreme/js/cldr.min.js"></script>
+    <script src="~/lib/devextreme/js/cldr/event.min.js"></script>
+    <script src="~/lib/devextreme/js/cldr/supplemental.min.js"></script>
+    <script src="~/lib/devextreme/js/cldr/unresolved.min.js"></script>
+
+    <script src="~/lib/devextreme/js/globalize.min.js"></script>
+    <script src="~/lib/devextreme/js/globalize/number.min.js"></script>
+    <script src="~/lib/devextreme/js/globalize/currency.min.js"></script>
+    <script src="~/lib/devextreme/js/globalize/date.min.js"></script>
+
+    <script src="~/lib/jszip/dist/jszip.js"></script>
+
+    <script src="~/lib/devextreme/js/dx.all.js"></script>
+    <script src="~/lib/devextreme/js/vectormap-data/world.js"></script>
+    <script src="~/lib/devextreme/js/vectormap-data/usa.js"></script>
+
+    <script src="~/lib/devextreme-aspnet-data/js/dx.aspnet.data.js"></script>
+    <script src="~/lib/devextreme/js/aspnet/dx.aspnet.mvc.js"></script>
+
+    <script>
+        DevExpress.config({ forceIsoDateParsing: true });
+
+        DevExpress.viz.currentTheme("@themeName");
+    </script>
+</head>
+<body class="dx-viewport">
+    <nav class="navbar dx-header navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="logo" href="@Url.Content("~/")">HDAdvertising</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    @(Html.DevExtreme().Menu()
+                        .ID("menu")
+                        .DataSource(d =>
+                            d.Mvc().Controller("Menu").LoadAction("GetMenus"))
+                        .HideSubmenuOnMouseLeave(false)
+                        .Option("showFirstSubmenuMode", "onHover")
+                        .OnItemClick("onMenuItemClick"))
+                </ul>
+                @await Html.PartialAsync("_LoginPartial")
+            </div>
+        </div>
+    </nav>
+    <div class="container body-content">
+        @RenderBody()
+    </div>
+    @*<div class="navbar navbar-fixed-bottom dx-header">
+        <p>Copyright &copy; 2010-@DateTime.Now.Year HDVietNam</p>
+    </div>*@
+    
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        function onMenuItemClick(data) {
+            var item = data.itemData;
+
+            if (item.url)
+                window.location.href = item.url;
+        }
+    </script>
+</body>
+</html>

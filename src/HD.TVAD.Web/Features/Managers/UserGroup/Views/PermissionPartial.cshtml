@@ -1,0 +1,201 @@
+﻿@model HD.TVAD.Web.Features.Managers.UserGroup.Models.GroupPermissionViewModel
+
+@{
+    var canSetPermission = User.IsInRole(HD.TVAD.Web.StartData.UserPermissions.Manager_UserGroup_SetPermission.ToString());
+}
+
+<div style="position:absolute;top:2px;bottom:2px;left:2px;right:2px;">
+    @(Html.DevExtreme().TreeList()
+        .ID("treePermission")
+        .KeyExpr(nameof(Model.permissionId))
+        .ParentIdExpr(nameof(Model.permissionParentId))
+        .ShowBorders(true)
+        .ShowRowLines(false)
+        .Selection(s => s.Mode(SelectionMode.Single))
+        .RowAlternationEnabled(true)
+        .ColumnAutoWidth(true)
+        .Sorting(s => s.Mode(GridSortingMode.Single))
+        .FilterRow(f => f.Visible(false))
+        .HeaderFilter(f => f.Visible(false))
+        .Height("100%")
+        .AllowColumnResizing(true)
+        .ColumnResizingMode(ColumnResizingMode.NextColumn)
+        .Columns(columns =>
+         {
+             columns.Add().DataField(nameof(Model.check)).Caption(Localizer["Check"].Value).Width(120);
+
+             columns.Add().DataField(nameof(Model.permissionDisplayName)).AllowEditing(false).Caption(Html.DisplayNameFor(m => m.permissionDisplayName));
+         })
+        .Option("autoExpandAll", true)
+        .NoDataText(Localizer["No permission for set"].Value)
+        .Editing(e =>
+        {
+            e.Mode(DevExtreme.AspNet.Mvc.GridEditMode.Batch);
+
+            e.AllowUpdating(canSetPermission);
+        })
+        .DataSource(new JS("getPermissions"))
+        .OnToolbarPreparing("permissionOnToolbarPreparing")
+        .OnEditorPrepared("permissionOnEditorPrepared")
+        .OnCellPrepared("permissionOnCellPrepared")
+        )
+</div>
+
+<script>
+    function getTreePermission() {
+        return $("#treePermission").dxTreeList("instance");
+    }
+
+    function getButtonSavePermission() {
+        return $(".btnSavePermission").dxButton("instance");
+    }
+
+    function permissionOnToolbarPreparing(e) {
+        var treeList = e.component;
+
+        for (var i = 0; i < e.toolbarOptions.items.length; ++i) {
+            var item = e.toolbarOptions.items[i];
+            if (item.name == 'saveButton' || item.name == 'revertButton') {
+                e.toolbarOptions.items.splice(i, 1);
+                --i;
+            }
+        }
+
+        e.toolbarOptions.items.unshift(
+            {
+                location: "before",
+                name: "savePermission",
+                template: function () {
+                    return $("<div>").dxButton({
+                        text: '@Localizer["Save permissions"]',
+                        icon: "save",
+                        disabled: true,
+                        onClick: savePermission
+                    }).addClass("btnSavePermission");
+                }
+            }
+        );
+    }
+
+    var getPermissions = {
+        load: function () {
+            var groupId = null;
+            if (getTreeUserGroup().getSelectedRowsData().length > 0)
+                groupId = getTreeUserGroup().getSelectedRowsData()[0].id;
+            if (groupId) {
+                return $.ajax({
+                    url: "@Url.Content("~/api/managers/UserGroupWebApi/GetPermissionCanSetForGroup")",
+                    data: { groupId: groupId },
+                    error: function (e) { DevExpress.ui.notify('@Localizer["Could not get permissions for selected group"]'); }
+                });
+            }
+
+            return [];
+        }
+    }
+
+    function setPermissionCheck(node, value) {
+        if (node.data && node.data.check != value) {
+            node.data.check = value;
+            var rowIndex = getTreePermission().getRowIndexByKey(node.key);
+            getTreePermission().cellValue(rowIndex, "check", value);
+            if (!value) {
+                // Bỏ các quyền trong
+                if (node.children.length > 0) {
+                    for (var i = 0; i < node.children.length; ++i) {
+                        setPermissionCheck(node.children[i], false);
+                    }
+                }
+            }
+            else {
+                // Set quyền cha
+                if (node.parent && node.parent.key != 0)
+                    setPermissionCheck(node.parent, true);
+            }
+        }
+    }
+
+    function permissionOnEditorPrepared(options) {
+        if (options.parentType == "dataRow" && options.dataField == "check") {
+            var ckBox = options.editorElement.dxCheckBox('instance').option("onValueChanged", function (e) {
+                var rowData = options.row;
+
+                setPermissionCheck(rowData.node, e.value);
+            });
+        }
+    }
+
+    function permissionOnCellPrepared(e) {
+        if (e.rowType === "header") {
+            $links = e.cellElement.filter(".dx-treelist-action");
+            $links.css("text-align", "center");
+        }
+    }
+
+    function getPermissionChecks(node, permissionIds) {
+        if (node.data.check) {
+            permissionIds.push(node.key);
+
+            for (var i = 0; i < node.children.length; i++) {
+                getPermissionChecks(node.children[i], permissionIds)
+            }
+        }
+    }
+
+    function savePermission(e) {
+        if (getTreeUserGroup().getSelectedRowsData().length == 0) {
+            var diag = DevExpress.ui.dialog.custom({
+                title: '@Localizer["Error"]',
+                message: '@Localizer["Please selected group to change permissions"]'
+            });
+            diag.show();
+        }
+        else if (!getTreePermission().hasEditData()) {
+            var diag = DevExpress.ui.dialog.custom({
+                title: '@Localizer["Error"]',
+                message: '@Localizer["Did not change permissions"]'
+            });
+            diag.show();
+        }
+        else {
+            var group = getTreeUserGroup().getSelectedRowsData()[0];
+
+            if (!group.parentId) {
+                var diag = DevExpress.ui.dialog.custom({
+                    title: '@Localizer["Error"]',
+                    message: '@Localizer["You could not change permission for your group.<br />Contact to your superior."]'
+                });
+                diag.show();
+            } else {
+                var permissionIds = [];
+
+                for (var i = 0; i < getTreePermission().getRootNode().children.length; i++) {
+                    getPermissionChecks(getTreePermission().getRootNode().children[i], permissionIds)
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: "@Url.Content("~/api/managers/UserGroupWebApi/SetPermissionForGroup")",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        groupId: group.id,
+                        permissionIds: JSON.stringify(permissionIds)
+                    }),
+                    success: function (e) {
+                        getTreePermission().refresh();
+                        getTreePermission().cancelEditData();
+                        DevExpress.ui.notify('@Localizer["Save permissions success."]');
+                    },
+                    error: function (e) {
+                        var diag = DevExpress.ui.dialog.custom({
+                            title: '@Localizer["Error"]',
+                            message: e.responseText
+                        });
+                        diag.show();
+                    }
+                });
+            }
+        }
+    }
+</script>

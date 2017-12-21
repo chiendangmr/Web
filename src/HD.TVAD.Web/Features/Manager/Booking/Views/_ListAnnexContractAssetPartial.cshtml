@@ -1,0 +1,192 @@
+﻿@model AnnexContractAssetIndexViewModel
+@{
+	Layout = null;
+}
+
+<div class="panel panel-flex panel-default">
+	<div class="panel-heading">
+		<div class="dashhead">
+			<div class="dashhead-titles">
+				<div class="dashhead-title">
+					<h4>@Localizer["Asset for booking"]</h4>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body">
+		<div id="grid-annexDetail"></div>
+	</div>
+
+</div>
+<script id="annexDetail-edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" data-link="Manager/AnnexContractAsset/Delete" class="btn btn-danger-outline btn-sm annexDetail delete"><span class="icon icon-action-delete"></span> @Localizer["Del"]</button>
+		<button data-id="#: id #" data-link="Manager/AnnexContractAsset/Edit" class="btn btn-warning-outline btn-sm annexDetail edit"><span class="icon icon-action-edit"></span> @Localizer["Edit"]</button>
+	</div>
+</script>
+<script id="SignDate-template" type="text/x-kendo-template">
+	#: kendo.toString(kendo.parseDate(SignDate), "dd/MM/yyyy")  #
+</script>
+<script id="ReceiveDate-template" type="text/x-kendo-template">
+	#: kendo.toString(kendo.parseDate(ReceiveDate), "dd/MM/yyyy")  #
+</script>
+
+
+<ul id="context-menu-annexContractAsset">
+	<li data-action="change-booking-to-this-asset">
+		<span class="icon icon-action-edit"></span> @Localizer["change-booking-to-this-asset"]
+	</li>
+	<li data-action="print-contract-this-asset">
+		<span class="icon icon-action-edit"></span> @Localizer["print-contract-this-asset"]
+	</li>
+	<li data-action="print-certificate-this-asset">
+		<span class="icon icon-action-edit"></span> @Localizer["print-certificate-this-asset"]
+	</li>
+</ul>
+
+@if (!Model.AnnexContractId.Equals(Guid.Empty))
+{
+	<script>
+	require(['module/annex-contract-asset'], function (module) {
+		module.init({
+			url: {
+				controller: "AnnexContractAsset",
+				getAll: "GetAllByAnnexContractId",
+				id: "@Model.AnnexContractId",
+			},
+			DOMid: {
+				grid: 'grid-annexDetail',
+			},
+			DOMclass: {
+				entity: ".annexDetail",
+			},
+			data: {
+				annexContractId: "@Model.AnnexContractId"
+			},
+			model: {
+				id: 'Id',
+				fields: {
+					assetCode: { field: 'AssetCode', type: "text" },
+					assetBlockDuration: { field: 'AssetBlockDuration', type: "number" },
+					assetProductName: { field: 'AssetProductName', type: "text" },
+					priceTypeDetailName: { field: 'PriceTypeDetailName', type: "text" },
+					content: { field: 'Content', type: "text" },
+				},
+			},
+			columns: [
+					{ field: "assetCode", title: "@Localizer["Asset Code"]"},
+					{ field: "assetBlockDuration" , title: "@Localizer["Duration"]"},
+					{ field: "assetProductName" , title: "@Localizer["Product Name"]"},
+					{ field: "priceTypeDetailName", title: "@Localizer["Price Type"]" },
+					{ field: "content", title: "@Localizer["Content"]"},
+				{
+					field: "",
+					title: "@Localizer["Edit"]",
+					template: kendo.template($("#annexDetail-edit-template").html()),
+					width: "160px",
+				}
+			],
+			function: {
+				onChange: onGirdAnnexDetailChange,
+			//	customOnBound: customOnBound
+			},
+			settings: {
+				selectFirstRow: false,
+			}
+		});
+
+
+		$("#context-menu-annexContractAsset").kendoContextMenu({
+			//	alignToAnchor: true
+			target: "#grid-annexDetail",
+			filter: "tr",
+			select: function (e) {
+				var grid = $("#grid-annexDetail").data("kendoGrid")
+				var trUid = e.target.dataset.uid;;
+				var dataItem = grid.dataSource.getByUid(trUid);
+				var action = e.item.dataset.action;
+				switch (action) {
+					case "change-booking-to-this-asset":
+						console.log("change-booking-to-this-asset");
+						var itemChecked = $('input.booking[type="checkbox"]:checked');
+						var spotBookingIds = [];
+						if (itemChecked.length > 0) {
+							itemChecked.each(function (i, v) {
+								spotBookingIds.push(v.dataset.id);
+							});
+							if (confirm("Are you sure?"))
+							{
+								$.ajax({
+									url: "Manager/SpotBooking/ChangeAnnexContractAsset",
+									type: 'POST',
+									data: {
+										spotBookingIds: spotBookingIds,
+										annexContractAssetId: dataItem.id,
+									},
+									success: function (response) {
+										console.log(response);
+										if (typeof response == 'object') {
+											if (response.Succeeded) {
+												notification.show(response.Message);
+
+												var grid = $("#grid-spotBooking").data("kendoGrid"); // refresh
+												if (grid) {
+													grid.dataSource.read();
+												}
+
+											}
+											else {
+												alert(response.Message);
+											}
+										}
+										else {
+											alert(response);
+										}
+									}
+								});
+
+							}
+						}
+						else {
+							alert('No booking select!');
+						}
+						break;
+					case "print-contract-this-asset":
+						console.log("print-contract-this-asset");
+						var urlPath = location.origin + "/Report/Report/PrintContractByAnnexContractAsset/" + dataItem.id;
+						window.open(urlPath, '_blank');
+						break;
+					case "print-certificate-this-asset":
+						console.log("print-certificate-this-asset");
+						var urlPath = location.origin + "/Report/Report/PrintCertificateByAnnexContractAsset/" + dataItem.id;
+						window.open(urlPath, '_blank');
+						break;
+
+				}
+				// handle event
+			}
+		});
+	});
+
+	function customOnBound(grid) {
+		var dataSource = grid.dataSource;
+		if (dataSource.data().length == 0) {
+			$("#div-spotBooking").css("opacity", '0.3');
+		}
+		else {
+			$("#div-spotBooking").css("opacity", '1');
+		}
+	}
+
+	function onGirdAnnexDetailChange(arg) {
+		var grid = arg.sender;
+		var selected = grid.dataItem(this.select());
+		$("#AnnexContractAssetId").val(selected.id);
+		//	$("#AssetCode").val(selected.assetCode);
+		$("#annexContractAssetCreate-panel").load("Manager/Booking/DetailAnnexContractAsset/" + selected.id, function () {
+			$("#annexContractAssetCreate-panel").animate({ opacity: 0.1 }, 0).animate({ opacity: 1 }, 100);
+		});
+	//	$("#div-spotBooking").load("Manager/SpotBooking" + "/IndexBooking/" + selected.id);
+	};
+	</script>
+}

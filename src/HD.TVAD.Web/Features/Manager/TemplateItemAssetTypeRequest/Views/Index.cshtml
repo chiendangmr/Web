@@ -1,0 +1,73 @@
+﻿@{
+    ViewBag.Title = "";
+	 Layout = null;
+}
+@model TemplateItemAssetTypeRequestIndexViewModel
+
+<div class="container-vertical-flex">
+	<div class="flex flex-0">
+		<span class="h4">@Localizer["Template"]: @Model.TemplateName > @Model.TemplateItemName</span>
+		<button class="btn btn-sm btn-primary-outline create templateItemAssetTypeRequest pull-right"> <span class="glyphicon glyphicon-plus"></span> @Localizer["Add"] </button>
+	</div>
+	<div class="flex flex-1">
+		<div id="grid-templateItemAssetTypeRequest"></div>
+	</div>
+</div>
+
+<script id="templateItemAssetTypeRequest-edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete templateItemAssetTypeRequest"><span class="icon icon-action-delete"></span> </button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit templateItemAssetTypeRequest"><span class="icon icon-action-edit"></span> </button>
+	</div>
+</script>
+
+<script>
+	require(['module/template-item-asset-type'], function (module) {
+		module.init({
+        	url: {
+        		controller: "TemplateItemAssetTypeRequest",
+        		getAll: "GetAll",
+        		id: "@Model.TemplateItemId",
+        	},
+        	DOMclass: {
+        		entity: '.templateItemAssetTypeRequest',
+        	},
+        	DOMid: {
+        		grid: 'grid-templateItemAssetTypeRequest',
+        	},
+        	model: {
+        		id: 'Id',
+        		fields: {
+        			assetTypeName: { field: 'AssetTypeName', type: "text" },
+        			minCount: { field: 'MinCount', type: "number" },
+        			maxCount: { field: 'MaxCount', type: "number" },
+        		},
+        	},
+            columns: [
+				{ field: "assetTypeName", title: "@Localizer["Type"] " },
+				{ field: "minCount", title: "@Localizer["Min"]" },
+			    { field: "maxCount", title: "@Localizer["Max"]" },
+				{
+					field: "",
+					title: "Edit",
+					template: kendo.template($("#templateItemAssetTypeRequest-edit-template").html()),
+					width: "120px",
+				},
+
+            ],
+            data: {
+            	templateItemId: "@Model.TemplateItemId",
+            }
+			,
+            function: {
+            	onChange: function (arg) {
+
+            	//	var grid = arg.sender;
+            //		var selected = grid.dataItem(this.select());
+            	//	$("#template-item-panel").load("Manager/TemplateItem" + "/Index/" + selected.id);
+            	 }
+            }
+        });
+    });
+
+</script>

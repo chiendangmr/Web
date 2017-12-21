@@ -1,0 +1,220 @@
+﻿@model LoadPermissionIndexViewModel
+
+@{
+	ViewBag.Title = Localizer["Permissions"].Value;
+	Layout = null;
+}
+@{
+	var theme = ViewBag.Theme ?? "toolkit-inverse";
+	var backgroundColor = "#fff";
+	if (theme == "toolkit-inverse")
+	{
+		backgroundColor = "#252830";
+	}
+}
+<style>
+	.modal-content > .panel > .panel-body {
+		height: 500px;
+		background: @backgroundColor
+	}
+</style>
+<div class="panel panel-default panel-flex">
+    <div class="panel-heading">
+        <h4> @Localizer["Permissions for"] @Model.UserGroupName </h4>
+    </div>
+    <div class="panel-body">
+        <div id="tree-view-permission"></div>
+    </div>
+    <div class="panel-footer text-center">
+        <button id="saveBtn" class="btn btn-primary-outline">
+            <span class="icon icon-action-save"></span> @Localizer["Save"]
+        </button>
+		<button type="button" class="btn btn-default-outline" data-dismiss="modal"><span class="icon icon-back"></span> @Localizer["Back"]</button>
+    </div>
+</div>
+
+<script id="permission-template" type="text/x-kendo-template">
+	#if(hasPermission == true){#
+	<div class="checkbox-inline custom-control custom-checkbox">
+		<label>
+			<input type="checkbox" checked name="ModulePermissionID" value="#= id#" />
+			<span class="custom-control-indicator"></span>
+		</label>
+	</div>
+	#}else{#
+	<div class="checkbox-inline custom-control custom-checkbox">
+		<label>
+			<input type="checkbox" name="ModulePermissionID" value="#= id#" />
+			<span class="custom-control-indicator"></span>
+		</label>
+	</div>
+	#}#
+	<span>#=permissionName#</span>
+</script>
+
+<script>
+	require(["module/manager"], function () {
+
+		$("#tree-view-permission").kendoTreeList({
+			dataSource: {
+				transport: {
+					read: {
+						url: "Manager/UserGroup/GetPermissionCanSetForGroup",
+						dataType: "JSON",
+						type: "GET",
+						data: { groupId: "@Model.UserGroupID" }
+					}
+				},
+				schema: {
+					model: {
+						id: "permissionId",
+						fields: {
+							parentId: { field: "permissionParentId", nullable: true },
+						},
+					},
+					data: "Data",
+					total: "Total"
+				},
+			},
+			columns: [
+				{
+					field: "HasPermission",
+					title: "@Localizer["Check"]",
+					template: function (dataItem) {
+						return kendo.template($("#permission-template").html())({ hasPermission: dataItem.check, id: dataItem.id, permissionName: dataItem.permissionDisplayName });
+					},
+
+				},
+			//	{ field: "permissionDisplayName", title: "@Localizer["Permission"]" },
+			],
+			selectable: "single",
+			dataBound: onBound,
+			change: onChange,
+
+		});
+
+
+		function onBound() {
+			var items = this.dataSource._view;
+			bindCheckboxEvent(items);
+			bindSaveButton();
+
+			var treeList = this;
+			//var rows = $("tr.k-treelist-group", treeList.tbody);
+			//$.each(rows, function (idx, row) {
+			//	treeList.expand(row);
+			//});
+		};
+
+		function onChange(arg) {
+			var grid = arg.sender;
+			var selected = grid.dataItem(this.select());
+		//	$("#permission").load("Manager/UserGroup/" + selected.id + "/LoadPermission");
+		};
+	});
+
+	function bindSaveButton() {
+	//	debugger;
+		$("#saveBtn").on('click', function () {
+			console.log("click");
+			var checkboxs = $("input[type='checkbox']:checked");
+			var permissonIds = [];
+			$.each(checkboxs, function (i, v) {
+				permissonIds.push(v.value);
+			});
+			SetPermission(permissonIds);
+		 });
+	 };
+	function bindCheckboxEvent(items) {
+		console.log(items);
+		$("input[type='checkbox']").on('change', function () {
+			var children = FindAllChildren(this.value, items);
+			var parent = FindAllParent(this.value, items);
+			$(this).prop("checked", this.checked);
+
+			//	debugger;
+			console.log(children);
+			if (!this.checked) {
+				activeCheckBox(children, this.checked);
+			}
+			if (this.checked)
+			{
+				activeCheckBox(parent, this.checked);
+			}
+
+		});
+		}
+	function activeCheckBox(items, checked) {
+		
+		$.each(items, function (i, v) {
+		//	debugger;
+		//	$("input[type='checkbox'][value='" + v.id + "']").click();
+			$("input[type='checkbox'][value='" + v.id + "']").prop("checked", checked);
+			 });
+	 }
+	function SetPermission(permissionIds) {
+		console.log(permissionIds);
+	//	debugger;
+		$.ajax({
+			url: "Manager/UserGroup/SetPermission",
+			data: { groupId: "@Model.UserGroupID", permissionIds: permissionIds },
+			type: "POST",
+		}).done(function (response) {
+			console.log(response);
+			if (typeof response == 'object') {
+				if (response.result == "OK") {
+					$('#modal').modal("hide");
+					notification.show(response.message);
+				}
+				else {
+					alert(response.message);
+				}
+			}
+			else {
+				alert(response);
+			}
+		 });
+	 }
+	function FindAllChildren(thisId, items) {
+		var children = [];
+		if (typeof items == 'object') {
+			$.each(items, function (i, v) {
+				if (v.parentId == thisId) {
+					children.push(v);
+					var _children = FindAllChildren(v.id, items);
+					if (_children.length > 0)
+					{
+						$.each(_children, function (i, v) {
+							children.push(v);
+						});
+					 }
+				}
+			});
+		}
+		return children;
+	}
+
+	function FindAllParent(thisId, items) {
+		var parent = [];
+		if (typeof items == 'object') {
+			$.each(items, function (i, v) {
+				if (v.id == thisId) {
+					var thisItem = v;
+					$.each(items, function (i, v) {
+						if (thisItem.parentId == v.id) {
+							parent.push(v);
+							var _parent = FindAllParent(v.id, items);
+
+							if (_parent.length > 0) {
+								$.each(_parent, function (i, v) {
+									parent.push(v);
+								});
+							}
+						}
+					});
+				}
+			});
+		}
+		return parent;
+	}
+</script>

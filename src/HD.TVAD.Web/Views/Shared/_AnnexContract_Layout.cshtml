@@ -1,0 +1,104 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using HD.TVAD.ApplicationCore.Entities.Booking
+@using HD.TVAD.ApplicationCore.Entities.ContractSchema
+<div class="container-flex">
+    <div class="flex flex-1">
+		<div class="panel panel-flex panel-default">
+			<div class="panel-heading">
+				<div class="sidebar-header">
+					<button class="nav-toggler nav-toggler-sm sidebar-toggler" type="button" data-toggle="collapse" data-target="#nav-toggleable-sm">
+						<span class="sr-only">Toggle nav</span>
+					</button>
+					<a class="sidebar-brand img-responsive" href="/">
+						<span class="icon icon-home sidebar-brand-icon"></span>
+					</a>
+				</div>
+			</div>
+			<div class="panel-body">
+
+				<div class="collapse nav-toggleable-sm" id="nav-toggleable-sm">
+					<form class="sidebar-form">
+						<input class="form-control" type="text" placeholder="@Localizer["Search..."]">
+						<button type="submit" class="btn-link">
+							<span class="icon icon-search"></span>
+						</button>
+					</form>
+					<ul class="nav nav-pills nav-stacked">
+						<li class="nav-header">@Localizer["Dashboards"]</li>
+						<li>
+							<a href="/Home">@Localizer["Overview"]</a>
+						</li>
+						<li>
+							<a asp-area="Booking" asp-controller="Spot" asp-action="Index">@Localizer["Spot Approval"]</a>
+						</li>
+						<li>
+							<a asp-area="MAM" asp-controller="Content" asp-action="Index">@Localizer["Content manager"]</a>
+						</li>
+						<li class="nav-header">@Localizer["Annex Contract"]</li>
+						<li>
+							<a asp-area="Manager" asp-controller="AnnexContract" asp-action="Index">@Localizer["All Contract"]</a>
+						</li>
+						<li>
+							<a asp-area="AnnexContract" asp-controller="NormalBooking" asp-action="Index">@Localizer[(BookingTypeEnum.Contract_Booking.GetDisplayName())]</a>
+						</li>
+						<li>
+							<a asp-area="Manager" asp-controller="AnnexContract" asp-action="BookingIn">@Localizer[(BookingTypeEnum.Contract_Sponsor_InProgram.GetDisplayName())]</a>
+						</li>
+						<li>
+							<a asp-area="Manager" asp-controller="AnnexContract" asp-action="BookingOut">@Localizer[(BookingTypeEnum.Contract_Sponsor_OutProgram.GetDisplayName())]</a>
+						</li>
+						<li>
+							<a asp-area="Manager" asp-controller="AnnexContract" asp-action="TrailerBooking">@Localizer[(BookingTypeEnum.Contract_Sponsor_Trailer.GetDisplayName())]</a>
+						</li>
+						<li>
+							<a asp-area="Manager" asp-controller="AnnexContract" asp-action="BenefitBooking">@Localizer[(BookingTypeEnum.Contract_Sponsor_Benefit.GetDisplayName())]</a>
+						</li>
+						<li>
+							<a asp-area="Manager" asp-controller="RetailContract" asp-action="Index">@Localizer[(BookingTypeEnum.Retail.GetDisplayName())]</a>
+						</li>
+						<li class="nav-header">@Localizer["System"]</li>
+						<li>
+							<a asp-area="Manager" asp-controller="SpotBlock" asp-action="Index">@Localizer["Block"]</a>
+						</li>
+						<li>
+							<a asp-area="Manager" asp-controller="Channel" asp-action="Index">@Localizer["Channel"]</a>
+						</li>
+						<li>
+							<a asp-area="Manager" asp-controller="TimeBand" asp-action="Index">@Localizer["TimeBand"]</a>
+						</li>
+
+					</ul>
+					<hr class="visible-xs m-t">
+				</div>
+			</div>
+		</div>
+    </div>
+    <div class="flex flex-4">
+        @RenderBody()
+    </div>
+</div>
+
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+
+		</div>
+	</div>
+</div>
+
+<script>
+
+	require(['jquery'], function () {
+		var path = location.pathname;
+		var controller = path.split('/')[3];
+		$("ul.nav.nav-pills.nav-stacked>li>a").each(function (i, v) {
+			var href = $(v).attr("href");
+			if (href.includes(controller)) {
+				$(v).closest('li').addClass("active");
+			}
+		});
+
+	});
+</script>

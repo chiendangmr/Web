@@ -1,0 +1,47 @@
+﻿@model SpotBookingContractIndexViewModel
+<form id="create-form" asp-area="Manager" asp-controller="AnnexContract" asp-action="Edit" method="post" enctype="multipart/form-data" class="form-horizontal">
+	<div class="col-md-6">
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="BookingTypeName"></label>
+			</div>
+			<div class="col-md-8">
+				@Html.Raw(Model.IconBookingType)<span>  @Model.BookingTypeName</span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="CustomerName"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="CustomerName" class="form-control" type="text" />
+				<span asp-validation-for="CustomerName" class="text-danger"></span>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="Code"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Code" class="form-control" type="text" />
+				<span asp-validation-for="Code" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="ReceiveDate"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="ReceiveDate" class="form-control" type="date" />
+				<span asp-validation-for="ReceiveDate" class="text-danger"></span>
+			</div>
+		</div>
+		<hr />
+		<div class="text-center">
+			<a class="btn btn-primary-outline" href="Report/Report/BroadcastCertificate/@Model.AnnexContractId" target="_blank"><span class="icon icon-print"></span> @Localizer["Print"]</a>
+			<a class="btn btn-primary-outline" href="Report/Report/BroadcastCertificateWithValueRetailContract/@Model.AnnexContractId" target="_blank"><span class="icon icon-print"></span> @Localizer["Print Value"]</a>
+		</div>
+	</div>
+</form>

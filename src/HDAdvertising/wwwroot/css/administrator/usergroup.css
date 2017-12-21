@@ -1,0 +1,26 @@
+﻿.usergroup-group {
+    position: absolute;
+    z-index: 1;
+    width: 50%;
+}
+
+.usergroup-permission {
+    position: absolute;
+    margin-left: 50%;
+    height: 100%;
+    padding: 0px 30px 30px;
+}
+
+.dx-icon-add:before {
+    float: left;
+    margin-left: 22px;
+}
+
+.dx-treelist-header-panel {
+    height: 0px;
+    visibility: hidden;
+}
+
+.hide-item {
+    visibility: hidden;
+}

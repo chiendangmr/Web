@@ -1,0 +1,130 @@
+﻿@{
+	Layout = null;
+}
+<div class="panel-heading">
+	<div class="dashhead">
+		<div class="dashhead-titles">
+			<div class="dashhead-title">
+				<h4> @Localizer["Asset Choose"] </h4>
+			</div>
+		</div>
+	</div>
+	<div class="flextable table-actions">
+		<div class="flextable-item flextable-primary">
+			<div class="btn-toolbar-item input-with-icon" style="width: 90%; max-width: 900px;">
+				<span class="icon icon-search"></span>
+				<input type="search" id="filterText" class="form-control input-block " placeholder="@Localizer["Search..."]">
+			</div>
+			<div class="btn-toolbar-item input-with-icon">
+				<button id="clearFilter" class="btn btn-primary-outline"><span class="icon icon-erase"></span></button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="panel-body">
+	<div id="grid-tape" style="height: 400px"></div>
+</div>
+
+<script>
+
+	require(['module/manager', 'knockout'], function () {
+		
+		$("#grid-tape").kendoGrid({
+			dataSource: {
+				transport: {
+					read: {
+						url: "MAM/Content/GetAllAssetForGrid",
+						dataType: "JSON",
+						type: "GET",
+					}
+				},
+				schema: {
+					model: {
+						id: 'Id',
+						fields: {
+							code: { field: 'Code', type: "text" },
+							productName: { field: 'ProductName', type: "text" },
+							blockDuration: { field: 'BlockDuration', type: "number" },
+						},
+					},
+						data: "Data",
+						total: "Total"
+				},
+				serverPaging: true,
+				serverFiltering: true,
+				type: "aspnetmvc-ajax",
+				error: function (e) {
+					switch (e.xhr.status) {
+						case 401: // unauthorize
+							alert("Session timeout, please login again!");
+							var returnUrl = location.origin + "/Home/Auth/LogIn?ReturnUrl=" + location.pathname;
+							location.replace(returnUrl);
+							break;
+						case 500: // inner server error
+							alert("Internal Server Error");
+							break;
+						case 404: // Not Found
+							alert("Not Found");
+							break;
+						case 403: // unauthenticaion
+							alert("Not have perrmission");
+							break;
+					}
+				}
+				
+			},
+			columns: [
+					{ field: "code", title: "@Localizer["Code"]" },
+					{ field: "productName",  title: "@Localizer["Product"]" },
+				{ field: "blockDuration", title: "@Localizer["Duration"]" },
+	],
+		selectable: "single",
+	dataBound: onGirdTapeBound,
+	change: onGirdTapeChange,
+	sortable: true,
+	pageable: {
+		pageSize: 10
+	}
+
+	});
+	function onGirdTapeBound() {
+
+		var grid = this;
+		if (grid.dataSource.at(0)) {
+			var uid = grid.dataSource.at(0).uid;
+		//	grid.select("tr[data-uid='" + uid + "']"); // dont select auto
+
+		}
+	};
+
+	function onGirdTapeChange(arg) {
+		var grid = arg.sender;
+		var selected = grid.dataItem(this.select());
+
+		$("#AssetId").val(selected.id);
+		$("#AssetCodeDisplay").val(selected.code);
+	};
+
+		
+		$("input[type='search']").on("keypress", function (e) {
+			if (e.keyCode == 13) {
+				search(this.value);
+				return false; // ignore default event
+			}
+		});;
+
+		function search(filterText) {
+			var grid = $("#grid-tape").data("kendoGrid");
+			var dataSource = grid.dataSource;
+			dataSource.filter({
+				logic: "or",
+				filters: [
+				{ field: "Code", operator: "contains", value: filterText },
+				{ field: "ProductName", operator: "contains", value: filterText }
+				]
+			});
+		}
+	});
+
+</script>
+

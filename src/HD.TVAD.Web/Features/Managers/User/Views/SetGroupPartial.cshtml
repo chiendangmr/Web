@@ -1,0 +1,37 @@
+﻿@model HD.TVAD.Web.Features.Managers.User.Models.UserSetViewModel
+
+@{ 
+    var canSetGroup = User.IsInRole(HD.TVAD.Web.StartData.UserPermissions.Manager_User_SetUserGroup.ToString());
+}
+
+@(Html.DevExtreme().TreeList()
+    .ID("treeSetGroup")
+    .KeyExpr("id")
+    .ParentIdExpr("parentId")
+    .ShowBorders(true)
+    .Selection(s => s.Mode(SelectionMode.Single))
+    .RowAlternationEnabled(true)
+    .HoverStateEnabled(true)
+    .ColumnAutoWidth(true)
+    .Sorting(s => s.Mode(GridSortingMode.Single))
+    .NoDataText(Localizer["No group"].Value)
+    .AllowColumnResizing(true)
+    .ColumnResizingMode(ColumnResizingMode.NextColumn)
+    .Height("100%")
+    .AutoExpandAll(true)
+    .Editing(e =>
+    {
+        e.Mode(DevExtreme.AspNet.Mvc.GridEditMode.Batch);
+
+        e.AllowUpdating(canSetGroup);
+    })
+    .Columns(cols =>
+    {
+        cols.Add().DataField("check").Caption(Localizer["Check"].Value).DataType(GridColumnDataType.Boolean).Width(120);
+
+        cols.Add().DataField("name").Caption(Localizer["User group"].Value).AllowEditing(false);
+    })
+    .DataSource(ds => ds.WebApi().RouteName("managersApiRoute").Controller("UserWebAPI").LoadAction("GetGroupsOfUser").LoadParams(new { userId = Model.userId }))
+    .OnToolbarPreparing("userSetGroupOnToolbarPreparing")
+    .OnEditorPrepared("userSetGroupOnEditorPrepared")
+)

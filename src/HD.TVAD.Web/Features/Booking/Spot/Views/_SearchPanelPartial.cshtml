@@ -1,0 +1,279 @@
+﻿  @model SpotSearchIndexViewModel
+@inject ITimeBandViewService _timeBandViewService
+@inject IChannelViewService _channelViewService
+@{
+	var channelSelectItems = await _channelViewService.GetSelectListItemAsync();
+	foreach (var channelSelectItem in channelSelectItems)
+	{
+		if (channelSelectItem.Text == "VTV1")
+		{
+			channelSelectItem.Selected = true;
+			break;
+		}
+	}
+	var timeBandSelectItems = await _timeBandViewService.GetTimeBandOfChannelListAsync(new Guid(channelSelectItems.Where(c => c.Selected).FirstOrDefault().Value));
+
+	var timeBandSliceSelectItems = await _timeBandViewService.GetTimeBandSliceSelectItemsListAsync(new Guid(timeBandSelectItems.First().Value));
+
+}
+@{
+	var showInDate = Model.TimePeriodType == SpotSearchTimePeriod.OneDay;
+	var showFromDateToDate = !showInDate;
+}
+
+<div id="search-panel" class="panel panel-flex panel-default">
+	<div class="panel-heading">
+		<h4>@Localizer["Search"]</h4>
+	</div>
+	<div class="panel-body">
+		<form class="form-horizontal">
+			<div class="form-group">
+				<div class="col-md-4 control-label">
+					<label>@Localizer["Time Period"]</label>
+				</div>
+				<div class="col-md-8">
+					<div class="radio-inline custom-control custom-radio">
+						<label>
+							<input type="radio" data-bind="checked: timePeriodType, click: onPeriodTimeChooseClick" value="@((int)SpotSearchTimePeriod.OneDay)" asp-for="TimePeriodType" />
+							<span class="custom-control-indicator"></span>@Localizer["Date"]
+						</label>
+					</div>
+					<div class="radio-inline custom-control custom-radio">
+						<label>
+							<input type="radio" data-bind="checked: timePeriodType , click: onPeriodTimeChooseClick" value="@((int)SpotSearchTimePeriod.FromDateToDate)" asp-for="TimePeriodType" />
+							<span class="custom-control-indicator"></span>
+							@Localizer["From"]
+						</label>
+					</div>
+				</div>
+			</div>
+
+				<div class="form-group" data-bind="visible: showInDate">
+					<div class="col-md-4 control-label">
+						<label asp-for="InDate"></label>
+					</div>
+					<div class="col-md-8">
+						<input asp-for="InDate" class="form-control" data-bind="value: inDate, event: {change: onInDateChange}" type="date" />
+					</div>
+				</div>
+			<div class="panel" data-bind="visible: showFromDateToDate" style="display: none">
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="FromDate"></label>
+					</div>
+					<div class="col-md-8">
+						<input asp-for="FromDate" class="form-control" data-bind="value: fromDate, event: {change: onFromDateChange}" type="date" />
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="ToDate"></label>
+					</div>
+					<div class="col-md-8">
+						<input asp-for="ToDate" data-bind="value: toDate, event: {change: onToDateChange}" class="form-control" type="date" />
+					</div>
+				</div>
+				</div>
+			<div class="form-group">
+				<div class="col-md-4 control-label">
+					<label asp-for="ChannelId"></label>
+				</div>
+				<div class="col-md-8">
+					<select asp-for="ChannelId" class="form-control" data-bind="value: channelId,
+							event: {change: onChannelSelectChange}" asp-items="channelSelectItems">
+						<option value="">@Localizer["Choose..."]</option>
+					</select>
+				</div>
+			</div>
+					<div class="form-group">
+						<div class="col-md-4 control-label">
+							<label asp-for="TimeBandId"></label>
+						</div>
+						<div class="col-md-8">
+							<select asp-for="TimeBandId" class="form-control" data-bind="value: timeBandId,
+									enable: enableTimeBandSelect,
+									event: {change: onTimeBandSelectChange},
+								options: timebandOptions,
+								optionsText: 'name',
+								optionsValue: 'id',
+								optionsCaption: '@Localizer["Choose..."]'" asp-items="timeBandSelectItems">
+								<option value="">@Localizer["Choose..."]</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-4 control-label">
+							<label asp-for="TimeBandSliceId"></label>
+						</div>
+						<div class="col-md-8">
+							<select class="form-control" asp-for="TimeBandSliceId" asp-items="timeBandSliceSelectItems" data-bind="enable: enableTimeBandSliceSelect,
+							value: timeBandSliceId,
+							event: {change: onTimeBandSliceSelectChange},
+							options: timebandSliceOptions,
+								optionsText: 'name',
+								optionsValue: 'id',
+								optionsCaption: '@Localizer["Choose..."]'"></select>
+						</div>
+					</div>
+					<hr />
+					<div class="form-group">
+						<div class="col-md-12 text-center">
+							<button id="btn-search" data-bind="click: onSearchBtnClick" class="btn btn-primary-outline"> <span class="icon icon-search"></span> @Localizer["Search"] </button>
+							<button id="btn-clear" type="button" data-bind="click: onClearBtnClick" class="btn btn-default-outline"> <span class="icon icon-action-delete"></span> @Localizer["Reset"] </button>
+						</div>
+					</div>
+</form>
+	</div>
+</div>
+
+<script>
+	require(["jquery","knockout"], function ($,ko) {
+
+		var timebandSliceOption = function (id, name) {
+			this.name = name;
+			this.id = id;
+		};
+		var timebandOption = function (id, name) {
+			this.name = name;
+			this.id = id;
+		};
+		var timebandSliceSelectItems = @Json.Serialize(timeBandSliceSelectItems);
+		var timebandSliceOptions = [];
+		timebandSliceSelectItems.forEach(function(v,i){
+		//	timebandSliceOptions.push(new timebandSliceOption(v.Value, v.Text));
+		});
+
+
+		var timebandSelectItems = @Json.Serialize(timeBandSelectItems);
+		var timebandOptions = [];
+		timebandSelectItems.forEach(function(v,i){
+			timebandOptions.push(new timebandOption(v.Value, v.Text));
+		});
+
+		var searchSpotViewModel = {
+			showInDate: ko.observable(@showInDate.ToString().ToLower()),
+			showFromDateToDate: ko.observable(@showFromDateToDate.ToString().ToLower()),
+			timePeriodType: ko.observable("@((int)Model.TimePeriodType)"),
+
+			onPeriodTimeChooseClick: function (e) {
+				var _this = this;
+				switch (_this.timePeriodType()) {
+					case "@((int)SpotSearchTimePeriod.OneDay)":
+						_this.showInDate(true);
+						_this.showFromDateToDate(false);
+						break;
+					case "@((int)SpotSearchTimePeriod.FromDateToDate)":
+						_this.showInDate(false);
+						_this.showFromDateToDate(true);
+						break;
+				}
+				return true;
+			},
+			inDate: ko.observable($("#InDate").val()),
+			fromDate: ko.observable($("#FromDate").val()),
+			toDate: ko.observable($("#ToDate").val()),
+			channelId: ko.observable("@channelSelectItems.Where(c => c.Selected).FirstOrDefault().Value"),
+			timeBandId: ko.observable($("#TimeBandId").val()),
+			timeBandSliceId: ko.observable(),
+			enableTimeBandSliceSelect: ko.observable(false),
+			enableTimeBandSelect : ko.observable(true),
+			onFromDateChange: function () {
+				this.searchSpot();
+			},
+			onToDateChange: function () {
+				this.searchSpot();
+			},
+			onInDateChange: function () {
+				this.searchSpot();
+			},
+			onSearchBtnClick: function(){
+				this.searchSpot();
+			},
+			onTimeBandSliceSelectChange: function () {
+				this.searchSpot();
+			},
+			onClearBtnClick: function () {
+				var _this = this;
+			//	_this.fromDate("");
+		//		_this.toDate("");
+				_this.timeBandId("");
+				_this.channelId("");
+				_this.timeBandSliceId("");
+				_this.enableTimeBandSliceSelect(false);
+				_this.timebandSliceOptions([]);
+			},
+			searchSpot: function () {
+				var _this = this;
+				var grid = $("#grid-spot").data("kendoGrid");
+				var dataSource = grid.dataSource;
+				dataSource.read({
+					fromDate: _this.fromDate(),
+					todate: _this.toDate(),
+					timeBandId: _this.timeBandId(),
+					channelId: _this.channelId(),
+					timeBandSliceId: _this.timeBandSliceId(),
+					TimePeriodType: _this.timePeriodType(),
+					InDate : _this.inDate(),
+				});
+
+			},
+			timebandSliceOptions: ko.observableArray(timebandSliceOptions),
+			timebandOptions: ko.observableArray(timebandOptions),
+			onTimeBandSelectChange: function (data, event) {
+				var _this = this;
+				_this.searchSpot();
+				if (_this.timeBandId()) {
+					_this.enableTimeBandSliceSelect(true);
+					_this.timebandSliceOptions([]);
+					$.ajax({
+						url: "Manager/TimeBand/GetAllTimeBandSliceByTimeBandId",
+						type: 'GET',
+						data: { TimeBandId: _this.timeBandId() },
+						success: function (response) {
+							console.log(response);
+							var data = response.Data;
+							$.each(data, function (i, v) {
+								_this.timebandSliceOptions.push(
+									new timebandSliceOption(v.Id, v.Name));
+							});
+						}
+					});
+				}
+				else {
+					_this.enableTimeBandSliceSelect(false);
+					_this.timebandSliceOptions([]);
+				}
+
+			},
+			onChannelSelectChange: function (data, event) {
+				var _this = this;
+				_this.searchSpot();
+				if (_this.channelId()) {
+					_this.enableTimeBandSelect(true);
+					_this.timebandOptions([]);
+					$.ajax({
+						url: "Manager/TimeBand/GetAllTimeBandByChannelId",
+						type: 'GET',
+						data: { channelId: _this.channelId() },
+						success: function (response) {
+							console.log(response);
+							var data = response;
+							$.each(data, function (i, v) {
+								_this.timebandOptions.push(
+									new timebandOption(v.Id, v.Name));
+							});
+						}
+					});
+				}
+				else {
+					_this.enableTimeBandSelect(false);
+					_this.timebandOptions([]);
+				}
+
+			}
+		};
+
+		ko.applyBindings(searchSpotViewModel, $("#search-panel")[0]);
+
+	});
+</script>

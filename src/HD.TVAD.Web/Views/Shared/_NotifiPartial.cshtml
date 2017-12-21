@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using HD.TVAD.Infrastructure.Identity
+@using HD.TVAD.Web.Models
+@using HD.TVAD.Entities.Entities.Security
+
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+<style>
+	a {
+		color: #1CA8DD;
+		text-decoration: none;
+	}
+</style>
+
+@if (SignInManager.IsSignedIn(User))
+{
+	<div class="notification pull-right" style="margin-top: 0px;">
+		<ul class="nav navbar-nav">
+			<li>
+				<a id="btn-notification" href=".#"><span class="icon icon-bell"></span><span id="badge-notification" class="badge"></span></a>
+					<div id="notifications">
+						<div class="h4 notification-header">Notifications</div>
+						<div id="notifi-container" class="notification-container">
+							<ul class="list-group">
+								<li class="list-group-header">
+									Account abc have been register!
+								</li>
+								<li class="list-group-header">
+									Account xyz have been register!
+								</li>
+							</ul>
+						</div>
+						<div class="seeAll"><a href="#">See All</a></div>
+					</div>
+			</li>
+		</ul>
+	</div>
+}
+<script>
+	require(["module/notification"], function () {
+
+	});
+</script>

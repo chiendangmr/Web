@@ -1,0 +1,46 @@
+﻿@{
+	Layout = null;
+	ViewBag.Title = "Add Mine Type";
+}
+@model HD.MediaAssets.Web.Storage.Models.MineTypeViewModel
+
+
+<form method="post" enctype="multipart/form-data" asp-controller="Storage" asp-action="CreateMineType">
+    <div class="form-group">
+        <div class="col-md-10">
+            <div>@Localizer["Name"]:</div>
+            <input class="form-control col-sm-10" asp-for="Name" id="inpUploadVersion" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <div>@Localizer["InternetMediaType"]:</div>
+            <input class="form-control col-sm-10" asp-for="InternetMediaType" id="inpContentMetadataInfoId" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <div>@Localizer["FileExtension"]:</div>
+            <input class="form-control col-sm-10" asp-for="FileExtension" id="inpContentMetadataInfoId" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <div>@Localizer["Reference"]:</div>
+            <input class="form-control col-sm-10" asp-for="Reference" id="inpContentMetadataInfoId" />
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <div class="col-md-10">
+            <button type="submit" class="btn btn-primary-outline" value="Create" id="btnUploadFiles">Create</button>
+        </div>
+    </div>
+</form>
+<br />
+
+<script>    
+</script>
+
+
+

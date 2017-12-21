@@ -1,0 +1,55 @@
+﻿@{
+	Layout = null;
+}
+@model DiscountSponsorProgramDeleteViewModel
+
+
+<form id="delete-form" asp-area="Manager" asp-controller="DiscountSponsorProgram" asp-action="Delete" method="post" enctype="multipart/form-data" class="form-horizontal">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	</div>
+	<div class="modal-body">
+
+		<h3 class="text-center text-danger"> @ViewBag.Message</h3>
+
+		<input type="hidden" asp-for="Id" />
+
+		<div class="h4 text-center"> @Localizer["Delete"] <span> @Model.Name </span> @Localizer["?"]</div>
+
+		<div class="modal-footer">
+			<div class="text-center">
+				<button id="submit" type="submit" value="" class="btn btn-danger"><span class="icon icon-action-delete"></span> @Localizer["Delete"]  </button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-action-back"></span> @Localizer["Back"] </button>
+			</div>
+		</div>
+
+	</div>
+</form>
+
+<script>
+
+    require(['module/manager'], function (manager) {
+        manager.common.submitForm.init({
+        	formId: 'delete-form',
+        	responseCallback: function (response) {
+        		console.log(response);
+        		if (typeof response == 'object') {
+        			if (response.result == "OK") {
+        				$("#modal").modal("hide");
+        				notification.show(response.message);
+        				setTimeout(function () {
+        					search("@Model.ProgramId");
+        				}, 300);
+        			}
+        			else {
+        				alert(response.message);
+        			}
+        		}
+        		else {
+        			alert(response);
+        		}
+        	}
+        });
+    });
+
+</script>

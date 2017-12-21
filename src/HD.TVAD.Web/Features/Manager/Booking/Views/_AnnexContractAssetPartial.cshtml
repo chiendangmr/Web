@@ -1,0 +1,40 @@
+﻿@using HD.TVAD.ApplicationCore.Entities.Booking
+@{
+	Layout = null;
+}
+@model AnnexContractAssetViewModel
+
+@inject IGetTypeService _getTypeService
+@{
+	var typeDetailSelectItems = await _getTypeService.GetTypeDetails()
+		.Where(t => t.Type.BookingTypePriceTypes.Any(b => b.BookingTypeId == 3))
+		.OrderBy(t => t.TypeId)
+		.Select(c => new SelectListItem()
+		{
+			Value = c.Id.ToString(),
+			Text = c.Name,
+		}).ToListAsync();
+}
+
+<div class="container-flex">
+	<div class="flex flex-1" id="annexContractAssetCreate-panel">
+		@Html.Partial("_AnnexContractAssetCreatePartial", new AnnexContractAssetForNormalBookingCreateViewModel()
+   {
+	   AnnexContractId = Model.AnnexContractId,
+	   BookingType = (BookingTypeEnum)Model.BookingTypeId,
+   })
+	</div>
+	<div class="flex flex-3">
+		@Html.Partial("_ListAnnexContractAssetPartial", new AnnexContractAssetIndexViewModel() { 
+				AnnexContractId = Model.AnnexContractId,
+		})
+		@*<div class="panel panel-default">
+			<div class="panel-heading">
+				@Localizer["List TVC in contract"]
+			</div>
+			<div class="panel-body">
+
+			</div>
+		</div>*@
+	</div>
+</div>

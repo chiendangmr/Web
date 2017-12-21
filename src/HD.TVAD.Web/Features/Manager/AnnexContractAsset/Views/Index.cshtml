@@ -1,0 +1,100 @@
+﻿@model AnnexContractAssetIndexViewModel
+@{
+	Layout = null;
+}
+
+<div class="panel panel-flex panel-default">
+	<div class="panel-heading">
+		<div class="dashhead">
+			<div class="dashhead-titles">
+				<div class="dashhead-title">
+					<h4>@Localizer["Asset for booking"]</h4>
+				</div>
+			</div>
+			<div class="dashhead-toolbar btn-toolbar">
+				<button class="btn btn-sm btn-primary-outline create annexDetail"> <span class="icon icon-plus"></span> @Localizer["Add"] </button>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body">
+		<div id="grid-annexDetail"></div>
+	</div>
+
+</div>
+<script id="annexDetail-edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" data-link="Manager/AnnexContractAsset/Delete" class="btn btn-danger-outline btn-sm annexDetail delete"><span class="icon icon-action-delete"></span> @Localizer["Del"]</button>
+		<button data-id="#: id #" data-link="Manager/AnnexContractAsset/Edit" class="btn btn-warning-outline btn-sm annexDetail edit"><span class="icon icon-action-edit"></span> @Localizer["Edit"]</button>
+	</div>
+</script>
+<script id="SignDate-template" type="text/x-kendo-template">
+	#: kendo.toString(kendo.parseDate(SignDate), "dd/MM/yyyy")  #
+</script>
+<script id="ReceiveDate-template" type="text/x-kendo-template">
+	#: kendo.toString(kendo.parseDate(ReceiveDate), "dd/MM/yyyy")  #
+</script>
+<script>
+	require(['module/annex-contract-asset'], function (module) {
+		module.init({
+			url: {
+				controller: "AnnexContractAsset",
+				getAll: "GetAllByAnnexContractId",
+				id: "@Model.AnnexContractId",
+			},
+			DOMid: {
+				grid: 'grid-annexDetail',
+			},
+			DOMclass: {
+				entity: ".annexDetail",
+			},
+			data: {
+				annexContractId: "@Model.AnnexContractId"
+			},
+			model: {
+				id: 'Id',
+				fields: {
+					assetCode: { field: 'AssetCode', type: "text" },
+					assetBlockDuration: { field: 'AssetBlockDuration', type: "number" },
+					assetProductName: { field: 'AssetProductName', type: "text" },
+					priceTypeDetailName: { field: 'PriceTypeDetailName', type: "text" },
+					content: { field: 'Content', type: "text" },
+				},
+			},
+			columns: [
+					{ field: "assetCode", title: "@Localizer["Asset Code"]"},
+					{ field: "assetBlockDuration" , title: "@Localizer["Duration"]"},
+					{ field: "assetProductName" , title: "@Localizer["Product Name"]"},
+					{ field: "priceTypeDetailName", title: "@Localizer["Price Type"]" },
+					{ field: "content", title: "@Localizer["Content"]"},
+				{
+					field: "",
+					title: "@Localizer["Edit"]",
+					template: kendo.template($("#annexDetail-edit-template").html()),
+					width: "200px",
+				}
+			],
+			function: {
+				onChange: onGirdAnnexDetailChange,
+			//	customOnBound: customOnBound
+			}
+		});
+	});
+
+	function customOnBound(grid) {
+		var dataSource = grid.dataSource;
+		if (dataSource.data().length == 0) {
+			$("#div-spotBooking").css("opacity", '0.3');
+		}
+		else {
+			$("#div-spotBooking").css("opacity", '1');
+		}
+	}
+
+	function onGirdAnnexDetailChange(arg) {
+		var grid = arg.sender;
+		var selected = grid.dataItem(this.select());
+		$("#AnnexContractAssetId").val(selected.id);
+		$("#AssetCode").val(selected.assetCode);
+	//	$("#div-spotBooking").load("Manager/SpotBooking" + "/IndexBooking/" + selected.id);
+	};
+</script>

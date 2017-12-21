@@ -1,0 +1,54 @@
+﻿@using HD.TVAD.ApplicationCore.Entities.Booking
+@using HD.TVAD.ApplicationCore.Entities.ContractSchema
+@{
+	ViewBag.Title = Localizer["Annex contract"].Value;
+//	Layout = "_AnnexContract_Layout";
+}
+@model AnnexContractIndexViewModel
+<div class="container-flex">
+	<div class="flex flex-1">
+		<div class="container-vertical-flex">
+			<div class="flex flex-0">
+				<div class="panel panel-flex panel-default">
+					<div class="panel-heading">
+						@Localizer["Search"]
+					</div>
+					<div class="panel-body">
+						@Html.Partial("_SearchPanelBodyPartial", new AnnexContractViewModel()
+				   {
+					   BookingTypeId = Model.BookingTypeId
+				   })
+					</div>
+				</div>
+			</div>
+			<div class="flex flex-5">
+
+				<div class="panel panel-flex panel-default">
+					<div class="panel-heading">
+						@Localizer["Menu"]
+					</div>
+					<div class="panel-body">
+						@Html.Partial("_MenuAnnexContractPartial")
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="flex flex-3">
+		<div class="container-vertical-flex">
+			<div class="flex flex-0">
+				<div class="panel panel-flex panel-default">
+					<div class="panel-heading">
+						@Localizer["Detail"]
+					</div>
+					<div class="panel-body" id="detail-panel-body">
+						@Html.Partial("Detail", new AnnexContractViewModel() {BookingTypeId = BookingTypeEnum.Contract_Sponsor_Benefit })
+					</div>
+				</div>
+			</div>
+			<div class="flex flex-5">
+				@Html.Partial("_GridPartial")
+			</div>
+		</div>
+	</div>
+</div>

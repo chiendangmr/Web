@@ -1,0 +1,278 @@
+﻿@{
+	ViewBag.Title = Localizer["User Manager"].Value;
+	Layout = "_UserAndGroup_Layout";
+}
+@functions{
+	async Task<bool> CheckPermissionAsync(UserPermissions permission)
+	{
+		return await AuthorizationService.AuthorizeAsync(User, null, new PermissionRequirement(permission));
+	}
+}
+@{
+	var canCreate = await CheckPermissionAsync(UserPermissions.Manager_User_Create);
+	var canEdit = await CheckPermissionAsync(UserPermissions.Manager_User_Edit);
+	var canDelete = await CheckPermissionAsync(UserPermissions.Manager_User_Delete);
+	var canSetUserGroup = await CheckPermissionAsync(UserPermissions.Manager_User_SetUserGroup);
+	var canSetPermission = await CheckPermissionAsync(UserPermissions.Manager_User_SetPermission);
+}
+@{
+	var notHavePessmission = Localizer["Not have permission"].Value;
+	var disabledClass = "disabled";
+	var normalClass = "";
+	var normalLabel = "";
+	var IsCreatedClass = canCreate ? normalClass : disabledClass;
+	var labelBtnCreate = canCreate ? normalLabel : notHavePessmission;
+	var IsEditedClass = canEdit ? normalClass : disabledClass;
+	var labelBtnEdit = canEdit ? normalLabel : notHavePessmission;
+	var IsDeletedClass = canDelete ? normalClass : disabledClass;
+	var labelBtnDelete = canDelete ? normalLabel : notHavePessmission;
+	var IsSetGroupClass = canSetUserGroup ? normalClass : disabledClass;
+	var labelBtnSetGroup = canSetUserGroup ? normalLabel : notHavePessmission;
+	var IsSetPermissionClass = canSetPermission ? normalClass : disabledClass;
+	var labelBtnSetPermission = canSetPermission ? normalLabel : notHavePessmission;
+}
+@inject IUserViewService _userViewService
+@{
+//	var userNames = await _userViewService.GetNameListAsync();
+//	var fullNames = await _userViewService.GetFullNameListAsync();
+//	var emails = await _userViewService.GetEmailListAsync();
+}
+<div class="panel panel-flex panel-default">
+    <div class="panel-heading">
+        <div class="dashhead">
+            <div class="dashhead-titles">
+                <div class="dashhead-title">
+                    <h2> <span class="icon icon-user"></span> @ViewBag.Title </h2>
+                </div>
+            </div>
+            <div class="dashhead-toolbar btn-toolbar">
+                <button href="~/Manager/User/Create" id="" class="btn btn-primary-outline create user @IsCreatedClass" title="@labelBtnCreate"> <span class="icon icon-plus"></span>@Localizer["Add user"] </button>
+            </div>
+        </div>
+		<div class="flextable table-actions">
+			<div class="flextable-item flextable-primary">
+				<div class="btn-toolbar-item input-with-icon" style="width: 70%; max-width: 600px;">
+					<span class="icon icon-search"></span>
+					<input type="search" id="filterText" data-bind="value: filterText, event: {keyup: onFilterTextKeyUp,blur: onFilterTextBlur}" list="items" class="form-control input-block" placeholder="@Localizer["Search..."]">
+					<datalist id="items">
+					</datalist>
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="clearFilter" data-bind="click: onClearFilterClick" class="btn btn-primary-outline"><span class="icon icon-erase"></span></button>
+				</div>
+			</div>
+			<div class="flextable-item">
+				<div class="checkbox custom-control custom-checkbox">
+					<label>
+						<input id="filterDisabled" type="checkbox" class="form-control">
+						<span class="custom-control-indicator"></span>
+						@Localizer["Include Disabled"]
+					</label>
+				</div>
+			</div>
+		</div>
+	</div>
+    <div class="panel-body">
+                <div id="grid"></div>
+        </div>
+ </div>
+
+<script id="edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#:id#" class="btn btn-danger-outline btn-sm delete user @IsDeletedClass" title="@labelBtnDelete"> @Localizer["Delete"]</button>
+		<button data-id="#:id#" class="btn btn-warning-outline btn-sm edit user @IsEditedClass" title="@labelBtnEdit"> @Localizer["Edit"]</button>
+		<button data-id="#:id#" class="btn btn-info btn-sm set-group @IsSetGroupClass" title="@labelBtnSetGroup">@Localizer["Set group"]</button>
+		<button data-id="#:id#" class="btn btn-success btn-sm set-permission @IsSetPermissionClass" title="@labelBtnSetPermission">@Localizer["Permissions"]</button>
+	</div>
+</script>
+
+
+<script id="checkbox-template" type="text/x-kendo-template">
+	<div class="checkbox-inline custom-control custom-checkbox">
+		<label>
+			<input #=checked# type="checkbox" disabled />
+			<span class="custom-control-indicator"></span>
+		</label>
+	</div>
+</script>
+
+<script>
+	require(["module/manager"], function () {
+
+		$("#grid").kendoGrid({
+			dataSource: {
+				transport: {
+					read: {
+						url: "Manager/User/GetAllUser",
+						dataType: "JSON",
+						type: "GET"
+					}
+				},
+				schema: {
+					model: {
+						id: "id",
+						fields: {
+						//	id: { field: "UserId", type: "text" },
+						},
+					},
+					data: "Data",
+					total: "Total",
+				},
+				serverPaging: true,
+				serverFiltering: true,
+				type: "aspnetmvc-ajax",
+			},
+			pageable: {
+				pageSize: 10,
+				pageSizes: [10, 20, 50, 100, 1000, 10000],
+				refresh: true
+			},
+			columns: [
+				{
+					field: "userName", title: "@Localizer["User Name"]",
+					width: "160px"
+				},
+				{ field: "fullName", title: "@Localizer["Full Name"]" },
+				{ field: "phoneNumber", title: "@Localizer["Phone Number"]" },
+				{ field: "email", title: "@Localizer["Email"]" },
+				{ field: "active", title: "@Localizer["Active"]",
+					template: function (dataItem) {
+						var checked = dataItem.active ? "checked" : "";
+						return kendo.template($("#checkbox-template").html())({checked : checked});
+					},
+				},
+				{
+					field: "",
+					title: "@Localizer["Edit"]",
+					template: kendo.template($("#edit-template").html()),
+					width: "280px",
+				}
+			],
+			sortable: true,
+			resizable: true,
+			selectable: "single",
+			dataBound: onGirdBound,
+			//change: onGirdChange,
+			settings: {
+				selectFirstRow: true,
+				dataItemId: '',
+			},
+
+		});
+
+		$("button.create.user").bind("click", function () {
+			if ($(this).hasClass("disabled")) {
+				return false;
+			}
+			$("#modal .modal-content").load("Manager/User/Create", function () {
+
+				$("#modal").modal("show");
+			});
+		});
+
+
+		function onGirdBound() {
+
+			var grid = this;
+			var dataItems = grid.dataSource.data();
+			console.log("dataItems: ", dataItems);
+			if (grid.options.settings.dataItemId != '') {
+				for (i = 0; i < dataItems.length; i++) {
+					var dataItem = dataItems[i];
+					if (dataItem.id == grid.options.settings.dataItemId) {
+						grid.select("tr[data-uid='" + dataItem.uid + "']");
+						break;
+					}
+				}
+			}
+			else
+				if (grid.dataSource.at(0) && grid.options.settings.selectFirstRow || dataItems.length == 1) {
+					var uid = grid.dataSource.at(0).uid;
+					grid.select("tr[data-uid='" + uid + "']");
+				}
+
+			grid.options.settings.dataItemId = ''; // reset
+
+			$("button.edit.user").bind("click", function () {
+				if ($(this).hasClass("disabled")) {
+					return false;
+				}
+				$("#modal .modal-content").load("Manager/User/Edit/" + this.dataset.id + "", function () {
+
+					$("#modal").modal("show");
+				});
+			});
+			$("button.delete.user").bind("click", function () {
+				if ($(this).hasClass("disabled")) {
+					return false;
+				}
+				$("#modal .modal-content").load("Manager/User/Delete/" + this.dataset.id + "", function () {
+
+					$("#modal").modal("show");
+				});
+			});
+
+			$("button.set-group").off().on("click", function () {
+				if ($(this).hasClass("disabled")) {
+					return false;
+				}
+				$("#modal .modal-content").load("Manager/User/SetGroup/" + this.dataset.id + "", function () {
+
+					$("#modal").modal("show");
+				});
+			});
+			$("button.set-permission").off().on("click", function () {
+				if ($(this).hasClass("disabled")) {
+					return false;
+				}
+				$("#modal .modal-content").load("Manager/User/LoadPermission/" + this.dataset.id, function () {
+
+					$("#modal").modal("show");
+				});
+			});
+			//var grid = this;
+			//var uid = grid.dataSource.at(0).uid;
+			//grid.select("tr[data-uid='" + uid + "']");
+		};
+
+		function onGirdChange(arg) {
+			var grid = arg.sender;
+			var selected = grid.dataItem(this.select());
+			$("#permission").load("Manager/User" + "/LoadPermission/" + selected.id);
+		};
+	});
+
+	require(['jquery'], function () {
+		$("#filterDisabled").off().on('change', function () {
+			console.log(this);
+			var grid = $("#grid").data("kendoGrid");
+			var dataSource = grid.dataSource;
+			var data = { includeDisabled: this.checked };
+			dataSource.transport.options.read.data = data;
+			dataSource.read();
+		});
+	});
+
+	require(['module/search'], function (search) {
+		search.init({
+			filter: function (filterText) {
+				var grid = $("#grid").data("kendoGrid");
+				var dataSource = grid.dataSource;
+				dataSource.filter({
+					logic: "or",
+					filters: [
+					{ field: "userName", operator: "contains", value: filterText },
+					{ field: "fullName", operator: "contains", value: filterText },
+					{ field: "email", operator: "contains", value: filterText }
+					]
+				});
+			}
+		});
+	});
+
+</script>
+<style>
+	.k-grid td {
+		overflow: unset;
+	}
+</style>

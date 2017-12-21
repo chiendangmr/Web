@@ -1,0 +1,27 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CopyMediaFromOld" GeneratedClassName="AppSettings">
+  <Profiles />
+  <Settings>
+    <Setting Name="FTPSourceIP" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">192.168.11.30</Value>
+    </Setting>
+    <Setting Name="FTPSourcePort" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">21</Value>
+    </Setting>
+    <Setting Name="FTPSourceUserName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">anonymous</Value>
+    </Setting>
+    <Setting Name="FTPSourcePassWord" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">anonymous</Value>
+    </Setting>
+    <Setting Name="SqlConnectionString" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">server=192.168.10.11;uid=sa;pwd=Hd123456!DB;database=TVAD2017</Value>
+    </Setting>
+    <Setting Name="DestDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\\171.18.32.161\Data\TVAD Old</Value>
+    </Setting>
+    <Setting Name="MaxErrorSizePer" Type="System.Single" Scope="Application">
+      <Value Profile="(Default)">0.1</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

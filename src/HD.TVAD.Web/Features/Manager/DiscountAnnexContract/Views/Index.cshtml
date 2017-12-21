@@ -1,0 +1,168 @@
+﻿@{
+    ViewBag.Title = Localizer["Annex contract discount"].Value;
+    Layout = "_Manager_Layout";
+}
+@inject IAnnexContractViewService _annexContractViewService
+@{
+//	var annexContractCodeList = await _annexContractViewService.GetCodeListAsync();
+}
+<div class="panel panel-flex panel-default">
+    <div class="panel-heading">
+        <div class="dashhead">
+            <div class="dashhead-titles">
+                <div class="dashhead-title">
+                    <h2> @ViewBag.Title </h2>
+                </div>
+            </div>
+            <div class="dashhead-toolbar btn-toolbar">
+				<button class="btn btn-primary-outline create"> <span class="icon icon-plus"></span> @Localizer["Create"]  </button>
+            </div>
+        </div>
+		<div class="flextable table-actions">
+			<div class="flextable-item flextable-primary">
+				<div class="btn-toolbar-item input-with-icon" style="width: 70%; max-width: 600px;">
+					<span class="icon icon-search"></span>
+					<input type="search" id="filterText" data-bind="value: annexContractCode,
+							event: {change: onFilterTextChange, keyup: onFilterTextKeyUp,blur: onFilterTextBlur}" list="annexContracts" class="form-control input-block " placeholder="@Localizer["Search..."]"/>
+					<datalist id="annexContracts">
+					</datalist>
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="search-btn" data-bind="click: onSearchBtnClick" class="btn btn-primary-outline"><span class="icon icon-search"></span></button>
+				</div>
+				<div class="btn-toolbar-item input-with-icon">
+					<button id="clearFilter" data-bind="click: onClearFilterClick" class="btn btn-primary-outline"><span class="icon icon-erase"></span></button>
+				</div>
+			</div>
+			<div class="flextable-item">
+				<div class="checkbox custom-control custom-checkbox">
+					<label>
+						<input id="filterDisabled" type="checkbox" class="form-control">
+						<span class="custom-control-indicator"></span>
+						@Localizer["Include Disabled"]
+					</label>
+				</div>
+			</div>
+		</div>
+
+    </div>
+    <div class="panel-body">
+        <div id="grid"></div>
+    </div>
+</div>
+
+
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+
+<script id="edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete"><span class="icon icon-action-delete"></span> @Localizer["Delete"]</button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit"><span class="icon icon-action-edit"></span> @Localizer["Edit"]</button>
+	</div>
+</script>
+
+<script>
+	require(['module/annex-contract-discount', 'knockout'], function (module, ko) {
+    	module.init({
+        	url: {
+        		controller: "DiscountAnnexContract",
+        		getAll: "GetAll",
+        	},
+        	data: {
+        		annexContractCode: "",
+        	},
+        	model: {
+        		id: 'Id',
+        		fields: {
+        			startDate: { field: "StartDate", type: "date" },
+        			endDate: { field: "EndDate", type: "date" },
+        			annexContractCode: { field: "AnnexContractCode", type: "text" },
+        			rate: { field: "Rate", type: "number" },
+        			description: { field: "Description", type: "text" },
+        		},
+        	},
+        	columns: [
+				{ field: 'annexContractCode', title: "@Localizer["Annex Contract Code"]" },
+				{
+					field: 'startDate', title: "@Localizer["Start Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.startDate });
+					}
+				},
+				{
+					field: 'endDate', title: "@Localizer["End Date"]",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.endDate });
+					}
+				},
+				{ field: 'rate' , title: "@Localizer["Rate"]"},
+				{ field: 'description', title: "@Localizer["Description"]" },
+				{
+					field: "",
+					title: "@Localizer["edit"]",
+					template: kendo.template($("#edit-template").html()),
+					width: "160px",
+				}
+
+            ]
+    	});
+
+    	var viewModel = {
+    		annexContractCode: ko.observable(""),
+    		onFilterTextKeyUp: function (d, e) {
+    			var _this = this;
+    			if (e.keyCode == 13) {
+    				_this.onChange(_this.annexContractCode());
+    				return false; // ignore default event
+    			}
+    			return false;
+    		},
+    		onFilterTextBlur: function (d, e) {
+    			var _this = this;
+    	//		_this.onChange(_this.annexContractCode());
+    			return false; // ignore default event
+    		},
+    		onClearFilterClick: function (d, e) {
+    			var _this = this;
+    			_this.annexContractCode("");
+    			_this.onChange(_this.annexContractCode());
+    		},
+    		onFilterTextChange: function (d, e) {
+    			var _this = this;
+    	//		_this.onChange(_this.annexContractCode());
+    		},
+    		onChange: function (annexContractCode) {
+    			search(annexContractCode);
+    			$('button.create').attr("data-link", "Manager/DiscountAnnexContract/Create/" + annexContractCode);
+    		},
+    		onSearchBtnClick: function (annexContractCode) {
+    			var _this = this;
+    			_this.onChange(_this.annexContractCode());
+    			return false;
+    		},
+    	};
+
+    	ko.applyBindings(viewModel);
+    	function onChange() {
+    		var annexContractCode = this.value;
+    		search(annexContractCode);
+    		$('button.create').attr("data-link", "Manager/DiscountAnnexContract/Create/" + annexContractCode);
+    	}
+
+    });
+	function search(annexContractCode) {
+		var grid = $("#grid").data("kendoGrid");
+		var dataSource = grid.dataSource;
+		var data = {
+			annexContractCode: annexContractCode
+		};
+		dataSource.options.data = data;
+		dataSource.read(data);
+	}
+</script>

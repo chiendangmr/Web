@@ -1,0 +1,89 @@
+﻿<div id="tree"></div>
+
+<script>
+    require(["jquery"], function ($) {
+        require(["devextreme-aspnet-data/js/dx.aspnet.data"], function (dxData) {
+            require(["devextreme/js/aspnet/dx.aspnet.mvc"], function () {
+                $("#tree").dxTreeList({
+                    "dataSource": {
+                        "store": dxData.createStore({
+                            "key": "Id",
+                            "loadUrl": "/Tools/Test/Get",
+                            "insertUrl": "/Tools/Test/Post",
+                            "updateUrl": "/Tools/Test/Put",
+                            "deleteUrl": "/Tools/Test/Delete"
+                        })
+                    },
+                    "keyExpr": "Id",
+                    "parentIdExpr": "ParentId",
+                    "showBorders": true,
+                    "columns": [
+                        {
+                            "dataField": "Code",
+                            "caption": "Code",
+                            "calculateSortValue": function (data) {
+                                return data.CodeForSort;
+                                // or
+                                //return calculateSortValue(data.Code);
+                            }
+                        },
+                        {
+                            "dataField": "Name",
+                            "caption": "Name"
+                        }
+                    ],
+                    "filterRow": { "visible": true },
+                    "headerFilter": { "visible": true },
+                    "virtualModeEnabled" : true
+                });
+            });
+        });
+    });
+
+    function calculateSortValue(str) {
+        var s = "";
+        if (str)
+            s = str.toString();
+
+        var ret = "";
+
+        var cur = "";
+        var curIsNumber = false;
+        for (var n = 0; n < s.length; ++n) {
+            var chr = s.charAt(n);
+            var isNumber = chr >= '0' && chr <= '9';
+            if (isNumber != curIsNumber) {
+                if (cur != "")
+                    ret += fillStr(cur, 10);
+
+                curIsNumber = isNumber;
+                cur = "";
+            }
+
+            cur += chr.toString();
+            if (n == s.length - 1) {
+                if (cur != "")
+                    ret += fillStr(cur, 10);
+            }
+        }
+
+        return fillStr(ret, 50, true);
+    }
+
+    function fillStr(str, numChar, fillEnd = false) {
+        if (str.length >= numChar)
+            return str;
+
+        var add = "";
+        for (var n = 0; n < numChar - str.length; ++n)
+            add += "!";
+
+        if (str.charAt(0) > '9')
+            fillEnd = true;
+
+        if (!fillEnd)
+            return add + str;
+        else
+            return str + add;
+    }
+</script>

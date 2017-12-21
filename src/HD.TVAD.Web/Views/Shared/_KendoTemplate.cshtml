@@ -1,0 +1,20 @@
+﻿
+
+<link href="~/css/booking-progress.css" type="text/css" rel="stylesheet" />
+
+<script id="date-template" type="text/x-kendo-template">
+	#if(date != null){#
+	#: kendo.toString(date, 'dd/MM/yyyy')#
+	#}else{#
+	<div>@Localizer["Not set"]</div>
+	#}#
+</script>
+<script id="money-template" type="text/x-kendo-template">
+	#if(value != null){#
+	#: kendo.toString(value, "\#\#,\#")#
+	#}else{#
+	<div>@Localizer["Not has"]</div>
+	#}#	
+</script>
+
+

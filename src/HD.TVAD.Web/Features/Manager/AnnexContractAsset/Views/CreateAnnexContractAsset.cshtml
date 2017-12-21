@@ -1,0 +1,147 @@
+﻿@{
+	Layout = "_Layout";
+	ViewBag.Title = Localizer["Add Asset for booking"].Value;
+}
+@model AnnexContractAssetCreateViewModel
+@inject IGetTypeService _getTypeService
+@{
+	var typeDetailSelectItems = await _getTypeService.GetTypeDetails()
+		.Where(t => t.Type.BookingTypePriceTypes.Any(b => b.BookingTypeId == Model.BookingTypeId))
+		.OrderBy(t => t.TypeId)
+		.Select(c => new SelectListItem()
+		{
+			Value = c.Id.ToString(),
+			Text = c.Name,
+		}).ToListAsync();
+}
+<div class="panel panel-flex panel-default">
+	<div class="panel-heading">
+		<div class="dashhead">
+			<div class="dashhead-titles">
+				<div class="dashhead-title">
+					<h2>@ViewBag.Title</h2>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body">
+		<form id="add-tape-form" asp-area="Manager" asp-controller="AnnexContractAsset" asp-action="CreateAnnexContractAsset" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+			<div class="order-details__state js-shipping-state-container">
+				<div class="order-details__progress">
+					<div class="order-details__progress-bar">
+						<div class="order-details__progress-bar-item order-details__progress-bar-item_highlighted"></div>
+						<div class="order-details__progress-bar-item is-active order-details__progress-bar-item_highlighted"></div>
+						<div class="order-details__progress-bar-item is-active order-details__progress-bar-item_highlighted"></div>
+						<div class="order-details__progress-bar-item  order-details__progress-bar-item_highlighted"></div>
+					</div>
+
+					<div class="order-details__progress-states">
+						<div class="order-details__progress-state is-active order-details__progress-state_highlighted">
+							<div class="order-details__progress-state__name is-active">
+								@Localizer["Create customer"]
+							</div>
+						</div>
+						<div class="order-details__progress-state is-active order-details__progress-state_highlighted">
+							<div class="order-details__progress-state__name is-active">
+								@Localizer["Create annex contract"]
+							</div>
+						</div>
+						<div class="order-details__progress-state is-active is-current order-details__progress-state_highlighted">
+							<div class="order-details__progress-state__name">
+								@Localizer["Select asset"]
+							</div>
+						</div>
+						<div class="order-details__progress-state  order-details__progress-state_highlighted">
+							<div class="order-details__progress-state__name ">
+								@Localizer["Booking spot"]
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6">
+					<div class="panel panel-default">
+						@Html.Partial("_AssetChoosePartial")
+					</div>
+				</div>
+				<div class="col-md-6">
+					<input type="hidden" asp-for="AnnexContractId" />
+					<input type="hidden" asp-for="AssetId" />
+					<h3 class="text-center text-danger"> @ViewBag.Message</h3>
+					<div class="form-group">
+						<div class="col-md-4 control-label">
+							<label asp-for="AnnexContractCode"></label>
+						</div>
+						<div class="col-md-8">
+							<input class="form-control" asp-for="AnnexContractCode" disabled />
+							<span asp-validation-for="AnnexContractCode" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-4 control-label">
+							<label asp-for="AssetId"></label>
+						</div>
+						<div class="col-md-8">
+							<input class="form-control" asp-for="AssetCodeDisplay" />
+							<span asp-validation-for="AssetCodeDisplay" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-4 control-label">
+							<label asp-for="PriceTypeDetailId"></label>
+						</div>
+						<div class="col-md-8">
+							<select class="form-control" asp-for="PriceTypeDetailId" asp-items="typeDetailSelectItems">
+								<option value="">@Localizer["Choose..."]</option>
+							</select>
+							<span asp-validation-for="PriceTypeDetailId" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-4 control-label">
+							<label asp-for="Content"></label>
+						</div>
+						<div class="col-md-8">
+							<textarea class="form-control" asp-for="Content"></textarea>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-4 control-label">
+							<label asp-for="Price"></label>
+						</div>
+						<div class="col-md-8">
+							<input class="form-control" disabled="disabled" asp-for="Price" type="number" placeholder="" />
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="text-center">
+							<button id="submit" type="submit" value="" class="btn btn-primary-outline" onclick=""><span class="icon icon-plus"></span> @Localizer["Next"] </button>
+							<button type="button" class="btn btn-default-outline" data-dismiss="modal" onclick="goBack()"><span class="icon icon-back"></span> @Localizer["Back"] </button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script>
+
+	require(['module/manager'], function (manager) {
+
+		$("#PriceTypeDetailId").on('change', function () {
+			var type = this.value;
+			if (type == "a4b1225e-ab34-43d1-8be9-d1feac327f4d") // from DB giá riêng
+			{
+				$("#Price").prop("disabled", false);
+			}
+			else {
+				$("#Price").prop("disabled", true);
+			}
+		});
+	});
+</script>
+

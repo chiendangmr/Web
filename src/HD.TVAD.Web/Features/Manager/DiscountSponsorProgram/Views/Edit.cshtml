@@ -1,0 +1,113 @@
+﻿@{
+	Layout = null;
+}
+@model DiscountSponsorProgramViewModel
+@inject ISponsorProgramViewService _sponsorProgramViewService
+@{
+	var sponsorProgramSelectItems = await _sponsorProgramViewService.GetCodeAndNameSelectListItemAsync();
+
+	System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.CurrentUICulture.Clone();
+	customCulture.NumberFormat.NumberDecimalSeparator = ".";
+	System.Globalization.CultureInfo.CurrentCulture = customCulture;
+}
+<form id="create-form" asp-area="Manager" asp-controller="DiscountSponsorProgram" asp-action="Edit" method="post" enctype="multipart/form-data" class="form-horizontal">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">@Localizer["Edit discount sponsor program"]</h4>
+	</div>
+	<div class="modal-body">
+		<h3 class="text-center text-danger"> @ViewBag.Message</h3>
+			<div class="form-group">
+				<div class="col-md-4 control-label">
+					<label asp-for="ProgramId"></label>
+				</div>
+				<div class="col-md-8">
+					<select asp-for="ProgramId" class="form-control" asp-items="sponsorProgramSelectItems" disabled> </select>
+					<span asp-validation-for="ProgramId" class="text-danger"></span>
+				</div>
+			</div>
+
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="StartDate"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="StartDate" class="form-control" type="date"/>
+				<span asp-validation-for="StartDate" class="text-danger"></span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="EndDate"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="EndDate" class="form-control" type="date" />
+				<span asp-validation-for="EndDate" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="Rate"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Rate" class="form-control" type="number" step="0.01" />
+				<span asp-validation-for="Rate" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="Description"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Description" class="form-control" type="text" />
+				<span asp-validation-for="Description" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<div class="text-center">
+				<button id="submit" type="submit" value="" class="btn btn-primary"><span class="icon icon-action-save"></span> @Localizer["Save"] </button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-action-back"></span> @Localizer["Back"] </button>
+			</div>
+		</div>
+
+	</div>
+</form>
+
+
+<script>
+    require(['module/manager'], function (manager) {
+        manager.common.submitForm.init({
+        	formId: 'create-form',
+        	responseCallback: function (response) {
+        		console.log(response);
+        		if (typeof response == 'object') {
+        			if (response.result == "OK") {
+        				$("#modal").modal("hide");
+        				notification.show(response.message);
+
+						var grid = $("#grid").data('kendoGrid');
+						if (grid) {
+							if (response.id != "00000000-0000-0000-0000-000000000000")
+								grid.options.settings.dataItemId = response.id;
+							else
+								if (response.data)
+									grid.options.settings.dataItemId = response.data.Id;
+
+							search("@Model.ProgramId");
+						}
+        			}
+        			else {
+        				alert(response.message);
+        			}
+        		}
+        		else {
+        			alert(response);
+        		}
+        	}
+        });
+    });
+</script>
+
+
+

@@ -1,0 +1,58 @@
+﻿@{
+	Layout = null;
+	ViewBag.Title = "Edit AssetType";
+}
+@model HD.MediaAssets.Web.Storage.Models.AssetTypeViewModel
+
+
+<form method="post" enctype="multipart/form-data" asp-controller="Storage" asp-action="EditAssetType">
+    <div class="form-group" hidden>
+        <div class="col-md-10">
+            <div>@Localizer["Id"]:</div>
+            <input class="form-control col-sm-10" asp-for="Id" value="@Model.Id" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <div>@Localizer["Name"]:</div>
+            <input class="form-control col-sm-10" asp-for="Name" id="inpUploadVersion" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <div>@Localizer["Description"]:</div>
+            <input class="form-control col-sm-10" asp-for="Description" id="inpContentMetadataInfoId" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <div>@Localizer["DefaultPath"]:</div>
+            <input class="form-control col-sm-10" asp-for="DefaultPath" id="inpContentMetadataInfoId" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <div>@Localizer["Revision"]:</div>
+            <input class="form-control col-sm-10" asp-for="Revision" id="inpContentMetadataInfoId" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <div>@Localizer["Editable"]:</div>
+            <input class="form-control col-sm-10" asp-for="Editable" id="inpContentMetadataInfoId" />
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <div class="col-md-10">
+            <button type="submit" class="btn btn-primary-outline" value="Edit" id="btnUploadFiles">Update</button>
+        </div>
+    </div>
+</form>
+<br />
+
+<script>    
+</script>
+
+
+

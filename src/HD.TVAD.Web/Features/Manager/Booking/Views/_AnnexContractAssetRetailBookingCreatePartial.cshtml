@@ -1,0 +1,257 @@
+﻿@using HD.TVAD.ApplicationCore.Entities.Booking
+
+@{
+	Layout = null;
+}
+@model AnnexContractAssetForRetailBookingCreateViewModel
+
+@inject IContentViewService _contentViewService
+@{
+//	var assetCodeItems = await _contentViewService.GetNameListAsync();
+	var productNames = await _contentViewService.GetProductNameListAsync();
+}
+
+
+@inject IGetTypeService _getTypeService
+@{
+	var typeDetailSelectItems = await _getTypeService.GetTypeDetails()
+		.Where(t => t.Type.BookingTypePriceTypes.Any(b => b.BookingTypeId == (int)BookingTypeEnum.Retail))
+		.OrderBy(t => t.Type.Name)
+		.Select(c => new SelectListItem()
+		{
+			Value = c.Id.ToString(),
+			Text = c.Name,
+		}).ToListAsync();
+}
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		@Localizer["TVC Info"]
+	</div>
+	<div class="panel-body">
+		<form data-bind="submit: onCreateFormSubmit" id="create-annexContractAsset-form" asp-area="Manager" asp-controller="AnnexContractAsset" asp-action="CreateAPI" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+			<input type="hidden" asp-for="AnnexContractId" />
+			<input type="hidden" data-bind="value: assetId" asp-for="AssetId" />
+
+			<div class="col-md-8">
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="AssetId"></label>
+					</div>
+					<div class="col-md-8">
+						<input data-bind="value: assetCode, event: {keyup: onAssetCodeKeyUp, blur: onAssetCodeBlur}" list="assetCodeItems" class="form-control" asp-for="AssetCode" />
+						<datalist id="assetCodeItems">
+							<select name="assetCodeItems"></select>
+						</datalist>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label>@Localizer["TL"]</label>
+					</div>
+					<div class="col-md-8">
+						<input data-bind="value: assetBlockDuration" class="form-control" asp-for="AssetBlockDuration" disabled />
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<div class="form-group">
+					<div class="col-md-3 control-label">
+						<label asp-for="AssetProductName"></label>
+					</div>
+					<div class="col-md-9">
+						<input data-bind="value: assetProductName" class="form-control" asp-for="AssetProductName" placeholder="" disabled />
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<div class="form-group">
+					<div class="col-md-3 control-label">
+						<label asp-for="PriceTypeDetailId"></label>
+					</div>
+					<div class="col-md-9">
+						<select class="form-control" asp-for="PriceTypeDetailId" asp-items="typeDetailSelectItems"></select>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<div class="form-group">
+					<div class="col-md-3 control-label">
+						<label asp-for="Price"></label>
+					</div>
+					<div class="col-md-9">
+						<input class="form-control" disabled="disabled" asp-for="Price" type="number" placeholder="" />
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group text-center">
+					<button data-bind="click: onCreateBtnClick" type="button" class="btn btn-primary-outline"><span class="icon icon-plus"></span> @Localizer["Add more TVC"]</button>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group text-center">
+					<button type="button" class="btn btn-primary-outline"><span class="icon icon-action-save"></span> @Localizer["Save TVC"]</button>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group text-center">
+					<button type="button" class="btn btn-primary-outline"><span class="icon icon-print"></span></button>
+					<button type="button" class="btn btn-primary-outline"><span class="icon icon-search"></span></button>
+					<button type="button" class="btn btn-primary-outline"><span class="icon icon-doc"></span></button>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group text-center">
+					<button type="button" class="btn btn-primary-outline"><span class="icon icon-action-delete"></span> @Localizer["Delete TVC"]</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+
+	require(["jquery", "knockout", 'module/manager'], function ($, ko, manager) {
+
+		var viewModel = {
+			onCreateBtnClick: function () {
+				console.log("onCreateBtnClick");
+				$("#create-annexContractAsset-form").submit();
+			},
+			onAssetCodeKeyUp: function (d,e) {
+				console.log("onAssetCodeKeyUp");
+
+				var _this = this;
+				if (e.keyCode == 13) {
+					console.log("enter");
+					var code = _this.assetCode();
+					console.log(code);
+					_this.network.getAsset(code);
+
+					return false; // ignore default event
+				}
+				return false;
+			},
+			assetCode: ko.observable(),
+			assetId: ko.observable(),
+			assetBlockDuration: ko.observable(),
+			assetProductName: ko.observable(),
+			onAssetCodeBlur: function () {
+				console.log("onAssetCodeBlur");
+
+				var _this = this;
+
+				var code = _this.assetCode();
+				console.log(code);
+				setTimeout(function () {
+				//	_this.network.getAsset(code);
+				}, 200);
+
+			},
+			onSaveBtnClick: function () {
+				console.log("onSaveBtnClick");
+			},
+			onDeleteBtnClick: function () {
+				console.log("onDeleteBtnClick");
+
+			},
+			onManageBtnClick: function () {
+				console.log("onManageBtnClick");
+				location.replace("/Manager/AnnexContract/NormalBooking");
+
+			},
+			onImportBtnClick: function () {
+				console.log("onImportBtnClick");
+
+			},
+			onCreateFormSubmit: function (d, e) {
+				var _this = this;
+				console.log("onCreateFormSubmit");
+		//		_this.network.createAnnexContractAsset();
+			},
+			network: {
+				createAnnexContractAsset: function () {
+					var _this = viewModel;
+					var form = $("#create-annexContractAsset-form");
+					console.log(form.serialize());
+					$.ajax({
+						url: form.attr('action'),
+						method: form.attr('method'),
+						data: form.serialize(),
+						success: function (response) {
+							console.log(response);
+							if (typeof response == 'object') {
+								if (response.Succeeded) {
+									notification.show(response.Message);
+
+									_this.refresh.refreshAnnexContractAssetList();
+
+								}
+								else {
+									alert(response.Message);
+								}
+							}
+							else {
+								alert(response);
+							}
+						},
+						error: function () {
+
+						}
+					});
+				},
+				getAsset(code) {
+					var _this = viewModel;
+					$.getJSON("/MAM/Content/GetAssetByCodeAPI",
+						{ assetCode: code }
+						, function (response) {
+							console.log(response);
+							if (typeof response == 'object') {
+								if (response.Succeeded) {
+									notification.show(response.Message);
+									var asset = response.Data;
+									_this.assetBlockDuration(asset.BlockDuration),
+									_this.assetProductName(asset.ProductName);
+									_this.assetId(asset.Id);
+
+									_this.network.createAnnexContractAsset();
+								}
+								else {
+									alert(response.Message);
+								}
+							}
+							else {
+								alert(response);
+							}
+					});
+				}
+
+			},
+			refresh: {
+				refreshAnnexContractAssetList: function () {
+					var grid = $("#grid-annexDetail").data("kendoGrid");
+					if (grid) {
+					//	grid.refresh();
+						grid.dataSource.read();
+					}
+				}
+			}
+		}
+		ko.applyBindings(viewModel, $("#create-annexContractAsset-form")[0]);
+
+
+		$("#PriceTypeDetailId").on('change', function () {
+			var type = this.value;
+			if (type == "a4b1225e-ab34-43d1-8be9-d1feac327f4d") // from DB giá riêng
+			{
+				$("#Price").prop("disabled", false);
+			}
+			else {
+				$("#Price").prop("disabled", true);
+			}
+		});
+	});
+</script>

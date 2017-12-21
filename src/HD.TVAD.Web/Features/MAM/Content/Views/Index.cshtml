@@ -1,0 +1,364 @@
+﻿@{
+    ViewBag.Title = Localizer["MAM"].Value;
+    Layout = "_Content_Layout";
+}
+
+<div class="container-vertical-flex" id="rootDiv">
+    <div class="flex flex-0">
+        <div class="panel panel-flex panel-default">
+            <div class="panel-heading">
+                <h4>@Localizer["Detail"]</h4>
+            </div>
+            <div id="detail-partial" class="panel-body">
+                @Html.Partial("Detail", new ContentViewModel()
+           {
+               Id = Guid.NewGuid()
+           })
+            </div>
+        </div>
+
+    </div>
+    <div class="flex flex-1" style="margin-top:10px;">
+        <div class="panel panel-flex panel-default">
+            <div class="panel-heading">
+                <h4>@Localizer["Content"]</h4>
+            </div>
+            <div class="panel-body" style="padding:0;border:none;height:calc(100% - 23px)">
+                <div id="asset-grid" style="border:none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+@*</div>*@
+<div id="lockWindow" style="overflow:unset;" hidden></div>
+@*</div>*@
+@(Html.Kendo().ContextMenu()
+    .Name("gridContextMenu")
+    .Target("#asset-grid")
+    .Orientation(ContextMenuOrientation.Vertical)
+    .Items(items =>
+    {
+        items.Add()        
+        .Text(Localizer["View Workflow"].Value);
+
+        items.Add()
+        .Text(Localizer["Manage Channel Lock"].Value);
+
+        items.Add()
+        .Text(Localizer["Manage Time Band Lock"].Value);
+
+    })
+    .Events(e => e.Select("selectContextMenu"))
+    .Deferred()
+)
+<script id="approve-template" type="text/x-kendo-template">
+    #if(approve == true){#
+    <div class="label label-success"><span class="icon icon-check"></span></div>
+    #}else{#
+    #if(approve == false){#
+    <div class="label label-danger"><span class="icon icon-block"></span></div>
+    #}else{#
+    #if(true){#
+    <div class="label label-danger"><span class="icon icon-block"></span></div>
+    @*<div class="label label-primary"><span class="icon icon-clock"></span></div>*@
+    #}else{#
+    <div class="label label-info"><span class="icon icon-minus"></span></div>
+    #}#
+    #}#
+    #}#
+</script>
+
+<script>
+    require(['module/MAM'], function (MAM) {
+		MAM.init({
+			columns: [
+                {
+                    field: "Code", title: "@Localizer["Code"]", width: 100, headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "padding-left: 20px"
+                    },
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            operator: "contains",
+                            suggestionOperator: "contains",
+                            inputWidth: 100,
+                            delay:1000
+                        }
+                    }
+                },
+                {
+                    field: "ProductName", title: "@Localizer["Product"]", width: 200, headerAttributes: {
+                        style: "padding-left: 50px"
+                    },
+                    attributes: {
+                        style: "padding-left: 20px"
+                    },
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            operator: "contains",
+                            suggestionOperator: "contains",
+                            inputWidth: 200,
+                            delay: 1000
+                        }
+                    }
+                },
+                {
+                    field: "ProductModel", title: "@Localizer["Product Model"]", width: 100, headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "text-align: center"
+                    },
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            operator: "contains",
+                            suggestionOperator: "contains",
+                            inputWidth: 100,
+                            delay: 1000
+                        }
+                    }
+                },
+                {
+                    field: "BlockDuration", title: "@Localizer["Duration"]", width: 80, headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "text-align: center"
+                    },
+                    filterable: {
+                    	cell: {
+                    		showOperators: false,
+                    		operator: "eq",
+                    		suggestionOperator: "eq",
+                            inputWidth: 80,
+                            delay: 1000
+                    	}
+                    }
+                },
+                {
+                    field: "CreateTime", title: "@Localizer["Create Time"]", format: "{0: yyyy-MM-dd}", width: 100, headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "text-align: center"
+                    },
+                    filterable: {
+                    	cell: {
+                    		showOperators: false,
+                    		operator: "gte",
+                    		suggestionOperator: "gte",
+                            inputWidth: 100,
+                            delay: 1000
+                    	}
+                    }
+                },
+                {
+                    field: "TypeName", title: "@Localizer["Type"]", width: 60,
+                    headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "padding-left: 20px"
+                    },
+                    filterable: {
+                    	cell: {
+                    		showOperators: false,
+                    		operator: "eq",
+                    		suggestionOperator: "contains",
+                            inputWidth: 60,
+                            delay: 1000
+                    	}
+                    }
+                },
+                {
+                    field: "RegisterName", title: "@Localizer["Register"]", width: 150, headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {
+                    style: "padding-left: 20px"
+                },
+                filterable: {
+                	cell: {
+                		showOperators: false,
+                		operator: "contains",
+                		suggestionOperator: "contains",
+                        inputWidth: 150,
+                        delay: 1000
+                	}
+                }
+                },
+                {
+                    field: "ProducerName", title: "@Localizer["Producer"]", width: 150, headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "padding-left: 20px"
+                    },
+                    filterable: {
+                    	cell: {
+                    		showOperators: false,
+                    		operator: "contains",
+                    		suggestionOperator: "contains",
+                            inputWidth: 150,
+                            delay: 1000
+                    	}
+                    }
+                },
+                {
+                    field: "ProductGroupName", title: "@Localizer["Product Group"]", width: 100, headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "padding-left: 20px"
+                    },
+                    filterable: {
+                    	cell: {
+                    		showOperators: false,
+                    		operator: "contains",
+                    		suggestionOperator: "contains",
+                            inputWidth: 100,
+                            delay: 1000
+                    	}
+                    }
+                },
+                {
+                	field: "Text", title: "@Localizer["Text"]",
+                	width: 150,
+                	headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "padding-left: 20px"
+                    },
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            operator: "contains",
+                            suggestionOperator: "contains",
+                            inputWidth: 150,
+                            delay: 1000
+                        }
+                    }
+                },
+                {
+                	field: "Approve", title: "@Localizer["Approve"]",
+                	template: function (dataItem) {
+                		return kendo.template($("#approve-template").html())({ approve: dataItem.Approve });
+                	},
+                    width: 60,
+                    headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "text-align: center"
+                    },
+                    filterable: false
+                },
+                {
+                    field: "ApproveEndDate", format: "{0: yyyy-MM-dd}", width: 100, title: "@Localizer["Approve End Date"]",
+                    filterable: false,
+                    headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "text-align: center"
+                    }
+                }
+                @*{
+                	field: "LastProductModelName", title: "@Localizer["Last Product Model"]", width: 100,
+                }*@
+			],
+        });
+
+        @Html.Kendo().DeferredScriptsFor("gridContextMenu", false);
+
+        function selectContextMenu(e) {
+            switch ($(e.item).text()) {
+                case "@Localizer["View Workflow"]":
+                    OpenViewWorkflow();
+                    break;
+                case "@Localizer["Manage Channel Lock"]":
+                    OpenLockChannel();
+                    break;
+                case "@Localizer["Manage Time Band Lock"]":
+                    OpenLockTimeBand();
+                    break;
+            }
+        }
+        var _contentId;
+        function OpenViewWorkflow() {
+            var path = "workflow/api/" + _contentId + "/state";
+            //$("#viewWorkflowWindow").empty();
+            var previewWindow = $("#lockWindow").kendoWindow({
+                width: "1000px",
+                height: "450px",
+                title: "@Localizer["View Workflow"]",
+                //content: {
+                //    url: "workflow/api/" + _this.configs.contentId + "/state" },
+                modal: true,
+                deactivate: function () {
+                    this.destroy();
+                    $("#rootDiv").append("<div id='lockWindow' style='overflow:unset;'></div>");
+                }
+            }).data("kendoWindow").center().open();
+            $("#lockWindow").append('<iframe src="' + path + '" style="width:100%;height: 100%"></iframe>');
+        }
+        function OpenLockChannel() {
+            var lockWindow = $("#lockWindow").kendoWindow({
+                width: "800px",
+                height: "530px",
+                title: "@Localizer["Channel Lock Management"]",
+                content: { url: "/MAM/ChannelLock", data: { contentId: _contentId } },
+                modal: true,
+                deactivate: function () {
+                    this.destroy();
+                    $("#rootDiv").append("<div id='lockWindow'></div>");
+                }
+            }).data("kendoWindow").center().open();
+        }
+        function OpenLockTimeBand() {
+            var lockWindow = $("#lockWindow").kendoWindow({
+                width: "800px",
+                height: "530px",
+                title: "@Localizer["Time Band Lock Management"]",
+                content: { url: "/MAM/TimeBandLock", data: { contentId: _contentId } },
+                modal: true,
+                deactivate: function () {
+                    this.destroy();
+                    $("#rootDiv").append("<div id='lockWindow'></div>");
+                }
+            }).data("kendoWindow").center().open();
+        }
+        $("#asset-grid").on("mousedown", "tr[role='row']", function (e) {
+            if (e.which === 3) {
+                $("#asset-grid tbody tr").removeClass("k-state-selected");
+                $(this).toggleClass("k-state-selected");
+                var gridData = $("#asset-grid").data('kendoGrid');
+                var selectedRowData = gridData.dataItem($('.k-grid').find("tr.k-state-selected"));
+                _contentId = selectedRowData.Id;
+            }
+        });
+	});
+</script>
+<style>
+    div.k-window-content {
+        overflow: unset;
+    }
+    .k-header {
+        border-right: 1px solid transparent !important;
+    }
+    .k-filter-row th {
+        border-right: 1px solid transparent !important;
+    }
+    fieldset label{
+        text-align:right !important;
+    }
+    #contentDetailForm, #contentCreateForm, #contentEditForm {
+        margin: 10px;
+    }
+</style>

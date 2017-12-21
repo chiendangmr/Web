@@ -1,0 +1,136 @@
+﻿
+@import "station-flex.less";
+@import "station-icon.less";
+
+@import "variable-toolkit.less";
+
+// Site have 2 fixed bar, one at top and one at bottom
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+
+body {
+    height: 100vh;
+
+    > .container-fluid {
+        position: absolute;
+        top: @navbar-height;
+        bottom: @navbar-height;
+        left: 0;
+        right: 0;
+        padding: @spacer / 2;
+        overflow: auto;
+    }
+
+    > footer {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        vertical-align: middle;
+        padding: @padding-base-vertical @padding-base-horizontal;
+
+        .credit {
+            padding: @padding-base-vertical @padding-base-horizontal;
+            font-size: @font-size-base; 
+            line-height: @line-height-base; 
+            display: inline-block;
+            vertical-align: middle;
+        }
+    }
+}
+
+
+
+// Medium Devices, Desktops
+@media all and (min-width : @grid-float-breakpoint) {
+    // Make main container size
+    .panel {
+        margin: 0;
+    }
+
+    #main-navigator {
+        margin-left: 150px;
+    }
+
+    .h-100 {
+        height: 100%;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
+
+// Hide/rearrange for smaller screens
+@media all and (max-width: @grid-float-breakpoint-max) {
+    body > .container-fluid {
+        //margin: @spacer 0;
+    }
+}
+
+// Align dl dt dd with col-md-3 form-group
+@media screen and (min-width: @grid-float-breakpoint) {
+    dl.dl-horizontal {
+        margin-left: ceil((@grid-gutter-width / -2));
+        margin-right: floor((@grid-gutter-width / -2));
+
+        dt {
+            padding-left: (@grid-gutter-width / 2);
+            padding-right: (@grid-gutter-width / 2);
+            width: 25%;
+        }
+
+        dd {
+            margin-left: calc(~"25% + " @grid-gutter-width / 2 );
+        }
+    }
+}
+
+.nav-bordered.nav-stacked {
+    & > li > button {
+        display: block;
+        padding: 5px 10px 5px 30px;
+        border-bottom: 0;
+        border-left: 4px solid transparent;
+
+        &:hover, &:focus {
+            border-left: 4px solid;
+        }
+    }
+}
+
+.panel {
+    .panel-heading {
+        .hr-divider {
+            &:before, > .hr-divider-content {
+                background-color: initial;
+            }
+        }
+    }
+
+    > .collapse, > .collapsing {
+        padding: 0;
+
+        > .container-fluid {
+            padding: @panel-body-padding;
+        }
+    }
+}
+
+::-webkit-scrollbar {
+    width: 1rem;
+    height: 1rem;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: @label-warning-bg;
+    border-radius: 0.5rem;
+    opacity: 0.8;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 0.5rem;
+    background-color: @gray-dark;
+    opacity: 0.2;
+    margin: 1rem;
+}

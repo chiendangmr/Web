@@ -1,0 +1,365 @@
+﻿@using HD.TVAD.ApplicationCore.Entities.Booking
+
+@{
+	Layout = null;
+}
+@model AnnexContractAssetForNormalBookingEditViewModel
+
+@inject IContentViewService _contentViewService
+@{
+//	var assetCodeItems = await _contentViewService.GetNameListAsync();
+	var productNames = await _contentViewService.GetProductNameListAsync();
+}
+
+
+@inject IGetTypeService _getTypeService
+@{
+	var typeDetailSelectItems = (await _getTypeService.GetTypeDetailsByBookingTypeAsync(Model.BookingType))
+		.Select(c => new SelectListItem()
+		{
+			Value = c.Id.ToString(),
+			Text = Localizer[c.Name].Value,
+		}).ToList();
+}
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		@Localizer["TVC Info"]
+	</div>
+	<div class="panel-body">
+		<form data-bind="submit: onEditFormSubmit" id="edit-annexContractAsset-form" asp-area="Manager" asp-controller="AnnexContractAsset" asp-action="EditAPI" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+			<input type="hidden" asp-for="Id" />
+			<input type="hidden" asp-for="AnnexContractId" />
+			<input type="hidden" data-bind="value: assetId" asp-for="AssetId" />
+
+			<div class="col-md-8">
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="AssetId"></label>
+					</div>
+					<div class="col-md-8">
+						<input data-bind="value: assetCode, event: {keyup: onAssetCodeKeyUp, blur: onAssetCodeBlur}" list="assetCodeItems" class="form-control" asp-for="AssetCode" />
+						<datalist id="assetCodeItems">
+							<select name="assetCodeItems"></select>
+						</datalist>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label>@Localizer["TL"]</label>
+					</div>
+					<div class="col-md-8">
+						<input data-bind="value: assetBlockDuration" class="form-control" asp-for="AssetBlockDuration" disabled />
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<div class="form-group">
+					<div class="col-md-3 control-label">
+						<label asp-for="AssetProductName"></label>
+					</div>
+					<div class="col-md-9">
+						<input data-bind="value: assetProductName" class="form-control" asp-for="AssetProductName" placeholder="" disabled />
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<div class="form-group">
+					<div class="col-md-3 control-label">
+						<label asp-for="PriceTypeDetailId"></label>
+					</div>
+					<div class="col-md-9">
+						<select class="form-control" asp-for="PriceTypeDetailId" asp-items="typeDetailSelectItems"></select>
+						<span asp-validation-for="PriceTypeDetailId" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+			@switch (Model.BookingType)
+			{
+				case BookingTypeEnum.Retail:
+					<text>
+					<div class="col-md-12">
+						<div class="form-group">
+							<div class="col-md-3 control-label">
+								<label asp-for="Price"></label>
+							</div>
+							<div class="col-md-9">
+								<input class="form-control" disabled="disabled" asp-for="Price" type="number" placeholder="" />
+							</div>
+						</div>
+					</div>
+					</text>
+					break;
+				default:
+					<text></text>
+					break;
+			}
+			<div class="col-md-6">
+				<div class="form-group text-center">
+					<button data-bind="click: onCreateBtnClick" type="button" class="btn btn-primary-outline"><span class="icon icon-plus"></span> @Localizer["Add more TVC"]</button>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group text-center">
+					<button data-bind="click: onSaveBtnClick, attr : {'disabled' : isCreateMode}" type="button" class="btn btn-success-outline"><span class="icon icon-action-save"></span> @Localizer["Save TVC"]</button>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group text-center">
+					<a href="Report/Report/BroadcastCertificate/@Model.AnnexContractId" target="_blank" data-bind="attr : {'disabled' : isCreateMode}" class="btn btn-primary-outline"><span class="icon icon-print"></span></a>
+					<a href="Report/Report/BroadcastCertificate/@Model.AnnexContractId" data-bind="attr : {'disabled' : isCreateMode}" class="btn btn-primary-outline"><span class="icon icon-search"></span></a>
+					<a href="Report/Report/BroadcastCertificate/@Model.AnnexContractId" data-bind="attr : {'disabled' : isCreateMode}" class="btn btn-primary-outline"><span class="icon icon-doc"></span></a>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group text-center">
+					<button data-bind="click: onDeleteBtnClick, attr : {'disabled' : isCreateMode}" type="button" class="btn btn-danger-outline"><span class="icon icon-action-delete"></span> @Localizer["Delete TVC"]</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+
+	require(["jquery", "knockout", 'module/manager'], function ($, ko, manager) {
+		//	var producname = "\u@Model.AssetProductName";
+		var localizer = {
+			delete: "@Localizer["Delete"]",
+			edit: "@Localizer["Edit"]",
+		inputNotValid: "@Localizer["Input not valid"]",
+		};
+
+		var model = {
+			assetId: "@Model.AssetId",
+			assetBlockDuration: "@Model.AssetBlockDuration",
+		};
+
+		var viewModel = {
+			isCreateMode: ko.observable(false),
+			onCreateBtnClick: function () {
+				console.log("onCreateBtnClick");
+				var _this = this;
+				_this.isCreateMode(true);
+				_this.assetCode("");
+				_this.assetBlockDuration("");
+				_this.assetProductName("");
+				$("#AssetCode").focus();
+			//	$("#create-annexContractAsset-form").submit();
+			},
+			onAssetCodeKeyUp: function (d,e) {
+				console.log("onAssetCodeKeyUp");
+
+				var _this = this;
+				if (e.keyCode == 13) {
+					console.log("enter");
+					var code = _this.assetCode();
+					console.log(code);
+						_this.network.getAsset(code);
+
+
+					return false; // ignore default event
+				}
+				return false;
+			},
+			assetCode: ko.observable($("#AssetCode").val()),
+			assetId: ko.observable(model.assetId),
+			assetBlockDuration: ko.observable(model.assetBlockDuration),
+			assetProductName: ko.observable($("#AssetProductName").val()),
+			onAssetCodeBlur: function () {
+				console.log("onAssetCodeBlur");
+
+				var _this = this;
+
+				var code = _this.assetCode();
+				console.log(code);
+				setTimeout(function () {
+				//	_this.network.getAsset(code);
+				}, 200);
+
+			},
+			onSaveBtnClick: function () {
+				console.log("onSaveBtnClick");
+				var _this = this;
+
+				if (!_this.isCreateMode())
+					$("#edit-annexContractAsset-form").submit();
+			},
+			onDeleteBtnClick: function () {
+				console.log("onDeleteBtnClick");
+
+				var _this = this;
+				if (confirm(localizer.delete)) {
+					_this.network.deleteAnnexContractAsset();
+				}
+
+			},
+			onManageBtnClick: function () {
+				console.log("onManageBtnClick");
+				location.replace("/Manager/AnnexContract/NormalBooking");
+
+			},
+			onImportBtnClick: function () {
+				console.log("onImportBtnClick");
+
+			},
+			onEditFormSubmit: function (d, e) {
+				var _this = this;
+				console.log("onCreateFormSubmit");
+				if (confirm(localizer.edit)) {
+					_this.network.editAnnexContractAsset();
+				}
+			},
+			network: {
+				createAnnexContractAsset: function () {
+					var _this = viewModel;
+					var form = $("#edit-annexContractAsset-form");
+					var createUrl = "Manager/AnnexContractAsset/CreateAPI";
+					console.log(form.serialize());
+					$.ajax({
+						url: createUrl,
+						method: form.attr('method'),
+						data: form.serialize(),
+						success: function (response) {
+							console.log(response);
+							if (typeof response == 'object') {
+								if (response.Succeeded) {
+									notification.show(response.Message);
+
+									_this.refresh.refreshAnnexContractAssetList(response.Id);
+
+								}
+								else {
+									alert(response.Message);
+								}
+							}
+							else {
+								alert(response);
+							}
+						},
+						error: function () {
+
+						}
+					});
+				},
+				deleteAnnexContractAsset: function () {
+					var _this = viewModel;
+					var form = $("#edit-annexContractAsset-form");
+					var deleteUrl = "Manager/AnnexContractAsset/DeleteAPI";
+					console.log(form.serialize());
+					$.ajax({
+						url: deleteUrl,
+						method: form.attr('method'),
+						data: form.serialize(),
+						success: function (response) {
+							console.log(response);
+							if (typeof response == 'object') {
+								if (response.Succeeded) {
+									notification.show(response.Message);
+
+									_this.refresh.refreshAnnexContractAssetList();
+									_this.refresh.refreshSpotBookingList();
+
+								}
+								else {
+									alert(response.Message);
+								}
+							}
+							else {
+								alert(response);
+							}
+						},
+						error: function () {
+
+						}
+					});
+				},
+				editAnnexContractAsset: function () {
+					var _this = viewModel;
+					var form = $("#edit-annexContractAsset-form");
+			//		var createUrl = "Manager/AnnexContractAsset/CreateAPI";
+					console.log(form.serialize());
+					$.ajax({
+						url: form.attr('action'),
+						method: form.attr('method'),
+						data: form.serialize(),
+						success: function (response) {
+							console.log(response);
+							if (typeof response == 'object') {
+								if (response.Succeeded) {
+									notification.show(response.Message);
+
+									_this.refresh.refreshAnnexContractAssetList(response.Id);
+									_this.refresh.refreshSpotBookingList();
+
+								}
+								else {
+									alert(response.Message);
+								}
+							}
+							else {
+								alert(response);
+							}
+						},
+						error: function () {
+
+						}
+					});
+				},
+				getAsset(code) {
+					var _this = viewModel;
+					$.getJSON("/MAM/Content/GetAssetByCodeAPI",
+						{ assetCode: code }
+						, function (response) {
+							console.log(response);
+							if (typeof response == 'object') {
+								if (response.Succeeded) {
+									notification.show(response.Message);
+									var asset = response.Data;
+									_this.assetBlockDuration(asset.BlockDuration),
+									_this.assetProductName(asset.ProductName);
+									_this.assetId(asset.Id);
+
+									if (_this.isCreateMode())
+										_this.network.createAnnexContractAsset();
+									else
+									{
+										if (confirm(localizer.edit))
+											_this.network.editAnnexContractAsset();
+									}
+
+								}
+								else {
+									alert(response.Message);
+								}
+							}
+							else {
+								alert(response);
+							}
+					});
+				}
+
+			},
+			refresh: {
+				refreshAnnexContractAssetList: function (dataItemId) {
+					var grid = $("#grid-annexDetail").data("kendoGrid");
+					if (grid) {
+						//	grid.refresh();
+						grid.options.settings.dataItemId = dataItemId;
+						grid.dataSource.read();
+					}
+				},
+				refreshSpotBookingList: function () {
+					var grid = $("#grid-spotBooking").data("kendoGrid");
+					if (grid) {
+						//	grid.refresh();
+						grid.dataSource.read();
+					}
+				}
+			}
+		}
+		ko.applyBindings(viewModel, $("#edit-annexContractAsset-form")[0]);
+	});
+</script>

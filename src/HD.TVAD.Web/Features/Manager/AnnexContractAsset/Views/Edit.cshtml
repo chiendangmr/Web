@@ -1,0 +1,105 @@
+﻿@{
+	Layout = null;
+}
+@model AnnexContractAssetViewModel
+
+@inject IGetTypeService _getTypeService
+@{
+	var typeDetailSelectItems = (await _getTypeService.GetTypeDetailsByBookingTypeAsync((BookingTypeEnum)Model.BookingTypeId))
+		.Select(c => new SelectListItem()
+		{
+			Value = c.Id.ToString(),
+			Text = c.Name,
+		}).ToList();
+}
+<form id="edit-form" asp-area="Manager" asp-controller="AnnexContractAsset" asp-action="Edit" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">@Localizer["Edit asset"]</h4>
+	</div>
+	<div class="modal-body">
+				<input type="hidden" asp-for="AnnexContractId" />
+				<input type="hidden" asp-for="AssetId" />
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="AssetId"></label>
+					</div>
+					<div class="col-md-8">
+						<input class="form-control" asp-for="AssetCode" disabled/>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="PriceTypeDetailId"></label>
+					</div>
+					<div class="col-md-8">
+						<select class="form-control" asp-for="PriceTypeDetailId" asp-items="typeDetailSelectItems">
+							<option value="">@Localizer["Choose..."]</option>
+						</select>
+						<span asp-validation-for="PriceTypeDetailId" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="Content"></label>
+					</div>
+					<div class="col-md-8">
+						<input class="form-control" asp-for="Content" placeholder="" />
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-md-4 control-label">
+						<label asp-for="Price"></label>
+					</div>
+					<div class="col-md-8">
+						<input class="form-control" asp-for="Price" type="number" placeholder="" />
+					</div>
+				</div>
+		<div class="modal-footer">
+			<div class="col-md-12 text-center">
+				<button id="submit" type="submit" class="btn btn-primary"><span class="icon icon-action-create"></span> @Localizer["Save"] </button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-action-back"></span> @Localizer["Back"] </button>
+			</div>
+		</div>
+
+	</div>
+</form>
+
+<script>
+
+	$('#edit-form').submit(function () { // catch the form's submit event
+		$.ajax({ // create an AJAX call...
+			data: $(this).serialize(), // get the form data
+			type: $(this).attr('method'), // GET or POST
+			url: $(this).attr('action'), // the file to call
+			success: function (response) { // on success..
+				console.log(typeof response);
+				if (typeof response == "object") {
+					console.log(response);
+					$('#modal').modal('hide');
+
+					var grid = $("#grid-annexDetail").data('kendoGrid');
+					if (grid) {
+						if (response.id != "00000000-0000-0000-0000-000000000000")
+							grid.options.settings.dataItemId = response.id;
+						else
+							if (response.data)
+								grid.options.settings.dataItemId = response.data.Id;
+
+						grid.dataSource.read();
+					}
+					var gridspotBooking = $("#grid-spotBooking").data('kendoGrid');
+					if (gridspotBooking)
+						gridspotBooking.dataSource.read();
+				} else {
+
+					$('#modal').modal('hide');
+				}
+			}
+		});
+		return false; // cancel original event to prevent form submitting
+	});
+
+</script>
+

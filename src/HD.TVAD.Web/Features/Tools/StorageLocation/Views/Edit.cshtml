@@ -1,0 +1,127 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Edit Storage Location";
+}
+@model HD.TVAD.Web.Storage.Models.StorageLocationViewModel
+@inject IStorageService _storageService
+@inject IAssetTypeService _assetTypeService
+@{
+    var _storageItems = await _storageService.GetAll()
+        .Select(p => new SelectListItem()
+        {
+            Value = p.Id.ToString(),
+            Text = p.Name,
+        }).ToListAsync();
+    var _assetTypeItems = await _assetTypeService.GetAll()
+        .Select(p => new SelectListItem()
+        {
+            Value = p.Id.ToString(),
+            Text = p.Name,
+        }).ToListAsync();
+}
+
+<form id="edit-form" method="post" enctype="multipart/form-data" asp-area="Tools" asp-controller="StorageLocation" asp-action="Edit" class="form-horizontal">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">@Localizer["Edit Storage Location"]</h4>
+    </div>
+    <div class="modal-body">
+
+        <h3 class="text-center text-danger"> @ViewBag.Message</h3>
+
+        <div class="form-group" hidden>
+            <input asp-for="Id" class="form-control" value="@Model.Id" />
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="Name">@Localizer["Name"]:</label>
+            </div>
+            <div class="col-md-8">
+                <input class="form-control" type="text" asp-for="Name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="Description">@Localizer["Description"]:</label>
+
+</div>
+            <div class="col-md-8">
+                <input class="form-control" type="text" asp-for="Description" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="StorageId">@Localizer["Storage"]:</label>
+            </div>
+            <div class="col-md-8">
+                <select asp-for="StorageId" class="form-control" asp-items="_storageItems"></select>
+                <span asp-validation-for="StorageId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="AssetTypeId">@Localizer["Asset Type"]:</label>
+            </div>
+            <div class="col-md-8">
+                <select asp-for="AssetTypeId" class="form-control" asp-items="_assetTypeItems"></select>
+                <span asp-validation-for="AssetTypeId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="UncPath">@Localizer["Unc Path"]:</label>
+            </div>
+            <div class="col-md-8">
+                <input class="form-control" type="text" asp-for="UncPath" />
+                <span asp-validation-for="UncPath" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="Path">@Localizer["Path"]:</label>
+            </div>
+            <div class="col-md-8">
+                <input class="form-control" type="text" asp-for="Path" />
+                <span asp-validation-for="Path" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="StorageType">@Localizer["Storage Type"]:</label>
+            </div>
+            <div class="col-md-8">
+                <input class="form-control" type="number" asp-for="StorageType" />
+                <span asp-validation-for="StorageType" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4 control-label">
+                <label asp-for="StorageTypeDescription">@Localizer["Storage Type Description"]:</label>
+            </div>
+            <div class="col-md-8">
+                <input class="form-control" type="text" asp-for="StorageTypeDescription" readonly/>
+                <span asp-validation-for="StorageTypeDescription" class="text-danger"></span>
+            </div>
+        </div>        
+        <div class="modal-footer">
+            <div class="text-center">
+                <button id="submit" type="submit" value="Update" class="btn btn-primary"><span class="icon icon-action-edit"></span> @Localizer["Update"] </button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-action-back"></span> @Localizer["Back"]</button>
+            </div>
+        </div>
+
+    </div>
+</form>
+<script>
+    require(['module/manager'], function (manager) {
+        manager.common.submitForm.init({
+            formId: 'edit-form',
+        });
+    });
+
+</script>
+
+
+

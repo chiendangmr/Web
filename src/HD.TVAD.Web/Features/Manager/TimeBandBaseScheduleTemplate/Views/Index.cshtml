@@ -1,0 +1,83 @@
+﻿@{
+    ViewBag.Title = "";
+	 Layout = null;
+}
+@model TimeBandBaseScheduleTemplateIndexViewModel
+
+<div class="container-vertical-flex">
+	<div class="flex flex-0">
+		<span class="h4">@Localizer["Template"]: @Model.TemplateName</span>
+		<button class="btn btn-sm btn-primary-outline create timeBandBaseScheduleTemplate pull-right"> <span class="glyphicon glyphicon-plus"></span> @Localizer["Add"] </button>
+	</div>
+	<div class="flex flex-1">
+		<div id="grid-timeBandBaseScheduleTemplate"></div>
+	</div>
+</div>
+
+<script id="timeBandBaseScheduleTemplate-edit-template" type="text/x-kendo-template">
+	<div class="btn-group">
+		<button data-id="#: id #" class="btn btn-danger-outline btn-sm delete timeBandBaseScheduleTemplate"><span class="icon icon-action-delete"></span> </button>
+		<button data-id="#: id #" class="btn btn-warning-outline btn-sm edit timeBandBaseScheduleTemplate"><span class="icon icon-action-edit"></span> </button>
+	</div>
+</script>
+
+<script>
+	require(['module/timebandbase-schedule-template'], function (module) {
+		module.init({
+        	url: {
+        		controller: "TimeBandBaseScheduleTemplate",
+        		getAll: "GetAll",
+        		id: "@Model.TemplateId"
+        	},
+        	DOMclass: {
+        		entity: '.timeBandBaseScheduleTemplate',
+        	},
+        	DOMid: {
+        		grid: 'grid-timeBandBaseScheduleTemplate',
+        	},
+        	model: {
+        		id: 'Id',
+        		fields: {
+        			startDate: { field: "StartDate", type: "date" },
+        			endDate: { field: "StartDate", type: "date" },
+        			timeBandBaseName: { field: "TimeBandBaseName", type: "text" },
+        		},
+        	},
+            columns: [
+				{ field: "timeBandBaseName", title: "@Localizer["Band"] " },
+				{
+					field: "startDate", title: "@Localizer["Start Date"] ",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.startDate });
+					}
+				},
+				{
+					field: "endDate", title: "@Localizer["End Date"] ",
+					template: function (dataItem) {
+						return kendo.template($("#date-template").html())({ date: dataItem.endDate });
+					}
+				},
+				{
+					field: "",
+					title: "@Localizer["Edit"] ",
+					template: kendo.template($("#timeBandBaseScheduleTemplate-edit-template").html()),
+					width: "120px",
+				},
+
+            ],
+            data: {
+				templateId: "@Model.TemplateId",
+            }
+			,
+            function: {
+            	onChange: function (arg) {
+
+            		var grid = arg.sender;
+            		var selected = grid.dataItem(this.select());
+            	//	$("#template-item-asset-type-panel").load("Manager/TemplateItemAssetTypeRequest" + "/Index/" + selected.id);
+            	 }
+            }
+        });
+    });
+
+</script>

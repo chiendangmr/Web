@@ -1,0 +1,135 @@
+﻿@using HDAdvertising.Datas.Permission
+
+@{
+    ViewData["Title"] = "Quản lý nhóm tài khoản";
+}
+
+<h2>Quản lý nhóm tài khoản</h2>
+
+<link href="~/css/administrator/usergroup.css" rel="stylesheet" />
+
+<script src="~/js/administrator/usergroup.js"></script>
+
+@{ 
+    var canEditUserGroup = User.IsInRole(ApplicationPermissions.Manager_UserGroup_Edit.ToString());
+
+    var canSetPermission = User.IsInRole(ApplicationPermissions.Manager_UserGroup_Permission.ToString());
+}
+
+<div class="usergroup-group">
+    <h3>Danh sách nhóm tài khoản</h3>
+    <div class="dx-list-border-visible">
+        @(Html.DevExtreme().TreeList()
+            .ID("treeUserGroup")
+            .KeyExpr("Id")
+            .ParentIdExpr("ParentId")
+            .ShowBorders(false)
+            .Selection(s => s.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(true)
+            .HoverStateEnabled(true)
+            .ColumnAutoWidth(true)
+            .WordWrapEnabled(true)
+            .Sorting(s => s.Mode(GridSortingMode.Single))
+            .FilterRow(f => f.Visible(true))
+            .HeaderFilter(f => f.Visible(true))
+            .Editing(e =>
+            {
+                e.Mode(GridEditMode.Row);
+                
+                e.AllowAdding(canEditUserGroup);
+                e.AllowUpdating(canEditUserGroup);
+                e.AllowDeleting(canEditUserGroup);
+                e.Texts(texts =>
+                {
+                    texts.AddRow("Thêm nhóm");
+                    texts.AddRowToNode("Thêm");
+                    texts.EditRow("Sửa");
+                    texts.CancelRowChanges("Hủy");
+                    texts.DeleteRow("Xóa");
+                    texts.ConfirmDeleteTitle("Xóa nhóm tài khoản");
+                    texts.ConfirmDeleteMessage("Bạn chắc chắn xóa nhóm tài khoản?<br/>Các nhóm con cũng sẽ bị xóa !!!");
+                    texts.SaveAllChanges("Lưu các thay đổi");
+                    texts.SaveRowChanges("Lưu");
+                    texts.UndeleteRow("Hủy xóa");
+                    texts.ValidationCancelChanges("Hủy các thay đổi");
+                });
+            })
+            .Columns(columns =>
+            {
+                columns.Add().DataField("Name").Caption("Nhóm tài khoản").SortOrder(SortOrder.Asc);
+            })
+            .DataSource(d => d.WebApi().RouteName("areaRoute").Controller("UserGroup")
+                .LoadAction("GetGroupsOfCurrentUser")
+                .InsertAction("PostGroup")
+                .UpdateAction("PutGroup")
+                .DeleteAction("DeleteGroup")
+                .Key("Id"))
+            .OnContentReady("userGroupContentReady")
+            .OnCellPrepared("userGroupCellPrepared")
+            .OnSelectionChanged("userGroupSelectionChanged")
+        )
+    </div>
+</div>
+
+<div class="usergroup-permission">
+    <h3>Quyền sử dụng hệ thống</h3>
+    <h5 style="color:red">Chú ý: Các quyền trong chỉ có khi có quyền ngoài</h5>
+    <div class="dx-list-border-visible">
+        @(Html.DevExtreme().TreeList()
+            .ID("treePermission")
+            .KeyExpr("PermissionId")
+            .ParentIdExpr("PermissionParentId")
+            .ShowBorders(false)
+            .ShowRowLines(false)
+            .Selection(s=>s.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(true)
+            .ColumnAutoWidth(true)
+            .Sorting(s=>s.Mode(GridSortingMode.Single))
+            .FilterRow(f=>f.Visible(false))
+            .HeaderFilter(f=>f.Visible(false))
+            .Columns(columns=>
+            {
+                columns.Add().DataField("Check").Caption("");
+
+                columns.Add().DataField("PermissionDisplayName").AllowEditing(false).Caption("Quyền chức năng").SortOrder(SortOrder.Asc);
+            })
+            .Option("autoExpandAll", true)
+            .NoDataText("Không có quyền nào để set")
+            .Editing(e =>
+            {
+                e.Mode(GridEditMode.Batch);
+                
+                e.AllowUpdating(canSetPermission);
+            })
+            .DataSource(new JS("getPermissions")))
+    </div>
+    <div>
+        @(Html.DevExtreme().Button()
+            .ID("btnSavePermission")
+            .Icon("save")
+            .Text("Lưu quyền")
+            .Disabled(true)
+            .OnClick("savePermission"))
+    </div>
+</div>
+
+<script>
+    function userGroupSelectionChanged(e) {
+        var userGroup = null;
+        if (e.selectedRowsData.length > 0)
+            userGroup = e.selectedRowsData[0];
+
+        var allowSetPermission = '@canSetPermission'.toLowerCase() == "true" ? true : false;
+        if (allowSetPermission && userGroup.ParentId) {
+            getTreePermission().option("editing.allowUpdating", true);
+            getButtonSavePermission().option("disabled", false);
+        }
+        else {
+            getTreePermission().option("editing.allowUpdating", false);
+            getButtonSavePermission().option("disabled", true);
+        }
+
+        getTreePermission().cancelEditData();
+        getTreePermission().refresh();
+    }
+</script>

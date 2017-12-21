@@ -1,0 +1,332 @@
+﻿@import "variable-toolkit.less";
+
+/* Flex Layout*/
+.container-flex {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+}
+
+.container-vertical-flex {
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-around;
+}
+
+// Panel Flex
+.panel-flex {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-around;
+
+    > .panel-heading {
+        flex: 0 0;
+    }
+
+    > .panel-body {
+        flex: 1 0;
+        position: relative;
+    }
+
+    > .panel-footer {
+        flex: 0 0;
+    }
+}
+
+// Flex item
+.container-flex, .container-vertical-flex {
+    > .flex {
+        flex: 1 100%;
+        position: relative;
+    }
+}
+
+@media (min-width: @grid-float-breakpoint) {
+    .container-flex, .container-vertical-flex, .panel-flex {
+        height: 100%;
+        flex-wrap: nowrap;
+
+        > .flex-md-0 {
+            flex: 0;
+        }
+
+        > .flex-md-1 {
+            flex: 1;
+        }
+
+        > .flex-md-2 {
+            flex: 2;
+        }
+
+        > .flex-md-3 {
+            flex: 3;
+        }
+
+        > .flex-md-4 {
+            flex: 4;
+        }
+
+        > .flex-md-5 {
+            flex: 5;
+        }
+
+        > .flex-0 {
+            flex: 0;
+        }
+
+        > .flex-1 {
+            flex: 1;
+        }
+
+        > .flex-2 {
+            flex: 2;
+        }
+
+        > .flex-3 {
+            flex: 3;
+        }
+
+        > .flex-4 {
+            flex: 4;
+        }
+
+        > .flex-5 {
+            flex: 5;
+        }
+
+        > .panel-body,
+        > .flex-1, > .flex-2, > .flex-3, > .flex-4, > .flex-5,
+        > .flex-md-1, > .flex-md-2, > .flex-md-3, > .flex-md-4, > .flex-md-5 {
+            position: relative;
+
+            > .panel:only-child {
+                height: 100%;
+                width: 100%;
+            }
+
+            > .k-grid:only-child {
+                box-sizing: border-box;
+                height: 100% !important;
+            }
+
+            > .container, > .container-fluid, > .panel:only-child {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: initial;
+                overflow: auto;
+            }
+
+            > .container, > .container-fluid {
+                padding: 0;
+
+                > .k-grid:only-child {
+                    box-sizing: border-box;
+                    height: 100% !important;
+                }
+            }
+        }
+
+        > .panel-body {
+            > .container, > .container-fluid {
+                padding: @panel-body-padding;
+
+                > .k-grid:only-child {
+                    border: none;
+                }
+            }
+        }
+    }
+}
+
+@media (min-width: @grid-float-breakpoint) {
+    .container-flex > .flex:not(:first-child) {
+        margin-left: @spacer;
+    }
+
+    .container-vertical-flex {
+        > .flex:not(:first-child) {
+            margin-top: @spacer;
+        }
+    }
+}
+
+@media (max-width: @grid-float-breakpoint-max) {
+    .container-flex > .flex:not(:first-child) {
+        margin-top: @spacer;
+    }
+}
+
+// MD Margin and Padding
+@media (min-width: @screen-sm-min) {
+    .m-sm-a-0 {
+        margin: 0 !important;
+    }
+
+    .m-sm-t-0 {
+        margin-top: 0 !important;
+    }
+
+    .m-sm-r-0 {
+        margin-right: 0 !important;
+    }
+
+    .m-sm-b-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .m-sm-l-0 {
+        margin-left: 0 !important;
+    }
+
+    .m-sm-a {
+        margin: @spacer !important;
+    }
+
+    .m-sm-t {
+        margin-top: @spacer-y !important;
+    }
+
+    .m-sm-r {
+        margin-right: @spacer-x !important;
+    }
+
+    .m-sm-b {
+        margin-bottom: @spacer-y !important;
+    }
+
+    .m-sm-l {
+        margin-left: @spacer-x !important;
+    }
+
+    .m-sm-x {
+        margin-right: @spacer-x !important;
+        margin-left: @spacer-x !important;
+    }
+
+    .m-sm-y {
+        margin-top: @spacer-y !important;
+        margin-bottom: @spacer-y !important;
+    }
+
+    .m-sm-x-auto {
+        margin-right: auto !important;
+        margin-left: auto !important;
+    }
+}
+
+@media (min-width: @screen-md-min) {
+    .m-md-a-0 {
+        margin: 0 !important;
+    }
+
+    .m-md-t-0 {
+        margin-top: 0 !important;
+    }
+
+    .m-md-r-0 {
+        margin-right: 0 !important;
+    }
+
+    .m-md-b-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .m-md-l-0 {
+        margin-left: 0 !important;
+    }
+
+    .m-md-a {
+        margin: @spacer !important;
+    }
+
+    .m-md-t {
+        margin-top: @spacer-y !important;
+    }
+
+    .m-md-r {
+        margin-right: @spacer-x !important;
+    }
+
+    .m-md-b {
+        margin-bottom: @spacer-y !important;
+    }
+
+    .m-md-l {
+        margin-left: @spacer-x !important;
+    }
+
+    .m-md-x {
+        margin-right: @spacer-x !important;
+        margin-left: @spacer-x !important;
+    }
+
+    .m-md-y {
+        margin-top: @spacer-y !important;
+        margin-bottom: @spacer-y !important;
+    }
+
+    .m-md-x-auto {
+        margin-right: auto !important;
+        margin-left: auto !important;
+    }
+}
+
+@media (min-width: @screen-lg-min) {
+    .m-lg-a-0 {
+        margin: 0 !important;
+    }
+
+    .m-lg-t-0 {
+        margin-top: 0 !important;
+    }
+
+    .m-lg-r-0 {
+        margin-right: 0 !important;
+    }
+
+    .m-lg-b-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .m-lg-l-0 {
+        margin-left: 0 !important;
+    }
+
+    .m-lg-a {
+        margin: @spacer !important;
+    }
+
+    .m-lg-t {
+        margin-top: @spacer-y !important;
+    }
+
+    .m-lg-r {
+        margin-right: @spacer-x !important;
+    }
+
+    .m-lg-b {
+        margin-bottom: @spacer-y !important;
+    }
+
+    .m-lg-l {
+        margin-left: @spacer-x !important;
+    }
+
+    .m-lg-x {
+        margin-right: @spacer-x !important;
+        margin-left: @spacer-x !important;
+    }
+
+    .m-lg-y {
+        margin-top: @spacer-y !important;
+        margin-bottom: @spacer-y !important;
+    }
+
+    .m-lg-x-auto {
+        margin-right: auto !important;
+        margin-left: auto !important;
+    }
+}

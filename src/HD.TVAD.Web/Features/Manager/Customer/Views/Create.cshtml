@@ -1,0 +1,162 @@
+﻿@using HD.TVAD.ApplicationCore.Entities.ContractSchema
+@{
+	Layout = null;
+}
+@model CustomerViewModel
+@inject ICustomerViewService _customerViewService
+@{
+	var customerSelectItems = await _customerViewService.GetCustomerCodeAndNameListItemAsync();
+
+	var customerTypeSelectItems = await _customerViewService.GetCustomerTypeSelectListItemAsync();
+}
+<form id="create-form" asp-area="Manager" asp-controller="Customer" asp-action="Create" method="post" enctype="multipart/form-data" class="form-horizontal">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">@Localizer["Create customer"]</h4>
+	</div>
+	<div class="modal-body">
+
+		<h3 class="text-center text-danger"> @ViewBag.Message</h3>
+
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="ParentId"></label>
+			</div>
+			<div class="col-md-8">
+				<select asp-for="ParentId" class="form-control" asp-items="customerSelectItems">
+					<option value="">@Localizer["None"]</option>
+				</select>
+				<span asp-validation-for="ParentId" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="Code"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Code" class="form-control" type="text" />
+				<span asp-validation-for="Code" class="text-danger"></span>
+			</div>
+
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+			<label asp-for="Name"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="Name" class="form-control" type="text"/>
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="TypeId"></label>
+			</div>
+			<div class="col-md-8">
+				<select asp-for="TypeId" class="form-control" type="number">
+					<option value="@((int)CustomerTypeEnum.Permanent)">
+							@Localizer[CustomerTypeEnum.Permanent.GetDisplayName()]
+					</option>
+					<option value="@((int)CustomerTypeEnum.NoPermanent)">
+						@Localizer[CustomerTypeEnum.NoPermanent.GetDisplayName()]
+					</option>
+				</select>				
+				<span asp-validation-for="TypeId" class="text-danger"></span>
+			</div>
+
+		</div>
+			<div class="form-group">
+				<div class="col-md-4 control-label">
+					<label asp-for="Address"></label>
+				</div>
+				<div class="col-md-8">
+					<input asp-for="Address" class="form-control" type="text" />
+					<span asp-validation-for="Address" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-md-4 control-label">
+					<label asp-for="PhoneNumber"></label>
+				</div>
+				<div class="col-md-8">
+					<input asp-for="PhoneNumber" class="form-control" type="text" />
+					<span asp-validation-for="PhoneNumber" class="text-danger"></span>
+				</div>
+			</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="FaxNumber"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="FaxNumber" class="form-control" type="text" />
+				<span asp-validation-for="FaxNumber" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="TaxNumber"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="TaxNumber" class="form-control" type="text" />
+				<span asp-validation-for="TaxNumber" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="RepresentivePerson"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="RepresentivePerson" class="form-control" type="text" />
+				<span asp-validation-for="RepresentivePerson" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-4 control-label">
+				<label asp-for="PositionOfRepresentivePerson"></label>
+			</div>
+			<div class="col-md-8">
+				<input asp-for="PositionOfRepresentivePerson" class="form-control" type="text" />
+				<span asp-validation-for="PositionOfRepresentivePerson" class="text-danger"></span>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<div class="text-center">
+				<button id="submit" type="submit" value="" class="btn btn-primary" onclick=""><span class="icon icon-plus"></span> @Localizer["Save"] </button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal"><span class="icon icon-back"></span> @Localizer["Back"] </button>
+			</div>
+		</div>
+
+	</div>
+</form>
+
+
+<script>
+    require(['module/manager'], function (manager) {
+        manager.common.submitForm.init({
+            formId: 'create-form',
+        });
+		
+        $("#ParentId").on("change", function (e) {
+        	debugger;
+        	GetCustomerCode();
+        });
+
+    });
+
+    function GetCustomerCode() {
+    	$.ajax({
+    		url: "Manager/Customer/GetCustomerCode",
+    		type: 'GET',
+    		data: { parentId: $("#ParentId").val() },
+    		success: function (response) {
+    			console.log(response);
+    			var data = response;
+    			$("#Code").val(data);
+    		}
+    	});
+    };
+    GetCustomerCode();
+</script>
+
+
+

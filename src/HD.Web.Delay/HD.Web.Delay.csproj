@@ -16,12 +16,16 @@
   <ItemGroup>
     <Compile Remove="Features\AnnexContract\**" />
     <Compile Remove="Features\Managers\Storage\**" />
+    <Compile Remove="Features\Manager\Util\**" />
     <Content Remove="Features\AnnexContract\**" />
     <Content Remove="Features\Managers\Storage\**" />
+    <Content Remove="Features\Manager\Util\**" />
     <EmbeddedResource Remove="Features\AnnexContract\**" />
     <EmbeddedResource Remove="Features\Managers\Storage\**" />
+    <EmbeddedResource Remove="Features\Manager\Util\**" />
     <None Remove="Features\AnnexContract\**" />
     <None Remove="Features\Managers\Storage\**" />
+    <None Remove="Features\Manager\Util\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="6.1.1" />
@@ -86,9 +90,6 @@
     <None Update="Parameters.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Features\Manager\Util\" />
   </ItemGroup>
 
 </Project>

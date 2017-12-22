@@ -14,9 +14,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\AnnexContract\**" />
     <Compile Remove="Features\Managers\Storage\**" />
+    <Content Remove="Features\AnnexContract\**" />
     <Content Remove="Features\Managers\Storage\**" />
+    <EmbeddedResource Remove="Features\AnnexContract\**" />
     <EmbeddedResource Remove="Features\Managers\Storage\**" />
+    <None Remove="Features\AnnexContract\**" />
     <None Remove="Features\Managers\Storage\**" />
   </ItemGroup>
   <ItemGroup>
@@ -84,11 +88,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Features\AnnexContract\BenefitBooking\Models\" />
-    <Folder Include="Features\AnnexContract\TrailerBooking\Models\" />
-    <Folder Include="Features\AnnexContract\BookingOut\Models\" />
-    <Folder Include="Features\AnnexContract\BookingIn\Models\" />
-    <Folder Include="Features\AnnexContract\NormalBooking\Models\" />
     <Folder Include="Features\Manager\Util\" />
   </ItemGroup>
 

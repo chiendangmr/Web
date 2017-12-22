@@ -132,8 +132,7 @@ namespace HD.TVAD.Web
                 {
                     options.SerializerSettings.ContractResolver = new DefaultContractResolver();
                 }
-                )
-            //	.AddServiceAnnotationsFeature()
+                )            
 
             .AddFeatureViewLayout()
             //	.AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
@@ -145,14 +144,7 @@ namespace HD.TVAD.Web
             .AddDataAnnotationsLocalization()
             .AddViewLocalization();
 
-            services.AddKendo();
-            //services.AddSession(options =>
-            //{
-            //	// Set a short timeout for easy testing.
-            //	options.IdleTimeout = TimeSpan.FromSeconds(10);
-            //	options.CookieHttpOnly = true;
-            //});
-            // Add workflow services  
+            services.AddKendo();           
 
             services.AddWorkflow(Configuration);
             services.AddWorkflowMvc(Configuration);
@@ -173,9 +165,7 @@ namespace HD.TVAD.Web
 
             services.AddSingleton<Localization.Repositories.CultureProvider>();
             services.AddSingleton<IStringLocalizerFactory, Localization.Repositories.SqlStringLocalizerFactory>();
-            services.AddLocalization();
-
-            Bootstrapper.Initital();
+            services.AddLocalization();           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

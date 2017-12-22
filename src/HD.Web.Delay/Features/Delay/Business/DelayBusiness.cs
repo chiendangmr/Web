@@ -14,15 +14,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HD.TVAD.Web.Features.MAM.Content.Business
+namespace HD.TVAD.Web.Features.Delay.Business
 {
-    public class FileBusiness
+    public class DelayBusiness
     {               
         private readonly IHostingEnvironment _hostingEnvironment;
         private WorkflowDataProvider _workflowDataProvider;
         private Station.MediaAssets.IMediaAssetService _mediaAssetService;
 
-        public FileBusiness(IHostingEnvironment hostingEnvironment, WorkflowDataProvider workflowDataProvider, Station.MediaAssets.IMediaAssetService mediaAssetService)
+        public DelayBusiness(IHostingEnvironment hostingEnvironment, WorkflowDataProvider workflowDataProvider, Station.MediaAssets.IMediaAssetService mediaAssetService)
         {
             _workflowDataProvider = workflowDataProvider;
             _mediaAssetService = mediaAssetService;            

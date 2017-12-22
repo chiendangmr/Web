@@ -485,77 +485,7 @@ namespace HD.TVAD.Web.Features.Manager.SpotBookings
 				throw;
 			}
 		}
-		[HttpGet]
-        public async Task<IActionResult> ViewEvidence(Guid spotBookingId)
-        {
-            var vM = await GetEvidenceFromSpotBooking(spotBookingId);
-            return View(vM);
-        }
-        public async Task<List<EvidenceViewModel>> GetEvidenceFromSpotBooking(Guid spotBookingId)
-        {
-            var result = new List<EvidenceViewModel>();
-            var spotBooking = await _spotBookingService.Get(spotBookingId).FirstOrDefaultAsync();
-            var timeBandSliceId = spotBooking.Spot.TimeBandSliceId;
-            var timeBandSlice = await _timeBandSliceService.Get(timeBandSliceId).FirstOrDefaultAsync();
-            var timeBandId = timeBandSlice.TimeBand.Id;
-            var timeBand = await _timeBandService.Get(timeBandId).FirstOrDefaultAsync();
-
-            #region Lấy list Evidence dựa vào ChannelId và RecordTime
-            var channelId = timeBand.TimeBandBase.ParentId;
-            var lstTimeBandTime = timeBand.TimeBandTimes.Where(a => a.StartDate == spotBooking.Spot.BroadcastDate).OrderBy(a => a.StartTimeOfDay).ToList();
-            var lstEvidence = await _evidenceService.GetAll().Where(a => a.ChannelId == channelId && a.RecordTime.Date == spotBooking.Spot.BroadcastDate.Date).OrderBy(a => a.RecordTime).ToListAsync();
-            var rootEvidencePath = await GetEvidencePath(_settings.Value.AppSettings.AssetTypeEvidenceId);
-            foreach (var time in lstTimeBandTime)
-            {
-                for (int i = 0; i < lstEvidence.Count; i++)
-                {
-                    var temp = time.StartTimeOfDay.TotalSeconds - lstEvidence[i].RecordTime.TimeOfDay.TotalSeconds;
-                    if (temp > 0 && lstEvidence.Count == 1)
-                    {
-                        var asset = await _assetService.Get(lstEvidence[0].AssetId).FirstOrDefaultAsync();
-                        result.Add(new EvidenceViewModel
-                        {
-                            Id = lstEvidence[0].Id,
-                            ChannelId = channelId,
-                            ChannelName = timeBand.TimeBandBase.Name,
-                            AssetId = asset.Id,
-                            AssetName = asset.Name,
-                            FileName = asset.FileName,
-                            Path = Path.Combine(rootEvidencePath, asset.AssetLocators.FirstOrDefault().Path),
-                            RecordTime = lstEvidence[0].RecordTime,
-                            UploadedDate = asset.AssetLocators.FirstOrDefault().UploadedDate
-                        });
-                        break;
-                    }
-                    else
-                        //Khi nào temp bắt đầu < 0 thì lấy giá trị gần nhất của nó
-                        if (temp < 0)
-                    {
-                        if (i == 0) break;
-                        else
-                        {
-                            var asset = await _assetService.Get(lstEvidence[i - 1].AssetId).FirstOrDefaultAsync();
-                            result.Add(new EvidenceViewModel
-                            {
-                                Id = lstEvidence[i - 1].Id,
-                                ChannelId = channelId,
-                                ChannelName = timeBand.TimeBandBase.Name,
-                                AssetId = asset.Id,
-                                AssetName = asset.Name,
-                                FileName = asset.FileName,
-                                Path = Path.Combine(rootEvidencePath, asset.AssetLocators.FirstOrDefault().Path),
-                                RecordTime = lstEvidence[i - 1].RecordTime,
-                                UploadedDate = asset.AssetLocators.FirstOrDefault().UploadedDate
-                            });
-                            break;
-                        }
-                    }
-                }
-            }
-            #endregion
-
-            return result;
-        }
+		        
         public async Task<List<StorageLocation>> GetStorageLocationFromAssetType(Guid assetTypeId)
         {
             var lstStorageLocation = (await _assetTypeService.Get(assetTypeId).FirstOrDefaultAsync()).StorageLocations.ToList();

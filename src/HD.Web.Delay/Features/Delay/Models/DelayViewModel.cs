@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HD.TVAD.Web.Models
 {
-    public class ContentViewModel
+    public class DelayViewModel
     {
         public Guid Id { get; set; }
 		[Display(Name = "Code", Prompt = "Asset code place")]

@@ -1,16 +1,13 @@
-﻿using HD.AspNetCore.Mvc.Security;
-using HD.TVAD.Web.StartData;
+﻿using HD.TVAD.Web.StartData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace HD.TVAD.Web.Infrastructure
 {
-		public class RequiresPermissionAttribute : TypeFilterAttribute
+    public class RequiresPermissionAttribute : TypeFilterAttribute
 		{
 			public RequiresPermissionAttribute(UserPermissions permission)
 			  : base(typeof(RequiresPermissionAttributeImpl))

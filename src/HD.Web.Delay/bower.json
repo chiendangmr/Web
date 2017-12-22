@@ -7,9 +7,9 @@
     "jquery-validation": "1.14.0",
     "jquery-validation-unobtrusive": "3.2.6",
     "knockout": "v3.4.2",
-    "chart.js": "Chart.js#v2.7.0",
     "mediaelement": "4.2.6",
-    "blockUI": "v2.65"
+    "blockUI": "v2.65",
+    "video.js": "v6.6.0"
   },
   "resolutions": {
     "jquery": ">=1.6"

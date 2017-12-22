@@ -26,14 +26,18 @@ class DescriptionsButton extends TextTrackButton {
    */
   constructor(player, options, ready) {
     super(player, options, ready);
+    this.el_.setAttribute('aria-label', 'Descriptions Menu');
 
     const tracks = player.textTracks();
-    const changeHandler = Fn.bind(this, this.handleTracksChange);
 
-    tracks.addEventListener('change', changeHandler);
-    this.on('dispose', function() {
-      tracks.removeEventListener('change', changeHandler);
-    });
+    if (tracks) {
+      const changeHandler = Fn.bind(this, this.handleTracksChange);
+
+      tracks.addEventListener('change', changeHandler);
+      this.on('dispose', function() {
+        tracks.removeEventListener('change', changeHandler);
+      });
+    }
   }
 
   /**
@@ -76,9 +80,6 @@ class DescriptionsButton extends TextTrackButton {
     return `vjs-descriptions-button ${super.buildCSSClass()}`;
   }
 
-  buildWrapperCSSClass() {
-    return `vjs-descriptions-button ${super.buildWrapperCSSClass()}`;
-  }
 }
 
 /**

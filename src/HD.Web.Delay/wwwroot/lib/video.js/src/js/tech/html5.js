@@ -2,8 +2,10 @@
  * @file html5.js
  */
 import Tech from './tech.js';
+import Component from '../component';
 import * as Dom from '../utils/dom.js';
 import * as Url from '../utils/url.js';
+import * as Fn from '../utils/fn.js';
 import log from '../utils/log.js';
 import tsml from 'tsml';
 import * as browser from '../utils/browser.js';
@@ -12,7 +14,6 @@ import window from 'global/window';
 import {assign} from '../utils/obj';
 import mergeOptions from '../utils/merge-options.js';
 import toTitleCase from '../utils/to-title-case.js';
-import {NORMAL as TRACK_TYPES} from '../tracks/track-types';
 
 /**
  * HTML5 Media Controller - Wrapper for HTML5 Media API
@@ -67,8 +68,7 @@ class Html5 extends Tech {
           } else {
             // store HTMLTrackElement and TextTrack to remote list
             this.remoteTextTrackEls().addTrackElement_(node);
-            this.remoteTextTracks().addTrack(node.track);
-            this.textTracks().addTrack(node.track);
+            this.remoteTextTracks().addTrack_(node.track);
             if (!crossoriginTracks &&
                 !this.el_.hasAttribute('crossorigin') &&
                 Url.isCrossOrigin(node.src)) {
@@ -83,14 +83,53 @@ class Html5 extends Tech {
       }
     }
 
-    this.proxyNativeTracks_();
-    if (this.featuresNativeTextTracks && crossoriginTracks) {
-      log.warn(tsml`Text Tracks are being loaded from another origin but the crossorigin attribute isn't used.
-            This may prevent text tracks from loading.`);
-    }
+    // TODO: add text tracks into this list
+    const trackTypes = ['audio', 'video'];
 
-    // prevent iOS Safari from disabling metadata text tracks during native playback
-    this.restoreMetadataTracksInIOSNativePlayer_();
+    // ProxyNative Video/Audio Track
+    trackTypes.forEach((type) => {
+      const elTracks = this.el()[`${type}Tracks`];
+      const techTracks = this[`${type}Tracks`]();
+      const capitalType = toTitleCase(type);
+
+      if (!this[`featuresNative${capitalType}Tracks`] ||
+          !elTracks ||
+          !elTracks.addEventListener) {
+        return;
+      }
+
+      this[`handle${capitalType}TrackChange_`] = (e) => {
+        techTracks.trigger({
+          type: 'change',
+          target: techTracks,
+          currentTarget: techTracks,
+          srcElement: techTracks
+        });
+      };
+
+      this[`handle${capitalType}TrackAdd_`] = (e) => techTracks.addTrack(e.track);
+      this[`handle${capitalType}TrackRemove_`] = (e) => techTracks.removeTrack(e.track);
+
+      elTracks.addEventListener('change', this[`handle${capitalType}TrackChange_`]);
+      elTracks.addEventListener('addtrack', this[`handle${capitalType}TrackAdd_`]);
+      elTracks.addEventListener('removetrack', this[`handle${capitalType}TrackRemove_`]);
+      this[`removeOld${capitalType}Tracks_`] = (e) => this.removeOldTracks_(techTracks, elTracks);
+
+      // Remove (native) tracks that are not used anymore
+      this.on('loadstart', this[`removeOld${capitalType}Tracks_`]);
+    });
+
+    if (this.featuresNativeTextTracks) {
+      if (crossoriginTracks) {
+        log.warn(tsml`Text Tracks are being loaded from another origin but the crossorigin attribute isn't used.
+            This may prevent text tracks from loading.`);
+      }
+
+      this.handleTextTrackChange_ = Fn.bind(this, this.handleTextTrackChange);
+      this.handleTextTrackAdd_ = Fn.bind(this, this.handleTextTrackAdd);
+      this.handleTextTrackRemove_ = Fn.bind(this, this.handleTextTrackRemove);
+      this.proxyNativeTextTracks_();
+    }
 
     // Determine if native controls should be used
     // Our goal should be to get the custom controls on mobile solid everywhere
@@ -112,149 +151,26 @@ class Html5 extends Tech {
    * Dispose of `HTML5` media element and remove all tracks.
    */
   dispose() {
-    Html5.disposeMediaElement(this.el_);
-    this.options_ = null;
+    // Un-ProxyNativeTracks
+    ['audio', 'video', 'text'].forEach((type) => {
+      const capitalType = toTitleCase(type);
+      const tl = this.el_[`${type}Tracks`];
 
+      if (tl && tl.removeEventListener) {
+        tl.removeEventListener('change', this[`handle${capitalType}TrackChange_`]);
+        tl.removeEventListener('addtrack', this[`handle${capitalType}TrackAdd_`]);
+        tl.removeEventListener('removetrack', this[`handle${capitalType}TrackRemove_`]);
+      }
+
+      // Stop removing old text tracks
+      if (tl) {
+        this.off('loadstart', this[`removeOld${capitalType}Tracks_`]);
+      }
+    });
+
+    Html5.disposeMediaElement(this.el_);
     // tech will handle clearing of the emulated track list
     super.dispose();
-  }
-
-  /**
-   * When a captions track is enabled in the iOS Safari native player, all other
-   * tracks are disabled (including metadata tracks), which nulls all of their
-   * associated cue points. This will restore metadata tracks to their pre-fullscreen
-   * state in those cases so that cue points are not needlessly lost.
-   *
-   * @private
-   */
-  restoreMetadataTracksInIOSNativePlayer_() {
-    const textTracks = this.textTracks();
-    let metadataTracksPreFullscreenState;
-
-    // captures a snapshot of every metadata track's current state
-    const takeMetadataTrackSnapshot = () => {
-      metadataTracksPreFullscreenState = [];
-
-      for (let i = 0; i < textTracks.length; i++) {
-        const track = textTracks[i];
-
-        if (track.kind === 'metadata') {
-          metadataTracksPreFullscreenState.push({
-            track,
-            storedMode: track.mode
-          });
-        }
-      }
-    };
-
-    // snapshot each metadata track's initial state, and update the snapshot
-    // each time there is a track 'change' event
-    takeMetadataTrackSnapshot();
-    textTracks.addEventListener('change', takeMetadataTrackSnapshot);
-
-    this.on('dispose', () => textTracks.removeEventListener('change', takeMetadataTrackSnapshot));
-
-    const restoreTrackMode = () => {
-      for (let i = 0; i < metadataTracksPreFullscreenState.length; i++) {
-        const storedTrack = metadataTracksPreFullscreenState[i];
-
-        if (storedTrack.track.mode === 'disabled' && storedTrack.track.mode !== storedTrack.storedMode) {
-          storedTrack.track.mode = storedTrack.storedMode;
-        }
-      }
-      // we only want this handler to be executed on the first 'change' event
-      textTracks.removeEventListener('change', restoreTrackMode);
-    };
-
-    // when we enter fullscreen playback, stop updating the snapshot and
-    // restore all track modes to their pre-fullscreen state
-    this.on('webkitbeginfullscreen', () => {
-      textTracks.removeEventListener('change', takeMetadataTrackSnapshot);
-
-      // remove the listener before adding it just in case it wasn't previously removed
-      textTracks.removeEventListener('change', restoreTrackMode);
-      textTracks.addEventListener('change', restoreTrackMode);
-    });
-
-    // start updating the snapshot again after leaving fullscreen
-    this.on('webkitendfullscreen', () => {
-      // remove the listener before adding it just in case it wasn't previously removed
-      textTracks.removeEventListener('change', takeMetadataTrackSnapshot);
-      textTracks.addEventListener('change', takeMetadataTrackSnapshot);
-
-      // remove the restoreTrackMode handler in case it wasn't triggered during fullscreen playback
-      textTracks.removeEventListener('change', restoreTrackMode);
-    });
-  }
-
-  /**
-   * Proxy all native track list events to our track lists if the browser we are playing
-   * in supports that type of track list.
-   *
-   * @private
-   */
-  proxyNativeTracks_() {
-    TRACK_TYPES.names.forEach((name) => {
-      const props = TRACK_TYPES[name];
-      const elTracks = this.el()[props.getterName];
-      const techTracks = this[props.getterName]();
-
-      if (!this[`featuresNative${props.capitalName}Tracks`] ||
-          !elTracks ||
-          !elTracks.addEventListener) {
-        return;
-      }
-      const listeners = {
-        change(e) {
-          techTracks.trigger({
-            type: 'change',
-            target: techTracks,
-            currentTarget: techTracks,
-            srcElement: techTracks
-          });
-        },
-        addtrack(e) {
-          techTracks.addTrack(e.track);
-        },
-        removetrack(e) {
-          techTracks.removeTrack(e.track);
-        }
-      };
-      const removeOldTracks = function() {
-        const removeTracks = [];
-
-        for (let i = 0; i < techTracks.length; i++) {
-          let found = false;
-
-          for (let j = 0; j < elTracks.length; j++) {
-            if (elTracks[j] === techTracks[i]) {
-              found = true;
-              break;
-            }
-          }
-
-          if (!found) {
-            removeTracks.push(techTracks[i]);
-          }
-        }
-
-        while (removeTracks.length) {
-          techTracks.removeTrack(removeTracks.shift());
-        }
-      };
-
-      Object.keys(listeners).forEach((eventName) => {
-        const listener = listeners[eventName];
-
-        elTracks.addEventListener(eventName, listener);
-        this.on('dispose', (e) => elTracks.removeEventListener(eventName, listener));
-      });
-
-      // Remove (native) tracks that are not used anymore
-      this.on('loadstart', removeOldTracks);
-      this.on('dispose', (e) => this.off('loadstart', removeOldTracks));
-    });
-
   }
 
   /**
@@ -288,14 +204,14 @@ class Html5 extends Tech {
         el = document.createElement('video');
 
         // determine if native controls should be used
-        const tagAttributes = this.options_.tag && Dom.getAttributes(this.options_.tag);
+        const tagAttributes = this.options_.tag && Dom.getElAttributes(this.options_.tag);
         const attributes = mergeOptions({}, tagAttributes);
 
         if (!browser.TOUCH_ENABLED || this.options_.nativeControlsForTouch !== true) {
           delete attributes.controls;
         }
 
-        Dom.setAttributes(el,
+        Dom.setElAttributes(el,
           assign(attributes, {
             id: this.options_.techId,
             class: 'vjs-tech'
@@ -306,27 +222,17 @@ class Html5 extends Tech {
       el.playerId = this.options_.playerId;
     }
 
-    if (typeof this.options_.preload !== 'undefined') {
-      Dom.setAttribute(el, 'preload', this.options_.preload);
-    }
-
     // Update specific tag settings, in case they were overridden
-    // `autoplay` has to be *last* so that `muted` and `playsinline` are present
-    // when iOS/Safari or other browsers attempt to autoplay.
-    const settingsAttrs = ['loop', 'muted', 'playsinline', 'autoplay'];
+    const settingsAttrs = ['autoplay', 'preload', 'loop', 'muted'];
 
-    for (let i = 0; i < settingsAttrs.length; i++) {
+    for (let i = settingsAttrs.length - 1; i >= 0; i--) {
       const attr = settingsAttrs[i];
-      const value = this.options_[attr];
+      const overwriteAttrs = {};
 
-      if (typeof value !== 'undefined') {
-        if (value) {
-          Dom.setAttribute(el, attr, attr);
-        } else {
-          Dom.removeAttribute(el, attr);
-        }
-        el[attr] = value;
+      if (typeof this.options_[attr] !== 'undefined') {
+        overwriteAttrs[attr] = this.options_[attr];
       }
+      Dom.setElAttributes(el, overwriteAttrs);
     }
 
     return el;
@@ -426,6 +332,144 @@ class Html5 extends Tech {
   }
 
   /**
+   * Add event listeners to native text track events. This adds the native text tracks
+   * to our emulated {@link TextTrackList}.
+   */
+  proxyNativeTextTracks_() {
+    const tt = this.el().textTracks;
+
+    if (tt) {
+      // Add tracks - if player is initialised after DOM loaded, textTracks
+      // will not trigger addtrack
+      for (let i = 0; i < tt.length; i++) {
+        this.textTracks().addTrack_(tt[i]);
+      }
+
+      if (tt.addEventListener) {
+        tt.addEventListener('change', this.handleTextTrackChange_);
+        tt.addEventListener('addtrack', this.handleTextTrackAdd_);
+        tt.addEventListener('removetrack', this.handleTextTrackRemove_);
+      }
+
+      // Remove (native) texttracks that are not used anymore
+      this.on('loadstart', this.removeOldTextTracks_);
+    }
+  }
+
+  /**
+   * Handle any {@link TextTrackList} `change` event.
+   *
+   * @param {EventTarget~Event} e
+   *        The `change` event that caused this to run.
+   *
+   * @listens TextTrackList#change
+   */
+  handleTextTrackChange(e) {
+    const tt = this.textTracks();
+
+    this.textTracks().trigger({
+      type: 'change',
+      target: tt,
+      currentTarget: tt,
+      srcElement: tt
+    });
+  }
+
+  /**
+   * Handle any {@link TextTrackList} `addtrack` event.
+   *
+   * @param {EventTarget~Event} e
+   *        The `addtrack` event that caused this to run.
+   *
+   * @listens TextTrackList#addtrack
+   */
+  handleTextTrackAdd(e) {
+    this.textTracks().addTrack_(e.track);
+  }
+
+  /**
+   * Handle any {@link TextTrackList} `removetrack` event.
+   *
+   * @param {EventTarget~Event} e
+   *        The `removetrack` event that caused this to run.
+   *
+   * @listens TextTrackList#removetrack
+   */
+  handleTextTrackRemove(e) {
+    this.textTracks().removeTrack_(e.track);
+  }
+
+  /**
+   * This function removes any {@link AudioTrack}s, {@link VideoTrack}s, or
+   * {@link TextTrack}s that are not in the media elements TrackList.
+   *
+   * @param {TrackList} techTracks
+   *        HTML5 Tech's TrackList to search through
+   *
+   * @param {TrackList} elTracks
+   *        HTML5 media elements TrackList to search trough.
+   *
+   * @private
+   */
+  removeOldTracks_(techTracks, elTracks) {
+    // This will loop over the techTracks and check if they are still used by the HTML5 media element
+    // If not, they will be removed from the emulated list
+    const removeTracks = [];
+
+    if (!elTracks) {
+      return;
+    }
+
+    for (let i = 0; i < techTracks.length; i++) {
+      const techTrack = techTracks[i];
+      let found = false;
+
+      for (let j = 0; j < elTracks.length; j++) {
+        if (elTracks[j] === techTrack) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        removeTracks.push(techTrack);
+      }
+    }
+
+    for (let i = 0; i < removeTracks.length; i++) {
+      const track = removeTracks[i];
+
+      techTracks.removeTrack_(track);
+    }
+  }
+
+  /**
+   * Remove {@link TextTrack}s that dont exist in the native track list from our
+   * emulated {@link TextTrackList}.
+   *
+   * @listens Tech#loadstart
+   */
+  removeOldTextTracks_(e) {
+    const techTracks = this.textTracks();
+    const elTracks = this.el().textTracks;
+
+    this.removeOldTracks_(techTracks, elTracks);
+  }
+
+  /**
+   * Called by {@link Player#play} to play using the `Html5` `Tech`.
+   */
+  play() {
+    const playPromise = this.el_.play();
+
+    // Catch/silence error when a pause interrupts a play request
+    // on browsers which return a promise
+    if (playPromise !== undefined && typeof playPromise.then === 'function') {
+      playPromise.then(null, (e) => {});
+    }
+  }
+
+  /**
    * Set current time for the `HTML5` tech.
    *
    * @param {number} seconds
@@ -451,26 +495,24 @@ class Html5 extends Tech {
     // playback has started, which triggers the live display erroneously.
     // Return NaN if playback has not started and trigger a durationupdate once
     // the duration can be reliably known.
-    if (
-      this.el_.duration === Infinity &&
-      browser.IS_ANDROID &&
-      browser.IS_CHROME &&
-      this.el_.currentTime === 0
-    ) {
-      // Wait for the first `timeupdate` with currentTime > 0 - there may be
-      // several with 0
-      const checkProgress = () => {
-        if (this.el_.currentTime > 0) {
-          // Trigger durationchange for genuinely live video
-          if (this.el_.duration === Infinity) {
-            this.trigger('durationchange');
+    if (this.el_.duration === Infinity &&
+      browser.IS_ANDROID && browser.IS_CHROME) {
+      if (this.el_.currentTime === 0) {
+        // Wait for the first `timeupdate` with currentTime > 0 - there may be
+        // several with 0
+        const checkProgress = () => {
+          if (this.el_.currentTime > 0) {
+            // Trigger durationchange for genuinely live video
+            if (this.el_.duration === Infinity) {
+              this.trigger('durationchange');
+            }
+            this.off('timeupdate', checkProgress);
           }
-          this.off('timeupdate', checkProgress);
-        }
-      };
+        };
 
-      this.on('timeupdate', checkProgress);
-      return NaN;
+        this.on('timeupdate', checkProgress);
+        return NaN;
+      }
     }
     return this.el_.duration || NaN;
   }
@@ -515,12 +557,9 @@ class Html5 extends Tech {
     };
 
     const beginFn = function() {
-      if ('webkitPresentationMode' in this.el_ &&
-        this.el_.webkitPresentationMode !== 'picture-in-picture') {
-        this.one('webkitendfullscreen', endFn);
+      this.one('webkitendfullscreen', endFn);
 
-        this.trigger('fullscreenchange', { isFullscreen: true });
-      }
+      this.trigger('fullscreenchange', { isFullscreen: true });
     };
 
     this.on('webkitbeginfullscreen', beginFn);
@@ -755,40 +794,6 @@ class Html5 extends Tech {
       }
     }
   }
-
-  /**
-   * Gets available media playback quality metrics as specified by the W3C's Media
-   * Playback Quality API.
-   *
-   * @see [Spec]{@link https://wicg.github.io/media-playback-quality}
-   *
-   * @return {Object}
-   *         An object with supported media playback quality metrics
-   */
-  getVideoPlaybackQuality() {
-    if (typeof this.el().getVideoPlaybackQuality === 'function') {
-      return this.el().getVideoPlaybackQuality();
-    }
-
-    const videoPlaybackQuality = {};
-
-    if (typeof this.el().webkitDroppedFrameCount !== 'undefined' &&
-        typeof this.el().webkitDecodedFrameCount !== 'undefined') {
-      videoPlaybackQuality.droppedVideoFrames = this.el().webkitDroppedFrameCount;
-      videoPlaybackQuality.totalVideoFrames = this.el().webkitDecodedFrameCount;
-    }
-
-    if (window.performance && typeof window.performance.now === 'function') {
-      videoPlaybackQuality.creationTime = window.performance.now();
-    } else if (window.performance &&
-               window.performance.timing &&
-               typeof window.performance.timing.navigationStart === 'number') {
-      videoPlaybackQuality.creationTime =
-        window.Date.now() - window.performance.timing.navigationStart;
-    }
-
-    return videoPlaybackQuality;
-  }
 }
 
 /* HTML5 Support Testing ---------------------------------------------------- */
@@ -830,29 +835,6 @@ Html5.isSupported = function() {
 };
 
 /**
- * Check if the tech can support the given type
- *
- * @param {string} type
- *        The mimetype to check
- * @return {string} 'probably', 'maybe', or '' (empty string)
- */
-Html5.canPlayType = function(type) {
-  return Html5.TEST_VID.canPlayType(type);
-};
-
-/**
- * Check if the tech can support the given source
- * @param {Object} srcObj
- *        The source object
- * @param {Object} options
- *        The options passed to the tech
- * @return {string} 'probably', 'maybe', or '' (empty string)
- */
-Html5.canPlaySource = function(srcObj, options) {
-  return Html5.canPlayType(srcObj.type);
-};
-
-/**
  * Check if the volume can be changed in this browser/device.
  * Volume cannot be changed in a lot of mobile devices.
  * Specifically, it can't be changed from 1 on iOS.
@@ -883,7 +865,7 @@ Html5.canControlVolume = function() {
 Html5.canControlPlaybackRate = function() {
   // Playback rate API is implemented in Android Chrome, but doesn't do anything
   // https://github.com/videojs/video.js/issues/3180
-  if (browser.IS_ANDROID && browser.IS_CHROME && browser.CHROME_VERSION < 58) {
+  if (browser.IS_ANDROID && browser.IS_CHROME) {
     return false;
   }
   // IE will error if Windows Media Player not installed #3315
@@ -958,7 +940,6 @@ Html5.Events = [
   'play',
   'pause',
   'ratechange',
-  'resize',
   'volumechange'
 ];
 
@@ -1141,195 +1122,7 @@ Html5.resetMediaElement = function(el) {
 };
 
 /* Native HTML5 element property wrapping ----------------------------------- */
-// Wrap native boolean attributes with getters that check both property and attribute
-// The list is as followed:
-// muted, defaultMuted, autoplay, controls, loop, playsinline
-[
-  /**
-   * Get the value of `muted` from the media element. `muted` indicates
-   * that the volume for the media should be set to silent. This does not actually change
-   * the `volume` attribute.
-   *
-   * @method Html5#muted
-   * @return {boolean}
-   *         - True if the value of `volume` should be ignored and the audio set to silent.
-   *         - False if the value of `volume` should be used.
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-muted}
-   */
-  'muted',
-
-  /**
-   * Get the value of `defaultMuted` from the media element. `defaultMuted` indicates
-   * whether the media should start muted or not. Only changes the default state of the
-   * media. `muted` and `defaultMuted` can have different values. {@link Html5#muted} indicates the
-   * current state.
-   *
-   * @method Html5#defaultMuted
-   * @return {boolean}
-   *         - The value of `defaultMuted` from the media element.
-   *         - True indicates that the media should start muted.
-   *         - False indicates that the media should not start muted
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-defaultmuted}
-   */
-  'defaultMuted',
-
-  /**
-   * Get the value of `autoplay` from the media element. `autoplay` indicates
-   * that the media should start to play as soon as the page is ready.
-   *
-   * @method Html5#autoplay
-   * @return {boolean}
-   *         - The value of `autoplay` from the media element.
-   *         - True indicates that the media should start as soon as the page loads.
-   *         - False indicates that the media should not start as soon as the page loads.
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-autoplay}
-   */
-  'autoplay',
-
-  /**
-   * Get the value of `controls` from the media element. `controls` indicates
-   * whether the native media controls should be shown or hidden.
-   *
-   * @method Html5#controls
-   * @return {boolean}
-   *         - The value of `controls` from the media element.
-   *         - True indicates that native controls should be showing.
-   *         - False indicates that native controls should be hidden.
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-controls}
-   */
-  'controls',
-
-  /**
-   * Get the value of `loop` from the media element. `loop` indicates
-   * that the media should return to the start of the media and continue playing once
-   * it reaches the end.
-   *
-   * @method Html5#loop
-   * @return {boolean}
-   *         - The value of `loop` from the media element.
-   *         - True indicates that playback should seek back to start once
-   *           the end of a media is reached.
-   *         - False indicates that playback should not loop back to the start when the
-   *           end of the media is reached.
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-loop}
-   */
-  'loop',
-
-  /**
-   * Get the value of `playsinline` from the media element. `playsinline` indicates
-   * to the browser that non-fullscreen playback is preferred when fullscreen
-   * playback is the native default, such as in iOS Safari.
-   *
-   * @method Html5#playsinline
-   * @return {boolean}
-   *         - The value of `playsinline` from the media element.
-   *         - True indicates that the media should play inline.
-   *         - False indicates that the media should not play inline.
-   *
-   * @see [Spec]{@link https://html.spec.whatwg.org/#attr-video-playsinline}
-   */
-  'playsinline'
-].forEach(function(prop) {
-  Html5.prototype[prop] = function() {
-    return this.el_[prop] || this.el_.hasAttribute(prop);
-  };
-});
-
-// Wrap native boolean attributes with setters that set both property and attribute
-// The list is as followed:
-// setMuted, setDefaultMuted, setAutoplay, setLoop, setPlaysinline
-// setControls is special-cased above
-[
-  /**
-   * Set the value of `muted` on the media element. `muted` indicates that the current
-   * audio level should be silent.
-   *
-   * @method Html5#setMuted
-   * @param {boolean} muted
-   *        - True if the audio should be set to silent
-   *        - False otherwise
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-muted}
-   */
-  'muted',
-
-  /**
-   * Set the value of `defaultMuted` on the media element. `defaultMuted` indicates that the current
-   * audio level should be silent, but will only effect the muted level on intial playback..
-   *
-   * @method Html5.prototype.setDefaultMuted
-   * @param {boolean} defaultMuted
-   *        - True if the audio should be set to silent
-   *        - False otherwise
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-defaultmuted}
-   */
-  'defaultMuted',
-
-  /**
-   * Set the value of `autoplay` on the media element. `autoplay` indicates
-   * that the media should start to play as soon as the page is ready.
-   *
-   * @method Html5#setAutoplay
-   * @param {boolean} autoplay
-   *         - True indicates that the media should start as soon as the page loads.
-   *         - False indicates that the media should not start as soon as the page loads.
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-autoplay}
-   */
-  'autoplay',
-
-  /**
-   * Set the value of `loop` on the media element. `loop` indicates
-   * that the media should return to the start of the media and continue playing once
-   * it reaches the end.
-   *
-   * @method Html5#setLoop
-   * @param {boolean} loop
-   *         - True indicates that playback should seek back to start once
-   *           the end of a media is reached.
-   *         - False indicates that playback should not loop back to the start when the
-   *           end of the media is reached.
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-loop}
-   */
-  'loop',
-
-  /**
-   * Set the value of `playsinline` from the media element. `playsinline` indicates
-   * to the browser that non-fullscreen playback is preferred when fullscreen
-   * playback is the native default, such as in iOS Safari.
-   *
-   * @method Html5#setPlaysinline
-   * @param {boolean} playsinline
-   *         - True indicates that the media should play inline.
-   *         - False indicates that the media should not play inline.
-   *
-   * @see [Spec]{@link https://html.spec.whatwg.org/#attr-video-playsinline}
-   */
-  'playsinline'
-].forEach(function(prop) {
-  Html5.prototype['set' + toTitleCase(prop)] = function(v) {
-    this.el_[prop] = v;
-
-    if (v) {
-      this.el_.setAttribute(prop, prop);
-    } else {
-      this.el_.removeAttribute(prop);
-    }
-  };
-});
-
 // Wrap native properties with a getter
-// The list is as followed
-// paused, currentTime, buffered, volume, poster, preload, error, seeking
-// seekable, ended, playbackRate, defaultPlaybackRate, played, networkState
-// readyState, videoWidth, videoHeight
 [
   /**
    * Get the value of `paused` from the media element. `paused` indicates whether the media element
@@ -1382,6 +1175,20 @@ Html5.resetMediaElement = function(el) {
   'volume',
 
   /**
+   * Get the value of `muted` from the media element. `muted` indicates
+   * that the volume for the media should be set to silent. This does not actually change
+   * the `volume` attribute.
+   *
+   * @method Html5#muted
+   * @return {boolean}
+   *         - True if the value of `volume` should be ignored and the audio set to silent.
+   *         - False if the value of `volume` should be used.
+   *
+   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-muted}
+   */
+  'muted',
+
+  /**
    * Get the value of `poster` from the media element. `poster` indicates
    * that the url of an image file that can/will be shown when no media data is available.
    *
@@ -1412,6 +1219,51 @@ Html5.resetMediaElement = function(el) {
    * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-preload}
    */
   'preload',
+
+  /**
+   * Get the value of `autoplay` from the media element. `autoplay` indicates
+   * that the media should start to play as soon as the page is ready.
+   *
+   * @method Html5#autoplay
+   * @return {boolean}
+   *         - The value of `autoplay` from the media element.
+   *         - True indicates that the media should start as soon as the page loads.
+   *         - False indicates that the media should not start as soon as the page loads.
+   *
+   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-autoplay}
+   */
+  'autoplay',
+
+  /**
+   * Get the value of `controls` from the media element. `controls` indicates
+   * whether the native media controls should be shown or hidden.
+   *
+   * @method Html5#controls
+   * @return {boolean}
+   *         - The value of `controls` from the media element.
+   *         - True indicates that native controls should be showing.
+   *         - False indicates that native controls should be hidden.
+   *
+   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-controls}
+   */
+  'controls',
+
+  /**
+   * Get the value of `loop` from the media element. `loop` indicates
+   * that the media should return to the start of the media and continue playing once
+   * it reaches the end.
+   *
+   * @method Html5#loop
+   * @return {boolean}
+   *         - The value of `loop` from the media element.
+   *         - True indicates that playback should seek back to start once
+   *           the end of a media is reached.
+   *         - False indicates that playback should not loop back to the start when the
+   *           end of the media is reached.
+   *
+   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-loop}
+   */
+  'loop',
 
   /**
    * Get the value of the `error` from the media element. `error` indicates any
@@ -1469,6 +1321,22 @@ Html5.resetMediaElement = function(el) {
   'ended',
 
   /**
+   * Get the value of `defaultMuted` from the media element. `defaultMuted` indicates
+   * whether the media should start muted or not. Only changes the default state of the
+   * media. `muted` and `defaultMuted` can have different values. `muted` indicates the
+   * current state.
+   *
+   * @method Html5#defaultMuted
+   * @return {boolean}
+   *         - The value of `defaultMuted` from the media element.
+   *         - True indicates that the media should start muted.
+   *         - False indicates that the media should not start muted
+   *
+   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-defaultmuted}
+   */
+  'defaultMuted',
+
+  /**
    * Get the value of `playbackRate` from the media element. `playbackRate` indicates
    * the rate at which the media is currently playing back. Examples:
    *   - if playbackRate is set to 2, media will play twice as fast.
@@ -1482,24 +1350,6 @@ Html5.resetMediaElement = function(el) {
    * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-playbackrate}
    */
   'playbackRate',
-
-  /**
-   * Get the value of `defaultPlaybackRate` from the media element. `defaultPlaybackRate` indicates
-   * the rate at which the media is currently playing back. This value will not indicate the current
-   * `playbackRate` after playback has started, use {@link Html5#playbackRate} for that.
-   *
-   * Examples:
-   *   - if defaultPlaybackRate is set to 2, media will play twice as fast.
-   *   - if defaultPlaybackRate is set to 0.5, media will play half as fast.
-   *
-   * @method Html5.prototype.defaultPlaybackRate
-   * @return {number}
-   *         The value of `defaultPlaybackRate` from the media element. A number indicating
-   *         the current playback speed of the media, where 1 is normal speed.
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-playbackrate}
-   */
-  'defaultPlaybackRate',
 
   /**
    * Get the value of `played` from the media element. `played` returns a `TimeRange`
@@ -1583,8 +1433,6 @@ Html5.resetMediaElement = function(el) {
 
 // Wrap native properties with a setter in this format:
 // set + toTitleCase(name)
-// The list is as follows:
-// setVolume, setSrc, setPoster, setPreload, setPlaybackRate, setDefaultPlaybackRate
 [
   /**
    * Set the value of `volume` on the media element. `volume` indicates the current
@@ -1598,6 +1446,19 @@ Html5.resetMediaElement = function(el) {
    * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-a-volume}
    */
   'volume',
+
+  /**
+   * Set the value of `muted` on the media element. `muted` indicates the current
+   * audio level should be silent.
+   *
+   * @method Html5#setMuted
+   * @param {boolean} muted
+   *        - True if the audio should be set to silent
+   *        - False otherwise
+   *
+   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-muted}
+   */
+  'muted',
 
   /**
    * Set the value of `src` on the media element. `src` indicates the current
@@ -1644,6 +1505,35 @@ Html5.resetMediaElement = function(el) {
   'preload',
 
   /**
+   * Set the value of `autoplay` on the media element. `autoplay` indicates
+   * that the media should start to play as soon as the page is ready.
+   *
+   * @method Html5#setAutoplay
+   * @param {boolean} autoplay
+   *         - True indicates that the media should start as soon as the page loads.
+   *         - False indicates that the media should not start as soon as the page loads.
+   *
+   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-autoplay}
+   */
+  'autoplay',
+
+  /**
+   * Set the value of `loop` on the media element. `loop` indicates
+   * that the media should return to the start of the media and continue playing once
+   * it reaches the end.
+   *
+   * @method Html5#setLoop
+   * @param {boolean} loop
+   *         - True indicates that playback should seek back to start once
+   *           the end of a media is reached.
+   *         - False indicates that playback should not loop back to the start when the
+   *           end of the media is reached.
+   *
+   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#attr-media-loop}
+   */
+  'loop',
+
+  /**
    * Set the value of `playbackRate` on the media element. `playbackRate` indicates
    * the rate at which the media should play back. Examples:
    *   - if playbackRate is set to 2, media will play twice as fast.
@@ -1656,26 +1546,7 @@ Html5.resetMediaElement = function(el) {
    *
    * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-playbackrate}
    */
-  'playbackRate',
-
-  /**
-   * Set the value of `defaultPlaybackRate` on the media element. `defaultPlaybackRate` indicates
-   * the rate at which the media should play back upon initial startup. Changing this value
-   * after a video has started will do nothing. Instead you should used {@link Html5#setPlaybackRate}.
-   *
-   * Example Values:
-   *   - if playbackRate is set to 2, media will play twice as fast.
-   *   - if playbackRate is set to 0.5, media will play half as fast.
-   *
-   * @method Html5.prototype.setDefaultPlaybackRate
-   * @return {number}
-   *         The value of `defaultPlaybackRate` from the media element. A number indicating
-   *         the current playback speed of the media, where 1 is normal speed.
-   *
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-defaultplaybackrate}
-   */
-  'defaultPlaybackRate'
-
+  'playbackRate'
 ].forEach(function(prop) {
   Html5.prototype['set' + toTitleCase(prop)] = function(v) {
     this.el_[prop] = v;
@@ -1683,8 +1554,6 @@ Html5.resetMediaElement = function(el) {
 });
 
 // wrap native functions with a function
-// The list is as follows:
-// pause, load play
 [
   /**
    * A wrapper around the media elements `pause` function. This will call the `HTML5`
@@ -1702,16 +1571,7 @@ Html5.resetMediaElement = function(el) {
    * @method Html5#load
    * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-load}
    */
-  'load',
-
-  /**
-   * A wrapper around the media elements `play` function. This will call the `HTML5`s
-   * media element `play` function.
-   *
-   * @method Html5#play
-   * @see [Spec]{@link https://www.w3.org/TR/html5/embedded-content-0.html#dom-media-play}
-   */
-  'play'
+  'load'
 ].forEach(function(prop) {
   Html5.prototype[prop] = function() {
     return this.el_[prop]();
@@ -1802,5 +1662,6 @@ Html5.nativeSourceHandler.dispose = function() {};
 // Register the native source handler
 Html5.registerSourceHandler(Html5.nativeSourceHandler);
 
+Component.registerComponent('Html5', Html5);
 Tech.registerTech('Html5', Html5);
 export default Html5;

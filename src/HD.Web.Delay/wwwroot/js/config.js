@@ -1,16 +1,12 @@
 ﻿require.config({
     baseUrl: 'lib',
     paths: {
-        module: '../js/modules',
-        content: '../js/content',
-        storages: '../js/storages',
+        module: '../js/modules',        
         hd: '../js/hd',
         'domReady': 'requirejs-domReady/domReady',
-        'jquery': "jquery/dist/jquery",
-        'chart': "chart.js/dist/Chart",
+        'jquery': "jquery/dist/jquery",        
         'knockout': "knockout/dist/knockout",
-        'bootstrap': "bootstrap/dist/js/bootstrap",
-        'blockUI': "blockUI/jquery.blockUI",
+        'bootstrap': "bootstrap/dist/js/bootstrap",        
 		'jquery.validate': 'jquery-validation/dist/jquery.validate',
 		'additional-methods': 'jquery-validation/dist/additional-methods',
         'jquery.validate.unobtrusive': 'jquery-validation-unobtrusive/jquery.validate.unobtrusive',
@@ -150,8 +146,6 @@
     shim: {
         'toolkit': ["jquery"],
         'jquery.validate': ['jquery'],
-        'jquery.validate.unobtrusive': ['jquery.validate'],
-    //    'mediaelement': { deps: ['require'], exports: "MediaElementPlayer" }
+        'jquery.validate.unobtrusive': ['jquery.validate'],    
     }
 });
-//# sourceMappingURL=config.js.map

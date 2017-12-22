@@ -1,22 +1,19 @@
 /**
  * @file menu-button.js
  */
-import Button from '../button.js';
+import ClickableComponent from '../clickable-component.js';
 import Component from '../component.js';
 import Menu from './menu.js';
 import * as Dom from '../utils/dom.js';
 import * as Fn from '../utils/fn.js';
-import * as Events from '../utils/events.js';
 import toTitleCase from '../utils/to-title-case.js';
-import { IS_IOS } from '../utils/browser.js';
-import document from 'global/document';
 
 /**
  * A `MenuButton` class for any popup {@link Menu}.
  *
- * @extends Component
+ * @extends ClickableComponent
  */
-class MenuButton extends Component {
+class MenuButton extends ClickableComponent {
 
   /**
    * Creates an instance of this class.
@@ -30,28 +27,12 @@ class MenuButton extends Component {
   constructor(player, options = {}) {
     super(player, options);
 
-    this.menuButton_ = new Button(player, options);
-
-    this.menuButton_.controlText(this.controlText_);
-    this.menuButton_.el_.setAttribute('aria-haspopup', 'true');
-
-    // Add buildCSSClass values to the button, not the wrapper
-    const buttonClass = Button.prototype.buildCSSClass();
-
-    this.menuButton_.el_.className = this.buildCSSClass() + ' ' + buttonClass;
-    this.menuButton_.removeClass('vjs-control');
-
-    this.addChild(this.menuButton_);
-
     this.update();
 
     this.enabled_ = true;
 
-    this.on(this.menuButton_, 'tap', this.handleClick);
-    this.on(this.menuButton_, 'click', this.handleClick);
-    this.on(this.menuButton_, 'focus', this.handleFocus);
-    this.on(this.menuButton_, 'blur', this.handleBlur);
-
+    this.el_.setAttribute('aria-haspopup', 'true');
+    this.el_.setAttribute('role', 'menuitem');
     this.on('keydown', this.handleSubmenuKeyPress);
   }
 
@@ -62,7 +43,6 @@ class MenuButton extends Component {
     const menu = this.createMenu();
 
     if (this.menu) {
-      this.menu.dispose();
       this.removeChild(this.menu);
     }
 
@@ -76,7 +56,7 @@ class MenuButton extends Component {
      * @private
      */
     this.buttonPressed_ = false;
-    this.menuButton_.el_.setAttribute('aria-expanded', 'false');
+    this.el_.setAttribute('aria-expanded', 'false');
 
     if (this.items && this.items.length <= this.hideThreshold_) {
       this.hide();
@@ -92,7 +72,7 @@ class MenuButton extends Component {
    *         The constructed menu
    */
   createMenu() {
-    const menu = new Menu(this.player_, { menuButton: this });
+    const menu = new Menu(this.player_);
 
     /**
      * Hide the menu if the number of items is less than or equal to this threshold. This defaults
@@ -115,7 +95,7 @@ class MenuButton extends Component {
       this.hideThreshold_ += 1;
 
       menu.children_.unshift(title);
-      Dom.prependTo(title, menu.contentEl());
+      Dom.insertElFirst(title, menu.contentEl());
     }
 
     this.items = this.createItems();
@@ -145,31 +125,8 @@ class MenuButton extends Component {
    */
   createEl() {
     return super.createEl('div', {
-      className: this.buildWrapperCSSClass()
-    }, {
+      className: this.buildCSSClass()
     });
-  }
-
-  /**
-   * Allow sub components to stack CSS class names for the wrapper element
-   *
-   * @return {string}
-   *         The constructed wrapper DOM `className`
-   */
-  buildWrapperCSSClass() {
-    let menuButtonClass = 'vjs-menu-button';
-
-    // If the inline option is passed, we want to use different styles altogether.
-    if (this.options_.inline === true) {
-      menuButtonClass += '-inline';
-    } else {
-      menuButtonClass += '-popup';
-    }
-
-    // TODO: Fix the CSS so that this isn't necessary
-    const buttonClass = Button.prototype.buildCSSClass();
-
-    return `vjs-menu-button ${menuButtonClass} ${buttonClass} ${super.buildCSSClass()}`;
   }
 
   /**
@@ -189,24 +146,6 @@ class MenuButton extends Component {
     }
 
     return `vjs-menu-button ${menuButtonClass} ${super.buildCSSClass()}`;
-  }
-
-  /**
-   * Get or set the localized control text that will be used for accessibility.
-   *
-   * > NOTE: This will come from the internal `menuButton_` element.
-   *
-   * @param {string} [text]
-   *        Control text for element.
-   *
-   * @param {Element} [el=this.menuButton_.el()]
-   *        Element to set the title on.
-   *
-   * @return {string}
-   *         - The control text when getting
-   */
-  controlText(text, el = this.menuButton_.el()) {
-    return this.menuButton_.controlText(text, el);
   }
 
   /**
@@ -237,47 +176,6 @@ class MenuButton extends Component {
   }
 
   /**
-   * Set the focus to the actual button, not to this element
-   */
-  focus() {
-    this.menuButton_.focus();
-  }
-
-  /**
-   * Remove the focus from the actual button, not this element
-   */
-  blur() {
-    this.menuButton_.blur();
-  }
-
-  /**
-   * This gets called when a `MenuButton` gains focus via a `focus` event.
-   * Turns on listening for `keydown` events. When they happen it
-   * calls `this.handleKeyPress`.
-   *
-   * @param {EventTarget~Event} event
-   *        The `focus` event that caused this function to be called.
-   *
-   * @listens focus
-   */
-  handleFocus() {
-    Events.on(document, 'keydown', Fn.bind(this, this.handleKeyPress));
-  }
-
-  /**
-   * Called when a `MenuButton` loses focus. Turns off the listener for
-   * `keydown` events. Which Stops `this.handleKeyPress` from getting called.
-   *
-   * @param {EventTarget~Event} event
-   *        The `blur` event that caused this function to be called.
-   *
-   * @listens blur
-   */
-  handleBlur() {
-    Events.off(document, 'keydown', Fn.bind(this, this.handleKeyPress));
-  }
-
-  /**
    * Handle tab, escape, down arrow, and up arrow keys for `MenuButton`. See
    * {@link ClickableComponent#handleKeyPress} for instances where this is called.
    *
@@ -296,8 +194,6 @@ class MenuButton extends Component {
       // Don't preventDefault for Tab key - we still want to lose focus
       if (event.which !== 9) {
         event.preventDefault();
-        // Set focus back to the menu button's button
-        this.menuButton_.el_.focus();
       }
     // Up (38) key or Down (40) key press the 'button'
     } else if (event.which === 38 || event.which === 40) {
@@ -305,6 +201,8 @@ class MenuButton extends Component {
         this.pressButton();
         event.preventDefault();
       }
+    } else {
+      super.handleKeyPress(event);
     }
   }
 
@@ -327,8 +225,6 @@ class MenuButton extends Component {
       // Don't preventDefault for Tab key - we still want to lose focus
       if (event.which !== 9) {
         event.preventDefault();
-        // Set focus back to the menu button's button
-        this.menuButton_.el_.focus();
       }
     }
   }
@@ -340,15 +236,8 @@ class MenuButton extends Component {
     if (this.enabled_) {
       this.buttonPressed_ = true;
       this.menu.lockShowing();
-      this.menuButton_.el_.setAttribute('aria-expanded', 'true');
-
-      // set the focus into the submenu, except on iOS where it is resulting in
-      // undesired scrolling behavior when the player is in an iframe
-      if (IS_IOS && Dom.isInFrame()) {
-        // Return early so that the menu isn't focused
-        return;
-      }
-
+      this.el_.setAttribute('aria-expanded', 'true');
+      // set the focus into the submenu
       this.menu.focus();
     }
   }
@@ -360,30 +249,39 @@ class MenuButton extends Component {
     if (this.enabled_) {
       this.buttonPressed_ = false;
       this.menu.unlockShowing();
-      this.menuButton_.el_.setAttribute('aria-expanded', 'false');
+      this.el_.setAttribute('aria-expanded', 'false');
+      // Set focus back to this menu button
+      this.el_.focus();
     }
   }
 
   /**
    * Disable the `MenuButton`. Don't allow it to be clicked.
+   *
+   * @return {MenuButton}
+   *         Returns itself; method can be chained.
    */
   disable() {
-    this.unpressButton();
+    // Unpress, but don't force focus on this button
+    this.buttonPressed_ = false;
+    this.menu.unlockShowing();
+    this.el_.setAttribute('aria-expanded', 'false');
 
     this.enabled_ = false;
-    this.addClass('vjs-disabled');
 
-    this.menuButton_.disable();
+    return super.disable();
   }
 
   /**
    * Enable the `MenuButton`. Allow it to be clicked.
+   *
+   * @return {MenuButton}
+   *         Returns itself; method can be chained.
    */
   enable() {
     this.enabled_ = true;
-    this.removeClass('vjs-disabled');
 
-    this.menuButton_.enable();
+    return super.enable();
   }
 }
 

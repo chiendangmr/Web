@@ -19,7 +19,7 @@ import document from 'global/document';
  */
 const disableOthers = function(list, track) {
   for (let i = 0; i < list.length; i++) {
-    if (!Object.keys(list[i]).length || track.id === list[i].id) {
+    if (track.id === list[i].id) {
       continue;
     }
     // another audio track is enabled, disable it
@@ -81,14 +81,15 @@ class AudioTrackList extends TrackList {
    * @param {AudioTrack} track
    *        The AudioTrack to add to the list
    *
-   * @fires TrackList#addtrack
+   * @fires Track#addtrack
+   * @private
    */
-  addTrack(track) {
+  addTrack_(track) {
     if (track.enabled) {
       disableOthers(this, track);
     }
 
-    super.addTrack(track);
+    super.addTrack_(track);
     // native tracks don't have this
     if (!track.addEventListener) {
       return;
@@ -111,6 +112,31 @@ class AudioTrackList extends TrackList {
       this.trigger('change');
     });
   }
+
+  /**
+   * Add an {@link AudioTrack} to the `AudioTrackList`.
+   *
+   * @param {AudioTrack} track
+   *        The AudioTrack to add to the list
+   *
+   * @fires Track#addtrack
+   */
+  addTrack(track) {
+    this.addTrack_(track);
+  }
+
+  /**
+   * Remove an {@link AudioTrack} from the `AudioTrackList`.
+   *
+   * @param {AudioTrack} track
+   *        The AudioTrack to remove from the list
+   *
+   * @fires Track#removetrack
+   */
+  removeTrack(track) {
+    super.removeTrack_(track);
+  }
+
 }
 
 export default AudioTrackList;

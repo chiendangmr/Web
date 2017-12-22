@@ -26,25 +26,16 @@ class OffTextTrackMenuItem extends TextTrackMenuItem {
     options.track = {
       player,
       kind: options.kind,
-      kinds: options.kinds,
+      label: options.kind + ' off',
       default: false,
       mode: 'disabled'
     };
-
-    if (!options.kinds) {
-      options.kinds = [options.kind];
-    }
-
-    if (options.label) {
-      options.track.label = options.label;
-    } else {
-      options.track.label = options.kinds.join(' and ') + ' off';
-    }
 
     // MenuItem is selectable
     options.selectable = true;
 
     super(player, options);
+    this.selected(true);
   }
 
   /**
@@ -60,33 +51,13 @@ class OffTextTrackMenuItem extends TextTrackMenuItem {
     for (let i = 0, l = tracks.length; i < l; i++) {
       const track = tracks[i];
 
-      if ((this.options_.kinds.indexOf(track.kind) > -1) && track.mode === 'showing') {
+      if (track.kind === this.track.kind && track.mode === 'showing') {
         selected = false;
         break;
       }
     }
 
     this.selected(selected);
-  }
-
-  handleSelectedLanguageChange(event) {
-    const tracks = this.player().textTracks();
-    let allHidden = true;
-
-    for (let i = 0, l = tracks.length; i < l; i++) {
-      const track = tracks[i];
-
-      if ((['captions', 'descriptions', 'subtitles'].indexOf(track.kind) > -1) && track.mode === 'showing') {
-        allHidden = false;
-        break;
-      }
-    }
-
-    if (allHidden) {
-      this.player_.cache_.selectedLanguage = {
-        enabled: false
-      };
-    }
   }
 
 }

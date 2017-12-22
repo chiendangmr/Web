@@ -14,7 +14,7 @@
 
 ## Getting Video.js
 
-Video.js is officially available via CDN and npm.
+Video.js is officially available via CDN, npm, and Bower.
 
 Video.js works out of the box with not only HTML `<script>` and `<link>` tags, but also all major bundlers/packagers/builders, such as Browserify, Node, WebPack, etc.
 
@@ -36,8 +36,6 @@ Video.js supports all attributes of the `<video>` element (such as `controls`, `
   <source src="//vjs.zencdn.net/v/oceans.webm" type="video/webm">
 </video>
 ```
-
-For a high-level overview of all the various embed options, check out the [embeds page](/docs/guides/embeds.md), then follow the rest of this page.
 
 ### Automatic Setup
 
@@ -84,7 +82,7 @@ videojs(document.querySelector('.video-js'));
 
 ## Options
 
-> **Note:** This guide only covers how to pass options during player setup. For a complete reference on _all_ available options, see the [options guide](/docs/guides/options.md).
+> **Note:** This guide only covers how to pass options during player setup. For a complete reference on _all_ available options, see the [options guide](options.md).
 
 There are three ways to pass options to Video.js. Because Video.js decorates an HTML5 `<video>` element, many of the options available are also available as [standard `<video>` tag attributes][video-attrs]:
 
@@ -98,8 +96,6 @@ Alternatively, you can use the `data-setup` attribute to pass options as [JSON][
 <video data-setup='{"controls": true, "autoplay": false, "preload": "auto"}'...>
 ```
 
-> **Note:** You _must_ use single-quotes around the value of `data-setup` as it contains a JSON string which must use double quotes.
-
 Finally, if you're not using the `data-setup` attribute to trigger the player setup, you can pass in an object of player options as the second argument to the `videojs` function:
 
 ```js
@@ -109,8 +105,6 @@ videojs('my-player', {
   preload: 'auto'
 });
 ```
-
-> **Note:** Do not use both `data-setup` and an options object.
 
 ### Global Defaults
 
@@ -177,15 +171,11 @@ player.on('ready', function() {
 });
 ```
 
-In each case, the callback is called asynchronously.
-
-An important distinction between the above methods is that adding an listener for `ready` with `on()` _must_ be done before the player is ready. With `player.ready()`, the function is called immediately if the player is already ready.
+In each case, the callback is called asynchronously - _even if the player is already ready!_
 
 ## Advanced Player Workflows
 
-For a discussion of more advanced player workflows, see the [player workflows guide][player-workflows].
-
-[player-workflows]: /docs/guides/player-workflows.md
+For a discussion of more advanced player workflows, see the [player workflows guide](player-workflows.md).
 
 [boolean-attrs]: https://www.w3.org/TR/2011/WD-html5-20110525/common-microsyntaxes.html#boolean-attributes
 
@@ -195,7 +185,7 @@ For a discussion of more advanced player workflows, see the [player workflows gu
 
 [video-attrs]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#Attributes
 
-[videojs]: http://docs.videojs.com/module-videojs.html
+[videojs]: http://docs.videojs.com/docs/api/video.html
 
 [w3c-media-events]: https://www.w3.org/2010/05/video/mediaevents.html
 

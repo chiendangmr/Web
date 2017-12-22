@@ -204,11 +204,9 @@ class TextTrack extends Track {
     }
 
     /**
-     * @memberof TextTrack
      * @member {boolean} default
      *         If this track was set to be on or off by default. Cannot be changed after
      *         creation.
-     * @instance
      *
      * @readonly
      */
@@ -220,11 +218,9 @@ class TextTrack extends Track {
     });
 
     /**
-     * @memberof TextTrack
      * @member {string} mode
      *         Set the mode of this TextTrack to a valid {@link TextTrack~Mode}. Will
      *         not be set if setting to an invalid mode.
-     * @instance
      *
      * @fires TextTrack#modechange
      */
@@ -238,7 +234,6 @@ class TextTrack extends Track {
         }
         mode = newMode;
         if (mode === 'showing') {
-
           this.tech_.ready(() => {
             this.tech_.on('timeupdate', timeupdateHandler);
           }, true);
@@ -253,15 +248,12 @@ class TextTrack extends Track {
          * @type {EventTarget~Event}
          */
         this.trigger('modechange');
-
       }
     });
 
     /**
-     * @memberof TextTrack
      * @member {TextTrackCueList} cues
      *         The text track cue list for this TextTrack.
-     * @instance
      */
     Object.defineProperty(tt, 'cues', {
       get() {
@@ -275,10 +267,8 @@ class TextTrack extends Track {
     });
 
     /**
-     * @memberof TextTrack
      * @member {TextTrackCueList} activeCues
      *         The list text track cues that are currently active for this TextTrack.
-     * @instance
      */
     Object.defineProperty(tt, 'activeCues', {
       get() {
@@ -356,14 +346,15 @@ class TextTrack extends Track {
 
       // make sure that `id` is copied over
       cue.id = originalCue.id;
-      cue.originalCue_ = originalCue;
     }
 
     const tracks = this.tech_.textTracks();
 
-    for (let i = 0; i < tracks.length; i++) {
-      if (tracks[i] !== this) {
-        tracks[i].removeCue(cue);
+    if (tracks) {
+      for (let i = 0; i < tracks.length; i++) {
+        if (tracks[i] !== this) {
+          tracks[i].removeCue(cue);
+        }
       }
     }
 
@@ -378,16 +369,19 @@ class TextTrack extends Track {
    *        The cue to remove from our internal list
    */
   removeCue(removeCue) {
-    let i = this.cues_.length;
+    let removed = false;
 
-    while (i--) {
+    for (let i = 0, l = this.cues_.length; i < l; i++) {
       const cue = this.cues_[i];
 
-      if (cue === removeCue || (cue.originalCue_ && cue.originalCue_ === removeCue)) {
+      if (cue === removeCue) {
         this.cues_.splice(i, 1);
-        this.cues.setCues_(this.cues_);
-        break;
+        removed = true;
       }
+    }
+
+    if (removed) {
+      this.cues.setCues_(this.cues_);
     }
   }
 }

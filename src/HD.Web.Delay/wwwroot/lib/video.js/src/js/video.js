@@ -2,7 +2,9 @@
  * @file video.js
  * @module videojs
  */
-import {version} from '../../package.json';
+
+/* global define */
+
 import window from 'global/window';
 import document from 'global/document';
 import * as setup from './setup';
@@ -11,7 +13,7 @@ import Component from './component';
 import EventTarget from './event-target';
 import * as Events from './utils/events.js';
 import Player from './player';
-import Plugin from './plugin';
+import plugin from './plugins.js';
 import mergeOptions from './utils/merge-options.js';
 import * as Fn from './utils/fn.js';
 import TextTrack from './tracks/text-track.js';
@@ -31,14 +33,12 @@ import xhr from 'xhr';
 
 // Include the built-in techs
 import Tech from './tech/tech.js';
-import { use as middlewareUse } from './tech/middleware.js';
 
 // HTML5 Element Shim for IE8
 if (typeof HTMLVideoElement === 'undefined' && Dom.isReal()) {
   document.createElement('video');
   document.createElement('audio');
   document.createElement('track');
-  document.createElement('video-js');
 }
 
 /**
@@ -57,6 +57,8 @@ if (typeof HTMLVideoElement === 'undefined' && Dom.isReal()) {
  *
  * @return {Player}
  *         A player instance
+ *
+ * @mixes videojs
  */
 function videojs(id, options, ready) {
   let tag;
@@ -64,7 +66,6 @@ function videojs(id, options, ready) {
   // Allow for element or ID to be passed in
   // String ID
   if (typeof id === 'string') {
-    const players = videojs.getPlayers();
 
     // Adjust for jQuery ID syntax
     if (id.indexOf('#') === 0) {
@@ -72,22 +73,22 @@ function videojs(id, options, ready) {
     }
 
     // If a player instance has already been created for this ID return it.
-    if (players[id]) {
+    if (videojs.getPlayers()[id]) {
 
-      // If options or ready function are passed, warn
+      // If options or ready funtion are passed, warn
       if (options) {
         log.warn(`Player "${id}" is already initialised. Options will not be applied.`);
       }
 
       if (ready) {
-        players[id].ready(ready);
+        videojs.getPlayers()[id].ready(ready);
       }
 
-      return players[id];
+      return videojs.getPlayers()[id];
     }
 
     // Otherwise get element for ID
-    tag = Dom.$('#' + id);
+    tag = Dom.getEl(id);
 
   // ID is a media element
   } else {
@@ -104,11 +105,6 @@ function videojs(id, options, ready) {
   // If so return that otherwise set up a new player below
   if (tag.player || Player.players[tag.playerId]) {
     return tag.player || Player.players[tag.playerId];
-  }
-
-  // Check if element is included in the DOM
-  if (Dom.isEl(tag) && !document.body.contains(tag)) {
-    log.warn('The element supplied is not included in the DOM');
   }
 
   options = options || {};
@@ -141,13 +137,12 @@ videojs.hooks_ = {};
 
 /**
  * Get a list of hooks for a specific lifecycle
- * @function videojs.hooks
  *
  * @param {string} type
  *        the lifecyle to get hooks from
  *
- * @param {Function|Function[]} [fn]
- *        Optionally add a hook (or hooks) to the lifecycle that your are getting.
+ * @param {Function} [fn]
+ *        Optionally add a hook to the lifecycle that your are getting.
  *
  * @return {Array}
  *         an array of hooks, or an empty array if there are none.
@@ -171,26 +166,6 @@ videojs.hooks = function(type, fn) {
  */
 videojs.hook = function(type, fn) {
   videojs.hooks(type, fn);
-};
-
-/**
- * Add a function hook that will only run once to a specific videojs lifecycle.
- *
- * @param {string} type
- *        the lifecycle to hook the function to.
- *
- * @param {Function|Function[]}
- *        The function or array of functions to attach.
- */
-videojs.hookOnce = function(type, fn) {
-  videojs.hooks(type, [].concat(fn).map(original => {
-    const wrapper = (...args) => {
-      videojs.removeHook(type, wrapper);
-      original(...args);
-    };
-
-    return wrapper;
-  }));
 };
 
 /**
@@ -252,7 +227,7 @@ setup.autoSetupTimeout(1, videojs);
  *
  * @type {string}
  */
-videojs.VERSION = version;
+videojs.VERSION = require('../../package.json').version;
 
 /**
  * The global options object. These are the settings that take effect
@@ -325,8 +300,6 @@ videojs.getTech = Tech.getTech;
  */
 videojs.registerTech = Tech.registerTech;
 
-videojs.use = middlewareUse;
-
 /**
  * A suite of browser and device tests from {@link browser}.
  *
@@ -374,76 +347,14 @@ videojs.mergeOptions = mergeOptions;
 videojs.bind = Fn.bind;
 
 /**
- * Register a Video.js plugin.
+ * Create a Video.js player plugin.
+ * Plugins are only initialized when options for the plugin are included
+ * in the player options, or the plugin function on the player instance is
+ * called.
  *
- * @borrows plugin:registerPlugin as videojs.registerPlugin
- * @method registerPlugin
- *
- * @param  {string} name
- *         The name of the plugin to be registered. Must be a string and
- *         must not match an existing plugin or a method on the `Player`
- *         prototype.
- *
- * @param  {Function} plugin
- *         A sub-class of `Plugin` or a function for basic plugins.
- *
- * @return {Function}
- *         For advanced plugins, a factory function for that plugin. For
- *         basic plugins, a wrapper function that initializes the plugin.
+ * @borrows plugin:plugin as videojs.plugin
  */
-videojs.registerPlugin = Plugin.registerPlugin;
-
-/**
- * Deprecated method to register a plugin with Video.js
- *
- * @deprecated
- *        videojs.plugin() is deprecated; use videojs.registerPlugin() instead
- *
- * @param {string} name
- *        The plugin name
- *
- * @param {Plugin|Function} plugin
- *         The plugin sub-class or function
- */
-videojs.plugin = (name, plugin) => {
-  log.warn('videojs.plugin() is deprecated; use videojs.registerPlugin() instead');
-  return Plugin.registerPlugin(name, plugin);
-};
-
-/**
- * Gets an object containing multiple Video.js plugins.
- *
- * @param  {Array} [names]
- *         If provided, should be an array of plugin names. Defaults to _all_
- *         plugin names.
- *
- * @return {Object|undefined}
- *         An object containing plugin(s) associated with their name(s) or
- *         `undefined` if no matching plugins exist).
- */
-videojs.getPlugins = Plugin.getPlugins;
-
-/**
- * Gets a plugin by name if it exists.
- *
- * @param  {string} name
- *         The name of a plugin.
- *
- * @return {Function|undefined}
- *         The plugin (or `undefined`).
- */
-videojs.getPlugin = Plugin.getPlugin;
-
-/**
- * Gets a plugin's version, if available
- *
- * @param  {string} name
- *         The name of a plugin.
- *
- * @return {string}
- *         The plugin's version or an empty string.
- */
-videojs.getPluginVersion = Plugin.getPluginVersion;
+videojs.plugin = plugin;
 
 /**
  * Adding languages so that they're available to all players.
@@ -587,58 +498,58 @@ videojs.VideoTrack = VideoTrack;
  * Determines, via duck typing, whether or not a value is a DOM element.
  *
  * @borrows dom:isEl as videojs.isEl
- * @deprecated Use videojs.dom.isEl() instead
  */
+videojs.isEl = Dom.isEl;
 
 /**
  * Determines, via duck typing, whether or not a value is a text node.
  *
  * @borrows dom:isTextNode as videojs.isTextNode
- * @deprecated Use videojs.dom.isTextNode() instead
  */
+videojs.isTextNode = Dom.isTextNode;
 
 /**
  * Creates an element and applies properties.
  *
  * @borrows dom:createEl as videojs.createEl
- * @deprecated Use videojs.dom.createEl() instead
  */
+videojs.createEl = Dom.createEl;
 
 /**
  * Check if an element has a CSS class
  *
  * @borrows dom:hasElClass as videojs.hasClass
- * @deprecated Use videojs.dom.hasClass() instead
  */
+videojs.hasClass = Dom.hasElClass;
 
 /**
  * Add a CSS class name to an element
  *
  * @borrows dom:addElClass as videojs.addClass
- * @deprecated Use videojs.dom.addClass() instead
  */
+videojs.addClass = Dom.addElClass;
 
 /**
  * Remove a CSS class name from an element
  *
  * @borrows dom:removeElClass as videojs.removeClass
- * @deprecated Use videojs.dom.removeClass() instead
  */
+videojs.removeClass = Dom.removeElClass;
 
 /**
  * Adds or removes a CSS class name on an element depending on an optional
  * condition or the presence/absence of the class name.
  *
  * @borrows dom:toggleElClass as videojs.toggleClass
- * @deprecated Use videojs.dom.toggleClass() instead
  */
+videojs.toggleClass = Dom.toggleElClass;
 
 /**
  * Apply attributes to an HTML element.
  *
  * @borrows dom:setElAttributes as videojs.setAttribute
- * @deprecated Use videojs.dom.setAttributes() instead
  */
+videojs.setAttributes = Dom.setElAttributes;
 
 /**
  * Get an element's attribute values, as defined on the HTML tag
@@ -647,15 +558,15 @@ videojs.VideoTrack = VideoTrack;
  * This will return true or false for boolean attributes.
  *
  * @borrows dom:getElAttributes as videojs.getAttributes
- * @deprecated Use videojs.dom.getAttributes() instead
  */
+videojs.getAttributes = Dom.getElAttributes;
 
 /**
  * Empties the contents of an element.
  *
  * @borrows dom:emptyEl as videojs.emptyEl
- * @deprecated Use videojs.dom.emptyEl() instead
  */
+videojs.emptyEl = Dom.emptyEl;
 
 /**
  * Normalizes and appends content to an element.
@@ -678,8 +589,8 @@ videojs.VideoTrack = VideoTrack;
  *   node, or array.
  *
  * @borrows dom:appendContents as videojs.appendContet
- * @deprecated Use videojs.dom.appendContent() instead
  */
+videojs.appendContent = Dom.appendContent;
 
 /**
  * Normalizes and inserts content into an element; this is identical to
@@ -703,27 +614,8 @@ videojs.VideoTrack = VideoTrack;
  *   node, or array.
  *
  * @borrows dom:insertContent as videojs.insertContent
- * @deprecated Use videojs.dom.insertContent() instead
  */
-[
-  'isEl',
-  'isTextNode',
-  'createEl',
-  'hasClass',
-  'addClass',
-  'removeClass',
-  'toggleClass',
-  'setAttributes',
-  'getAttributes',
-  'emptyEl',
-  'appendContent',
-  'insertContent'
-].forEach(k => {
-  videojs[k] = function() {
-    log.warn(`videojs.${k}() is deprecated; use videojs.dom.${k}() instead`);
-    return Dom[k].apply(null, arguments);
-  };
-});
+videojs.insertContent = Dom.insertContent;
 
 /**
  * A safe getComputedStyle with an IE8 fallback.
@@ -737,17 +629,19 @@ videojs.VideoTrack = VideoTrack;
  */
 videojs.computedStyle = computedStyle;
 
-/**
- * Export the Dom utilities for use in external plugins
- * and Tech's
+/*
+ * Custom Universal Module Definition (UMD)
+ *
+ * Video.js will never be a non-browser lib so we can simplify UMD a bunch and
+ * still support requirejs and browserify. This also needs to be closure
+ * compiler compatible, so string keys are used.
  */
-videojs.dom = Dom;
+if (typeof define === 'function' && define.amd) {
+  define('videojs', [], () => videojs);
 
-/**
- * Export the Url utilities for use in external plugins
- * and Tech's
- */
-videojs.url = Url;
+// checking that module is an object too because of umdjs/umd#35
+} else if (typeof exports === 'object' && typeof module === 'object') {
+  module.exports = videojs;
+}
 
 export default videojs;
-

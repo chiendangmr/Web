@@ -3,7 +3,6 @@
  */
 import Button from './button.js';
 import Component from './component.js';
-import {isPromise} from './utils/promise';
 
 /**
  * The initial play button that shows before the video has played. The hiding of the
@@ -12,13 +11,6 @@ import {isPromise} from './utils/promise';
  * @extends Button
  */
 class BigPlayButton extends Button {
-  constructor(player, options) {
-    super(player, options);
-
-    this.mouseused_ = false;
-
-    this.on('mousedown', this.handleMouseDown);
-  }
 
   /**
    * Builds the default DOM `className`.
@@ -42,12 +34,7 @@ class BigPlayButton extends Button {
    * @listens click
    */
   handleClick(event) {
-    const playPromise = this.player_.play();
-
-    // exit early if clicked via the mouse
-    if (this.mouseused_ && event.clientX && event.clientY) {
-      return;
-    }
+    this.player_.play();
 
     const cb = this.player_.getChild('controlBar');
     const playToggle = cb && cb.getChild('playToggle');
@@ -57,23 +44,9 @@ class BigPlayButton extends Button {
       return;
     }
 
-    const playFocus = () => playToggle.focus();
-
-    if (isPromise(playPromise)) {
-      playPromise.then(playFocus, () => {});
-    } else {
-      this.setTimeout(playFocus, 1);
-    }
-  }
-
-  handleKeyPress(event) {
-    this.mouseused_ = false;
-
-    super.handleKeyPress(event);
-  }
-
-  handleMouseDown(event) {
-    this.mouseused_ = true;
+    this.setTimeout(function() {
+      playToggle.focus();
+    }, 1);
   }
 }
 

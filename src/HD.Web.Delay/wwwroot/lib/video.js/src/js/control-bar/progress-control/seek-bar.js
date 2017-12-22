@@ -3,24 +3,16 @@
  */
 import Slider from '../../slider/slider.js';
 import Component from '../../component.js';
-import {IE_VERSION, IS_IOS, IS_ANDROID} from '../../utils/browser.js';
-import * as Dom from '../../utils/dom.js';
 import * as Fn from '../../utils/fn.js';
 import formatTime from '../../utils/format-time.js';
+import computedStyle from '../../utils/computed-style.js';
 
 import './load-progress-bar.js';
 import './play-progress-bar.js';
-import './mouse-time-display.js';
-
-// The number of seconds the `step*` functions move the timeline.
-const STEP_SECONDS = 5;
-
-// The interval at which the bar should update as it progresses.
-const UPDATE_REFRESH_INTERVAL = 30;
+import './tooltip-progress-bar.js';
 
 /**
- * Seek bar and container for the progress bars. Uses {@link PlayProgressBar}
- * as its `bar`.
+ * Seek Bar and holder for the progress bars
  *
  * @extends Slider
  */
@@ -37,31 +29,20 @@ class SeekBar extends Slider {
    */
   constructor(player, options) {
     super(player, options);
+    this.on(player, 'timeupdate', this.updateProgress);
+    this.on(player, 'ended', this.updateProgress);
+    player.ready(Fn.bind(this, this.updateProgress));
 
-    this.update = Fn.throttle(Fn.bind(this, this.update), UPDATE_REFRESH_INTERVAL);
+    if (options.playerOptions &&
+        options.playerOptions.controlBar &&
+        options.playerOptions.controlBar.progressControl &&
+        options.playerOptions.controlBar.progressControl.keepTooltipsInside) {
+      this.keepTooltipsInside = options.playerOptions.controlBar.progressControl.keepTooltipsInside;
+    }
 
-    this.on(player, 'timeupdate', this.update);
-    this.on(player, 'ended', this.handleEnded);
-
-    // when playing, let's ensure we smoothly update the play progress bar
-    // via an interval
-    this.updateInterval = null;
-
-    this.on(player, ['playing'], () => {
-      this.clearInterval(this.updateInterval);
-
-      this.updateInterval = this.setInterval(() =>{
-        this.requestAnimationFrame(() => {
-          this.update();
-        });
-      }, UPDATE_REFRESH_INTERVAL);
-    });
-
-    this.on(player, ['ended', 'pause', 'waiting'], () => {
-      this.clearInterval(this.updateInterval);
-    });
-
-    this.on(player, ['timeupdate', 'ended'], this.update);
+    if (this.keepTooltipsInside) {
+      this.tooltipProgressBar = this.addChild('TooltipProgressBar');
+    }
   }
 
   /**
@@ -74,93 +55,60 @@ class SeekBar extends Slider {
     return super.createEl('div', {
       className: 'vjs-progress-holder'
     }, {
-      'aria-label': this.localize('Progress Bar')
+      'aria-label': 'progress bar'
     });
   }
 
   /**
-   * This function updates the play progress bar and accessiblity
-   * attributes to whatever is passed in.
-   *
-   * @param {number} currentTime
-   *        The currentTime value that should be used for accessiblity
-   *
-   * @param {number} percent
-   *        The percentage as a decimal that the bar should be filled from 0-1.
-   *
-   * @private
-   */
-  update_(currentTime, percent) {
-    const duration = this.player_.duration();
-
-    // machine readable value of progress bar (percentage complete)
-    this.el_.setAttribute('aria-valuenow', (percent * 100).toFixed(2));
-
-    // human readable value of progress bar (time complete)
-    this.el_.setAttribute('aria-valuetext',
-                          this.localize('progress bar timing: currentTime={1} duration={2}',
-                                        [formatTime(currentTime, duration),
-                                         formatTime(duration, duration)],
-                                        '{1} of {2}'));
-
-    // Update the `PlayProgressBar`.
-    this.bar.update(Dom.getBoundingClientRect(this.el_), percent);
-  }
-
-  /**
-   * Update the seek bar's UI.
+   * Update the seek bars tooltip and width.
    *
    * @param {EventTarget~Event} [event]
    *        The `timeupdate` or `ended` event that caused this to run.
    *
    * @listens Player#timeupdate
-   *
-   * @returns {number}
-   *          The current percent at a number from 0-1
-   */
-  update(event) {
-    const percent = super.update();
-
-    this.update_(this.getCurrentTime_(), percent);
-    return percent;
-  }
-
-  /**
-   * Get the value of current time but allows for smooth scrubbing,
-   * when player can't keep up.
-   *
-   * @return {number}
-   *         The current time value to display
-   *
-   * @private
-   */
-  getCurrentTime_() {
-    return (this.player_.scrubbing()) ?
-      this.player_.getCache().currentTime :
-      this.player_.currentTime();
-  }
-
-  /**
-   * We want the seek bar to be full on ended
-   * no matter what the actual internal values are. so we force it.
-   *
-   * @param {EventTarget~Event} [event]
-   *        The `timeupdate` or `ended` event that caused this to run.
-   *
    * @listens Player#ended
    */
-  handleEnded(event) {
-    this.update_(this.player_.duration(), 1);
+  updateProgress(event) {
+    this.updateAriaAttributes(this.el_);
+
+    if (this.keepTooltipsInside) {
+      this.updateAriaAttributes(this.tooltipProgressBar.el_);
+      this.tooltipProgressBar.el_.style.width = this.bar.el_.style.width;
+
+      const playerWidth = parseFloat(computedStyle(this.player().el(), 'width'));
+      const tooltipWidth = parseFloat(computedStyle(this.tooltipProgressBar.tooltip, 'width'));
+      const tooltipStyle = this.tooltipProgressBar.el().style;
+
+      tooltipStyle.maxWidth = Math.floor(playerWidth - (tooltipWidth / 2)) + 'px';
+      tooltipStyle.minWidth = Math.ceil(tooltipWidth / 2) + 'px';
+      tooltipStyle.right = `-${tooltipWidth / 2}px`;
+    }
   }
 
   /**
-   * Get the percentage of media played so far.
+   * Update ARIA accessibility attributes
+   *
+   * @param {Element} el
+   *        The element to update with aria accessibility attributes.
+   */
+  updateAriaAttributes(el) {
+    // Allows for smooth scrubbing, when player can't keep up.
+    const time = (this.player_.scrubbing()) ? this.player_.getCache().currentTime : this.player_.currentTime();
+
+    // machine readable value of progress bar (percentage complete)
+    el.setAttribute('aria-valuenow', (this.getPercent() * 100).toFixed(2));
+    // human readable value of progress bar (time complete)
+    el.setAttribute('aria-valuetext', formatTime(time, this.player_.duration()));
+  }
+
+  /**
+   * Get percentage of video played
    *
    * @return {number}
-   *         The percentage of media played so far (0 to 1).
+   *         The percentage played
    */
   getPercent() {
-    const percent = this.getCurrentTime_() / this.player_.duration();
+    const percent = this.player_.currentTime() / this.player_.duration();
 
     return percent >= 1 ? 1 : percent;
   }
@@ -174,10 +122,6 @@ class SeekBar extends Slider {
    * @listens mousedown
    */
   handleMouseDown(event) {
-    if (!Dom.isSingleLeftClick(event)) {
-      return;
-    }
-
     this.player_.scrubbing(true);
 
     this.videoWasPlaying = !this.player_.paused();
@@ -195,10 +139,6 @@ class SeekBar extends Slider {
    * @listens mousemove
    */
   handleMouseMove(event) {
-    if (!Dom.isSingleLeftClick(event)) {
-      return;
-    }
-
     let newTime = this.calculateDistance(event) * this.player_.duration();
 
     // Don't let video end while scrubbing.
@@ -208,28 +148,6 @@ class SeekBar extends Slider {
 
     // Set new time (tell player to seek to new time)
     this.player_.currentTime(newTime);
-  }
-
-  enable() {
-    super.enable();
-    const mouseTimeDisplay = this.getChild('mouseTimeDisplay');
-
-    if (!mouseTimeDisplay) {
-      return;
-    }
-
-    mouseTimeDisplay.show();
-  }
-
-  disable() {
-    super.disable();
-    const mouseTimeDisplay = this.getChild('mouseTimeDisplay');
-
-    if (!mouseTimeDisplay) {
-      return;
-    }
-
-    mouseTimeDisplay.hide();
   }
 
   /**
@@ -244,15 +162,6 @@ class SeekBar extends Slider {
     super.handleMouseUp(event);
 
     this.player_.scrubbing(false);
-
-    /**
-     * Trigger timeupdate because we're done seeking and the time has changed.
-     * This is particularly useful for if the player is paused to time the time displays.
-     *
-     * @event Tech#timeupdate
-     * @type {EventTarget~Event}
-     */
-    this.player_.trigger({ type: 'timeupdate', target: this, manuallyTriggered: true });
     if (this.videoWasPlaying) {
       this.player_.play();
     }
@@ -262,53 +171,18 @@ class SeekBar extends Slider {
    * Move more quickly fast forward for keyboard-only users
    */
   stepForward() {
-    this.player_.currentTime(this.player_.currentTime() + STEP_SECONDS);
+    // more quickly fast forward for keyboard-only users
+    this.player_.currentTime(this.player_.currentTime() + 5);
   }
 
   /**
    * Move more quickly rewind for keyboard-only users
    */
   stepBack() {
-    this.player_.currentTime(this.player_.currentTime() - STEP_SECONDS);
+    // more quickly rewind for keyboard-only users
+    this.player_.currentTime(this.player_.currentTime() - 5);
   }
 
-  /**
-   * Toggles the playback state of the player
-   * This gets called when enter or space is used on the seekbar
-   *
-   * @param {EventTarget~Event} event
-   *        The `keydown` event that caused this function to be called
-   *
-   */
-  handleAction(event) {
-    if (this.player_.paused()) {
-      this.player_.play();
-    } else {
-      this.player_.pause();
-    }
-  }
-
-  /**
-   * Called when this SeekBar has focus and a key gets pressed down. By
-   * default it will call `this.handleAction` when the key is space or enter.
-   *
-   * @param {EventTarget~Event} event
-   *        The `keydown` event that caused this function to be called.
-   *
-   * @listens keydown
-   */
-  handleKeyPress(event) {
-
-    // Support Space (32) or Enter (13) key operation to fire a click event
-    if (event.which === 32 || event.which === 13) {
-      event.preventDefault();
-      this.handleAction(event);
-    } else if (super.handleKeyPress) {
-
-      // Pass keypress handling up for unsupported keys
-      super.handleKeyPress(event);
-    }
-  }
 }
 
 /**
@@ -320,15 +194,11 @@ class SeekBar extends Slider {
 SeekBar.prototype.options_ = {
   children: [
     'loadProgressBar',
+    'mouseTimeDisplay',
     'playProgressBar'
   ],
   barName: 'playProgressBar'
 };
-
-// MouseTimeDisplay tooltips should not be added to a player on mobile devices or IE8
-if ((!IE_VERSION || IE_VERSION > 8) && !IS_IOS && !IS_ANDROID) {
-  SeekBar.prototype.options_.children.splice(1, 0, 'mouseTimeDisplay');
-}
 
 /**
  * Call the update event for this Slider when this event happens on the player.

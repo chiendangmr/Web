@@ -32,10 +32,8 @@ class HtmlTrackElementList {
     list.trackElements_ = [];
 
     /**
-     * @memberof HtmlTrackElementList
      * @member {number} length
      *         The current number of `Track`s in the this Trackist.
-     * @instance
      */
     Object.defineProperty(list, 'length', {
       get() {

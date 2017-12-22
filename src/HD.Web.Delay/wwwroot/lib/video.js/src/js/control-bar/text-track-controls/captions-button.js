@@ -26,6 +26,7 @@ class CaptionsButton extends TextTrackButton {
    */
   constructor(player, options, ready) {
     super(player, options, ready);
+    this.el_.setAttribute('aria-label', 'Captions Menu');
   }
 
   /**
@@ -36,10 +37,6 @@ class CaptionsButton extends TextTrackButton {
    */
   buildCSSClass() {
     return `vjs-captions-button ${super.buildCSSClass()}`;
-  }
-
-  buildWrapperCSSClass() {
-    return `vjs-captions-button ${super.buildWrapperCSSClass()}`;
   }
 
   /**

@@ -4,8 +4,8 @@
 define(['jquery','js.cookie'], function ($,Cookies) {
 
 	var notifiEnable = Cookies.get('notifiEnable');
-	console.log(typeof notifiEnable);
-	console.log(notifiEnable);
+	//console.log(typeof notifiEnable);
+	//console.log(notifiEnable);
 	if (notifiEnable) {
 		if (notifiEnable == 'true')
 			notifiEnable = true;

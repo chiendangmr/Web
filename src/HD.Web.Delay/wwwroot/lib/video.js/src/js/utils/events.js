@@ -7,7 +7,7 @@
  * @module events
  */
 
-import * as DomData from './dom-data';
+import * as Dom from './dom.js';
 import * as Guid from './guid.js';
 import log from './log.js';
 import window from 'global/window';
@@ -23,7 +23,7 @@ import document from 'global/document';
  *        Type of event to clean up
  */
 function _cleanUpEvents(elem, type) {
-  const data = DomData.getData(elem);
+  const data = Dom.getElData(elem);
 
   // Remove the events of a particular type if there are none left
   if (data.handlers[type].length === 0) {
@@ -48,7 +48,7 @@ function _cleanUpEvents(elem, type) {
 
   // Finally remove the element data if there is no data left
   if (Object.getOwnPropertyNames(data).length === 0) {
-    DomData.removeData(elem);
+    Dom.removeElData(elem);
   }
 }
 
@@ -203,34 +203,6 @@ export function fixEvent(event) {
 }
 
 /**
- * Whether passive event listeners are supported
- */
-let _supportsPassive = false;
-
-(function() {
-  try {
-    const opts = Object.defineProperty({}, 'passive', {
-      get() {
-        _supportsPassive = true;
-      }
-    });
-
-    window.addEventListener('test', null, opts);
-    window.removeEventListener('test', null, opts);
-  } catch (e) {
-    // disregard
-  }
-})();
-
-/**
- * Touch events Chrome expects to be passive
- */
-const passiveEvents = [
-  'touchstart',
-  'touchmove'
-];
-
-/**
  * Add an event listener to element
  * It stores the handler function in a separate cache object
  * and adds a generic handler to the element's event,
@@ -250,7 +222,7 @@ export function on(elem, type, fn) {
     return _handleMultipleEvents(on, elem, type, fn);
   }
 
-  const data = DomData.getData(elem);
+  const data = Dom.getElData(elem);
 
   // We need a place to store all our handler data
   if (!data.handlers) {
@@ -301,13 +273,7 @@ export function on(elem, type, fn) {
 
   if (data.handlers[type].length === 1) {
     if (elem.addEventListener) {
-      let options = false;
-
-      if (_supportsPassive &&
-        passiveEvents.indexOf(type) > -1) {
-        options = {passive: true};
-      }
-      elem.addEventListener(type, data.dispatcher, options);
+      elem.addEventListener(type, data.dispatcher, false);
     } else if (elem.attachEvent) {
       elem.attachEvent('on' + type, data.dispatcher);
     }
@@ -329,11 +295,11 @@ export function on(elem, type, fn) {
  */
 export function off(elem, type, fn) {
   // Don't want to add a cache object through getElData if not needed
-  if (!DomData.hasData(elem)) {
+  if (!Dom.hasElData(elem)) {
     return;
   }
 
-  const data = DomData.getData(elem);
+  const data = Dom.getElData(elem);
 
   // If no events exist, nothing to unbind
   if (!data.handlers) {
@@ -345,17 +311,15 @@ export function off(elem, type, fn) {
   }
 
   // Utility function
-  const removeType = function(el, t) {
+  const removeType = function(t) {
     data.handlers[t] = [];
-    _cleanUpEvents(el, t);
+    _cleanUpEvents(elem, t);
   };
 
   // Are we removing all bound events?
-  if (type === undefined) {
+  if (!type) {
     for (const t in data.handlers) {
-      if (Object.prototype.hasOwnProperty.call(data.handlers || {}, t)) {
-        removeType(elem, t);
-      }
+      removeType(t);
     }
     return;
   }
@@ -369,7 +333,7 @@ export function off(elem, type, fn) {
 
   // If no listener was provided, remove all listeners for type
   if (!fn) {
-    removeType(elem, type);
+    removeType(type);
     return;
   }
 
@@ -405,7 +369,7 @@ export function trigger(elem, event, hash) {
   // Fetches element data and a reference to the parent (for bubbling).
   // Don't want to add a data object to cache for every parent,
   // so checking hasElData first.
-  const elemData = (DomData.hasData(elem)) ? DomData.getData(elem) : {};
+  const elemData = (Dom.hasElData(elem)) ? Dom.getElData(elem) : {};
   const parent = elem.parentNode || elem.ownerDocument;
       // type = event.type || event,
       // handler;
@@ -429,7 +393,7 @@ export function trigger(elem, event, hash) {
 
   // If at the top of the DOM, triggers the default action unless disabled.
   } else if (!parent && !event.defaultPrevented) {
-    const targetData = DomData.getData(event.target);
+    const targetData = Dom.getElData(event.target);
 
     // Checks if the target has a default action for this event.
     if (event.target[event.type]) {

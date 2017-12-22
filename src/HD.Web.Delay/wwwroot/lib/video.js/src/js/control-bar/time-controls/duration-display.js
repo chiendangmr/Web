@@ -1,15 +1,16 @@
 /**
  * @file duration-display.js
  */
-import TimeDisplay from './time-display';
 import Component from '../../component.js';
+import * as Dom from '../../utils/dom.js';
+import formatTime from '../../utils/format-time.js';
 
 /**
  * Displays the duration
  *
  * @extends Component
  */
-class DurationDisplay extends TimeDisplay {
+class DurationDisplay extends Component {
 
   /**
    * Creates an instance of this class.
@@ -23,25 +24,37 @@ class DurationDisplay extends TimeDisplay {
   constructor(player, options) {
     super(player, options);
 
-    // we do not want to/need to throttle duration changes,
-    // as they should always display the changed duration as
-    // it has changed
     this.on(player, 'durationchange', this.updateContent);
 
-    // Also listen for timeupdate (in the parent) and loadedmetadata because removing those
+    // Also listen for timeupdate and loadedmetadata because removing those
     // listeners could have broken dependent applications/libraries. These
-    // can likely be removed for 7.0.
-    this.on(player, 'loadedmetadata', this.throttledUpdateContent);
+    // can likely be removed for 6.0.
+    this.on(player, 'timeupdate', this.updateContent);
+    this.on(player, 'loadedmetadata', this.updateContent);
   }
 
   /**
-   * Builds the default DOM `className`.
+   * Create the `Component`'s DOM element
    *
-   * @return {string}
-   *         The DOM `className` for this object.
+   * @return {Element}
+   *         The element that was created.
    */
-  buildCSSClass() {
-    return 'vjs-duration';
+  createEl() {
+    const el = super.createEl('div', {
+      className: 'vjs-duration vjs-time-control vjs-control'
+    });
+
+    this.contentEl_ = Dom.createEl('div', {
+      className: 'vjs-duration-display',
+      // label the duration time for screen reader users
+      innerHTML: `<span class="vjs-control-text">${this.localize('Duration Time')}</span> 0:00`
+    }, {
+      // tell screen readers not to automatically read the time as it changes
+      'aria-live': 'off'
+    });
+
+    el.appendChild(this.contentEl_);
+    return el;
   }
 
   /**
@@ -60,18 +73,15 @@ class DurationDisplay extends TimeDisplay {
 
     if (duration && this.duration_ !== duration) {
       this.duration_ = duration;
-      this.updateFormattedTime_(duration);
+      const localizedText = this.localize('Duration Time');
+      const formattedTime = formatTime(duration);
+
+      // label the duration time for screen reader users
+      this.contentEl_.innerHTML = `<span class="vjs-control-text">${localizedText}</span> ${formattedTime}`;
     }
   }
-}
 
-/**
- * The text that should display over the `DurationDisplay`s controls. Added to for localization.
- *
- * @type {string}
- * @private
- */
-DurationDisplay.prototype.controlText_ = 'Duration Time';
+}
 
 Component.registerComponent('DurationDisplay', DurationDisplay);
 export default DurationDisplay;

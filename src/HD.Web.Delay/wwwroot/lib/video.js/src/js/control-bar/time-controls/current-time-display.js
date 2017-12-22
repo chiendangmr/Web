@@ -1,15 +1,16 @@
 /**
  * @file current-time-display.js
  */
-import TimeDisplay from './time-display';
 import Component from '../../component.js';
+import * as Dom from '../../utils/dom.js';
+import formatTime from '../../utils/format-time.js';
 
 /**
  * Displays the current time
  *
  * @extends Component
  */
-class CurrentTimeDisplay extends TimeDisplay {
+class CurrentTimeDisplay extends Component {
 
   /**
    * Creates an instance of this class.
@@ -22,17 +23,32 @@ class CurrentTimeDisplay extends TimeDisplay {
    */
   constructor(player, options) {
     super(player, options);
-    this.on(player, 'ended', this.handleEnded);
+
+    this.on(player, 'timeupdate', this.updateContent);
   }
 
   /**
-   * Builds the default DOM `className`.
+   * Create the `Component`'s DOM element
    *
-   * @return {string}
-   *         The DOM `className` for this object.
+   * @return {Element}
+   *         The element that was created.
    */
-  buildCSSClass() {
-    return 'vjs-current-time';
+  createEl() {
+    const el = super.createEl('div', {
+      className: 'vjs-current-time vjs-time-control vjs-control'
+    });
+
+    this.contentEl_ = Dom.createEl('div', {
+      className: 'vjs-current-time-display',
+      // label the current time for screen reader users
+      innerHTML: '<span class="vjs-control-text">Current Time </span>' + '0:00'
+    }, {
+      // tell screen readers not to automatically read the time as it changes
+      'aria-live': 'off'
+    });
+
+    el.appendChild(this.contentEl_);
+    return el;
   }
 
   /**
@@ -46,36 +62,16 @@ class CurrentTimeDisplay extends TimeDisplay {
   updateContent(event) {
     // Allows for smooth scrubbing, when player can't keep up.
     const time = (this.player_.scrubbing()) ? this.player_.getCache().currentTime : this.player_.currentTime();
+    const localizedText = this.localize('Current Time');
+    const formattedTime = formatTime(time, this.player_.duration());
 
-    this.updateFormattedTime_(time);
-  }
-
-  /**
-   * When the player fires ended there should be no time left. Sadly
-   * this is not always the case, lets make it seem like that is the case
-   * for users.
-   *
-   * @param {EventTarget~Event} [event]
-   *        The `ended` event that caused this to run.
-   *
-   * @listens Player#ended
-   */
-  handleEnded(event) {
-    if (!this.player_.duration()) {
-      return;
+    if (formattedTime !== this.formattedTime_) {
+      this.formattedTime_ = formattedTime;
+      this.contentEl_.innerHTML = `<span class="vjs-control-text">${localizedText}</span> ${formattedTime}`;
     }
-    this.updateFormattedTime_(this.player_.duration());
   }
 
 }
-
-/**
- * The text that should display over the `CurrentTimeDisplay`s controls. Added to for localization.
- *
- * @type {string}
- * @private
- */
-CurrentTimeDisplay.prototype.controlText_ = 'Current Time';
 
 Component.registerComponent('CurrentTimeDisplay', CurrentTimeDisplay);
 export default CurrentTimeDisplay;

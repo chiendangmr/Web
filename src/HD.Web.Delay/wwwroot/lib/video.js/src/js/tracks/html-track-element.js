@@ -8,7 +8,6 @@ import EventTarget from '../event-target';
 import TextTrack from '../tracks/text-track';
 
 /**
- * @memberof HTMLTrackElement
  * @typedef {HTMLTrackElement~ReadyState}
  * @enum {number}
  */
@@ -84,10 +83,8 @@ class HTMLTrackElement extends EventTarget {
     trackElement.default = track.default;
 
     /**
-     * @memberof HTMLTrackElement
      * @member {HTMLTrackElement~ReadyState} readyState
      *         The current ready state of the track element.
-     * @instance
      */
     Object.defineProperty(trackElement, 'readyState', {
       get() {
@@ -96,11 +93,8 @@ class HTMLTrackElement extends EventTarget {
     });
 
     /**
-     * @memberof HTMLTrackElement
      * @member {TextTrack} track
      *         The underlying TextTrack object.
-     * @instance
-     *
      */
     Object.defineProperty(trackElement, 'track', {
       get() {

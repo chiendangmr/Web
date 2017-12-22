@@ -55,8 +55,6 @@ function constructColor(color, opacity) {
  *
  * @param {string} rule
  *        The style rule that should be applied to the property.
- *
- * @private
  */
 function tryUpdateStyle(el, style, rule) {
   try {
@@ -92,7 +90,6 @@ class TextTrackDisplay extends Component {
 
     player.on('loadstart', Fn.bind(this, this.toggleDisplay));
     player.on('texttrackchange', Fn.bind(this, this.updateDisplay));
-    player.on('loadstart', Fn.bind(this, this.preselectTrack));
 
     // This used to be called during player init, but was causing an error
     // if a track should show by default and the display hadn't loaded yet.
@@ -112,66 +109,35 @@ class TextTrackDisplay extends Component {
         this.player_.addRemoteTextTrack(tracks[i], true);
       }
 
-      this.preselectTrack();
-    }));
-  }
+      const modes = {captions: 1, subtitles: 1};
+      const trackList = this.player_.textTracks();
+      let firstDesc;
+      let firstCaptions;
 
-  /**
-  * Preselect a track following this precedence:
-  * - matches the previously selected {@link TextTrack}'s language and kind
-  * - matches the previously selected {@link TextTrack}'s language only
-  * - is the first default captions track
-  * - is the first default descriptions track
-  *
-  * @listens Player#loadstart
-  */
-  preselectTrack() {
-    const modes = {captions: 1, subtitles: 1};
-    const trackList = this.player_.textTracks();
-    const userPref = this.player_.cache_.selectedLanguage;
-    let firstDesc;
-    let firstCaptions;
-    let preferredTrack;
+      if (trackList) {
+        for (let i = 0; i < trackList.length; i++) {
+          const track = trackList[i];
 
-    for (let i = 0; i < trackList.length; i++) {
-      const track = trackList[i];
-
-      if (userPref && userPref.enabled &&
-        userPref.language === track.language) {
-        // Always choose the track that matches both language and kind
-        if (track.kind === userPref.kind) {
-          preferredTrack = track;
-        // or choose the first track that matches language
-        } else if (!preferredTrack) {
-          preferredTrack = track;
+          if (track.default) {
+            if (track.kind === 'descriptions' && !firstDesc) {
+              firstDesc = track;
+            } else if (track.kind in modes && !firstCaptions) {
+              firstCaptions = track;
+            }
+          }
         }
 
-      // clear everything if offTextTrackMenuItem was clicked
-      } else if (userPref && !userPref.enabled) {
-        preferredTrack = null;
-        firstDesc = null;
-        firstCaptions = null;
-
-      } else if (track.default) {
-        if (track.kind === 'descriptions' && !firstDesc) {
-          firstDesc = track;
-        } else if (track.kind in modes && !firstCaptions) {
-          firstCaptions = track;
+        // We want to show the first default track but captions and subtitles
+        // take precedence over descriptions.
+        // So, display the first default captions or subtitles track
+        // and otherwise the first default descriptions track.
+        if (firstCaptions) {
+          firstCaptions.mode = 'showing';
+        } else if (firstDesc) {
+          firstDesc.mode = 'showing';
         }
       }
-    }
-
-    // The preferredTrack matches the user preference and takes
-    // precendence over all the other tracks.
-    // So, display the preferredTrack before the first default track
-    // and the subtitles/captions track before the descriptions track
-    if (preferredTrack) {
-      preferredTrack.mode = 'showing';
-    } else if (firstCaptions) {
-      firstCaptions.mode = 'showing';
-    } else if (firstDesc) {
-      firstDesc.mode = 'showing';
-    }
+    }));
   }
 
   /**
@@ -226,12 +192,17 @@ class TextTrackDisplay extends Component {
 
     this.clearDisplay();
 
+    if (!tracks) {
+      return;
+    }
+
     // Track display prioritization model: if multiple tracks are 'showing',
     //  display the first 'subtitles' or 'captions' track which is 'showing',
     //  otherwise display the first 'descriptions' track which is 'showing'
 
     let descriptionsTrack = null;
     let captionsSubtitlesTrack = null;
+
     let i = tracks.length;
 
     while (i--) {

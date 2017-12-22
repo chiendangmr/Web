@@ -1,4 +1,4 @@
-define(['jquery', 'js.cookie', 'toolkit', 'jquery.validate', 'jquery.validate.unobtrusive', 'blockUI'], function ($, Cookies) {
+define(['jquery', 'js.cookie', 'toolkit', 'jquery.validate', 'jquery.validate.unobtrusive'], function ($, Cookies) {
     var validatorOptions = {
         validClass: 'has-success',
         errorClass: 'has-error',
@@ -26,16 +26,5 @@ define(['jquery', 'js.cookie', 'toolkit', 'jquery.validate', 'jquery.validate.un
             Cookies.set(".AspNetCore.Culture", cookie, { path: '/' });
             window.location.reload();
         });
-    });
-
-    window._enableBlockUI = true;
-    $.blockUI.defaults.fadeOut = 200;
-    $(document).ajaxStart(function(){
-    	if (window._enableBlockUI)
-    		$.blockUI()
-    }).ajaxStop(function(){
-    	if (window._enableBlockUI)
-    		$.unblockUI()
-    });
+    });    
 });
-//# sourceMappingURL=hd.js.map

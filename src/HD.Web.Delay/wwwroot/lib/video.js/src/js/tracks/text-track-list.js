@@ -50,9 +50,10 @@ class TextTrackList extends TrackList {
    *        The text track to add to the list.
    *
    * @fires TrackList#addtrack
+   * @private
    */
-  addTrack(track) {
-    super.addTrack(track);
+  addTrack_(track) {
+    super.addTrack_(track);
 
     /**
      * @listens TextTrack#modechange
@@ -61,14 +62,6 @@ class TextTrackList extends TrackList {
     track.addEventListener('modechange', Fn.bind(this, function() {
       this.trigger('change');
     }));
-
-    const nonLanguageTextTrackKind = ['metadata', 'chapters'];
-
-    if (nonLanguageTextTrackKind.indexOf(track.kind) === -1) {
-      track.addEventListener('modechange', Fn.bind(this, function() {
-        this.trigger('selectedlanguagechange');
-      }));
-    }
   }
 }
 export default TextTrackList;

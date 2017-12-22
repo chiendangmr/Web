@@ -51,7 +51,6 @@ class ClickableComponent extends Component {
    */
   createEl(tag = 'div', props = {}, attributes = {}) {
     props = assign({
-      innerHTML: '<span aria-hidden="true" class="vjs-icon-placeholder"></span>',
       className: this.buildCSSClass(),
       tabIndex: 0
     }, props);
@@ -75,13 +74,6 @@ class ClickableComponent extends Component {
     this.createControlTextEl(el);
 
     return el;
-  }
-
-  dispose() {
-    // remove controlTextEl_ on dipose
-    this.controlTextEl_ = null;
-
-    super.dispose();
   }
 
   /**
@@ -116,22 +108,26 @@ class ClickableComponent extends Component {
    * @param {Element} [el=this.el()]
    *        Element to set the title on.
    *
-   * @return {string}
+   * @return {string|ClickableComponent}
    *         - The control text when getting
+   *         - Returns itself when setting; method can be chained.
    */
   controlText(text, el = this.el()) {
-    if (text === undefined) {
+    if (!text) {
       return this.controlText_ || 'Need Text';
     }
 
     const localizedText = this.localize(text);
 
     this.controlText_ = text;
-    Dom.textContent(this.controlTextEl_, localizedText);
+    this.controlTextEl_.innerHTML = localizedText;
+
     if (!this.nonIconControl) {
       // Set title attribute if only an icon is shown
       el.setAttribute('title', localizedText);
     }
+
+    return this;
   }
 
   /**
@@ -146,34 +142,40 @@ class ClickableComponent extends Component {
 
   /**
    * Enable this `Component`s element.
+   *
+   * @return {ClickableComponent}
+   *         Returns itself; method can be chained.
    */
   enable() {
-    if (!this.enabled_) {
-      this.enabled_ = true;
-      this.removeClass('vjs-disabled');
-      this.el_.setAttribute('aria-disabled', 'false');
-      if (typeof this.tabIndex_ !== 'undefined') {
-        this.el_.setAttribute('tabIndex', this.tabIndex_);
-      }
-      this.on(['tap', 'click'], this.handleClick);
-      this.on('focus', this.handleFocus);
-      this.on('blur', this.handleBlur);
+    this.removeClass('vjs-disabled');
+    this.el_.setAttribute('aria-disabled', 'false');
+    if (typeof this.tabIndex_ !== 'undefined') {
+      this.el_.setAttribute('tabIndex', this.tabIndex_);
     }
+    this.on('tap', this.handleClick);
+    this.on('click', this.handleClick);
+    this.on('focus', this.handleFocus);
+    this.on('blur', this.handleBlur);
+    return this;
   }
 
   /**
    * Disable this `Component`s element.
+   *
+   * @return {ClickableComponent}
+   *         Returns itself; method can be chained.
    */
   disable() {
-    this.enabled_ = false;
     this.addClass('vjs-disabled');
     this.el_.setAttribute('aria-disabled', 'true');
     if (typeof this.tabIndex_ !== 'undefined') {
       this.el_.removeAttribute('tabIndex');
     }
-    this.off(['tap', 'click'], this.handleClick);
+    this.off('tap', this.handleClick);
+    this.off('click', this.handleClick);
     this.off('focus', this.handleFocus);
     this.off('blur', this.handleBlur);
+    return this;
   }
 
   /**
@@ -228,7 +230,7 @@ class ClickableComponent extends Component {
     // Support Space (32) or Enter (13) key operation to fire a click event
     if (event.which === 32 || event.which === 13) {
       event.preventDefault();
-      this.trigger('click');
+      this.handleClick(event);
     } else if (super.handleKeyPress) {
 
       // Pass keypress handling up for unsupported keys

@@ -16,9 +16,8 @@ class Button extends ClickableComponent {
   /**
    * Create the `Button`s DOM element.
    *
-   * @param {string} [tag="button"]
-   *        The element's node type. This argument is IGNORED: no matter what
-   *        is passed, it will always create a `button` element.
+   * @param {string} [tag=button]
+   *        Element's node type. e.g. 'button'
    *
    * @param {Object} [props={}]
    *        An object of properties that should be set on the element.
@@ -29,13 +28,24 @@ class Button extends ClickableComponent {
    * @return {Element}
    *         The element that gets created.
    */
-  createEl(tag, props = {}, attributes = {}) {
-    tag = 'button';
-
+  createEl(tag = 'button', props = {}, attributes = {}) {
     props = assign({
-      innerHTML: '<span aria-hidden="true" class="vjs-icon-placeholder"></span>',
       className: this.buildCSSClass()
     }, props);
+
+    if (tag !== 'button') {
+      log.warn(`Creating a Button with an HTML element of ${tag} is deprecated; use ClickableComponent instead.`);
+
+      // Add properties for clickable element which is not a native HTML button
+      props = assign({
+        tabIndex: 0
+      }, props);
+
+      // Add ARIA attributes for clickable element which is not a native HTML button
+      attributes = assign({
+        role: 'button'
+      }, attributes);
+    }
 
     // Add attributes for button element
     attributes = assign({

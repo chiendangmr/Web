@@ -10,26 +10,26 @@ The architecture of the Video.js player is centered around components. The `Play
   * [Basic Example](#basic-example)
   * [Using Options](#using-options)
 * [Event Listening](#event-listening)
-  * [Using on](#using-on)
+  * [using on](#using-on)
   * [Using off](#using-off)
   * [Using one](#using-one)
   * [Using trigger](#using-trigger)
 * [Default Component Tree](#default-component-tree)
 * [Specific Component Details](#specific-component-details)
-  * [Volume Panel](#volume-panel)
+  * [Progress Control](#progress-control)
   * [Text Track Settings](#text-track-settings)
 
 ## What is a Component?
 
 A component is a JavaScript object that has the following features:
 
-* An associated DOM element, in almost all cases.
+* An associated DOM element.
 * An association to a `Player` object.
 * The ability to manage any number of child components.
 * The ability to listen for and trigger events.
 * A lifecycle of initialization and disposal.
 
-For more specifics on the programmatic interface of a component, see [the component API docs][api].
+For more specifics on the programmatic interface of a component, see [the component API docs](http://docs.videojs.com/docs/api/component.html).
 
 ## Creating a Component
 
@@ -75,7 +75,7 @@ console.log(button.el());
 
 ## Component Children
 
-Again, refer to [the component API docs][api] for complete details on methods available for managing component structures.
+Again, refer to [the component API docs](http://docs.videojs.com/docs/api/component.html) for complete details on methods available for managing component structures.
 
 ### Basic Example
 
@@ -195,8 +195,8 @@ myComponent.trigger('eventType');
 // does nothing
 ```
 
-If myFunc gets excluded, _all_ listeners for the event type will get removed. If
-eventType gets excluded, _all_ listeners will get removed from the component.
+If myFunc gets excluded, *all* listeners for the event type will get removed. If
+eventType gets excluded, *all* listeners will get removed from the component.
 You can use `off` to remove listeners that get added to other elements or
 components using:
 
@@ -285,14 +285,13 @@ The default component structure of the Video.js player looks something like this
 
 ```tree
 Player
-├── MediaLoader (has no DOM element)
 ├── PosterImage
 ├── TextTrackDisplay
 ├── LoadingSpinner
 ├── BigPlayButton
 ├─┬ ControlBar
 │ ├── PlayToggle
-│ ├── VolumePanel
+│ ├── VolumeMenuButton
 │ ├── CurrentTimeDisplay (hidden by default)
 │ ├── TimeDivider (hidden by default)
 │ ├── DurationDisplay (hidden by default)
@@ -317,24 +316,24 @@ Player
 
 ## Specific Component Details
 
-### Volume Panel
+### Progress Control
 
-The `VolumePanel` includes the `MuteToggle` and the `VolumeControl` Components, which will be hidden if volume changes are not supported. There is one important option for the `VolumePanel` which can make your `VolumeControl` appear vertically over the `MuteToggle`. This can be set by passing `VolumePanel` `{inline: false}` as the default behavior is a horizontal `VolumeControl` with `{inline: true}`.
+The progress control has a grandchild component, the mouse time display, which shows a time tooltip that follows the mouse cursor.
 
-Example of a vertical `VolumeControl`
+By default, the progress control is sandwiched inside the control bar between the volume menu button and the remaining time display. Some skins attempt to move the it above the control bar and have it span the full width of the player. In these cases, it is less than ideal to have the tooltips leave the bounds of the player. This can be prevented by setting the `keepTooltipsInside` option on the progress control.
 
 ```js
 let player = videojs('myplayer', {
   controlBar: {
-    volumePanel: {
-      inline: false
+    progressControl: {
+      keepTooltipsInside: true
     }
   }
 });
 ```
 
+> **Note:** This makes the tooltips use a real element instead of pseudo-elements so targeting them with CSS is different.
+
 ### Text Track Settings
 
 The text track settings component is only available when using emulated text tracks.
-
-[api]: http://docs.videojs.com/Component.html

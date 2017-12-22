@@ -1,6 +1,6 @@
 # [Video.js][vjs-website] Documentation
 
-There are two categories of docs: [Guides](/docs/guides/) and [API docs][api].
+There are two categories of docs: [Guides](guides) and [API docs][api].
 
 Guides explain general topics and use cases (e.g. setup). API docs are automatically generated from the codebase and give specific details about functions, properties, and events.
 
@@ -26,57 +26,57 @@ Guides explain general topics and use cases (e.g. setup). API docs are automatic
 
 ## Resolving Issues
 
-### [FAQ](/docs/guides/faq.md)
+### [FAQ](guides/faq.md)
 
-The frequently asked questions for Video.js.
+The frequently asked questions for video.js.
 
-### [Troubleshooting](/docs/guides/troubleshooting.md)
+### [Troubleshooting](guides/troubleshooting.md)
 
-Troubleshooting help for Video.js.
+Troubleshooting help for video.js.
 
-## [Guides](/docs/guides/)
+## [Guides](guides)
 
 ### Getting Started
 
-#### [Setup](/docs/guides/setup.md)
+#### [Setup](guides/setup.md)
 
 The setup guide covers all methods of setting up Video.js players.
 
-#### [Player Workflows](/docs/guides/player-workflows.md)
+#### [Player Workflows](guides/player-workflows.md)
 
 After mastering the basics of setup move over to this guide for some more advanced player workflows.
 
-#### [Options](/docs/guides/options.md)
+#### [Options](guides/options.md)
 
 There are a number of options that can be used to change how the player behaves, starting with the HTML5 media options like autoplay and preload, and expanding to Video.js specific options.
 
-#### [Tracks](/docs/guides/tracks.md)
+#### [Tracks](guides/tracks.md)
 
 Tracks are used for displaying text information over a video, selecting different audio tracks for a video, or selecting different video tracks.
 
 ### Customizing
 
-#### [Skins](/docs/guides/skins.md)
+#### [Skins](guides/skins.md)
 
-You can change the look of the player across playback technologies just by editing a CSS file. The skins documentation gives you a intro to how the HTML and CSS of the default skin is put together. For a list of skins you can check the [Video.js wiki][skins-list].
+You can change the look of the player across playback technologies just by editing a CSS file. The skins documentation gives you a intro to how the HTML and CSS of the default skin is put together. For a list of skins you can check the [video.js wiki][skins-list].
 
-#### [Plugins](/docs/guides/plugins.md)
+#### [Plugins](guides/plugins.md)
 
 You can package up interesting Video.js customizations and reuse them elsewhere. Find out how to build your own plugin or [use one created by someone else][plugins-list].
 
-#### [Components](/docs/guides/components.md)
+#### [Components](guides/components.md)
 
 Video.js is built around a collection of components. These are the building blocks of the player UI.
 
-#### [Tech](/docs/guides/tech.md)
+#### [Tech](guides/tech.md)
 
 A "tech" is the shorthand we're using to describe any video playback technology - be it HTML5 video, Flash, . Basically anything that has a unique API to audio or video. Additional playback technologies can be added relatively easily.
 
-#### [Languages](/docs/guides/languages.md)
+#### [Languages](guides/languages.md)
 
 Video.js has multi-language support! Follow this guide to see how you can contribute to and use languages.
 
-#### [Hooks](/docs/guides/hooks.md)
+#### [Hooks](guides/hooks.md)
 
 A "hook" is functionality that wants to do when videojs creates a player. Right now only `beforesetup` and `setup` are supported. See the guide for more information on that.
 
@@ -88,8 +88,8 @@ You can refer to the [full list of API docs][api], but the most relevant API doc
 
 [skins-list]: https://github.com/videojs/video.js/wiki/Skins
 
-[api]: http://docs.videojs.com/
+[api]: http://docs.videojs.com/docs/api/index.html
 
-[api-player]: http://docs.videojs.com/Player.html
+[api-player]: http://docs.videojs.com/docs/api/player.html
 
 [vjs-website]: http://videojs.com

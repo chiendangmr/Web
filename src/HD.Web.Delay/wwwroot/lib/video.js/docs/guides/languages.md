@@ -1,9 +1,8 @@
 # Languages
 
-Video.js includes localization support to present text in a language other than the default English where appropriate.
+Multiple language support allows for users of non-English locales to natively interact with the Video.js player.
 
-For an up-to-date list of the languages Video.js supports, see the [languages folder (`lang`)][lang-supported].
-Some translations may be less complete than others - see the [translations needed doc][translations-needed] for a table of strings that are missing from the translations available.  Contributions are welcome to update those that are incomplete.
+For an up-to-date list of the languages Video.js supports, see the [languages folder (`lang`)][lang-supported]. These JSON files are converted to JavaScript during the Video.js build process.
 
 ## Table of Contents
 
@@ -23,9 +22,7 @@ Some translations may be less complete than others - see the [translations neede
 
 ## Using Video.js Languages
 
-Video.js ships with multiple translations (in `dist/lang/`) in JavaScript files.
-Add the lang script for each language you need to support.
-Each of these files can be included in a web page to provide support for that language in _all_ Video.js players:
+Video.js ships with multiple translations (in `dist/lang/`) in JavaScript files. Each of these files can be included in a web page to provide support for that language in _all_ Video.js players:
 
 ```html
 <script src="//example.com/path/to/video.min.js"></script>
@@ -34,7 +31,7 @@ Each of these files can be included in a web page to provide support for that la
 
 ## Contributing to Video.js Translations
 
-We welcome new translations and improvements to existing ones! Please see the [contributing document](../../CONTRIBUTING.md) to get started contributing to Video.js and continue reading for specifics on how to contribute to translations of Video.js.
+We welcome new translations and improvements to existing ones! Please see the [contributing document](../../CONTRIBUTING.md) to get started contributing to Video.js and continue reading for specifics on how to contribute to translations of Video.js...
 
 ### JSON Format
 
@@ -53,18 +50,20 @@ Video.js uses a JSON object to describe a language, where the keys are English a
 
 ### File Naming
 
-Translations are found in the `lang/` directory.
+Translations are always found in the `lang/` directory.
 
-Each file's name should be the [standard language code][lang-codes] that is most appropriate, with a `.json` extension. For example, "es.json" for Spanish or "zh-CN.json" for simplified Chinese.
+Each file's name should be the [standard language code][lang-codes] that is most appropriate. For example, "es" for Spanish or "zh-CN" for Chinese.
+
+Finally, each file's extension is always `.json`.
 
 ### Updating an Existing Translation
 
-If there is a [missing translation](/docs/translations-needed.md), mistake, or room for improvement in an existing translation, don't hesitate to open a pull request!
+If there is a [missing translation](../translations-needed.md), mistake, or room for improvement in an existing translation, don't hesitate to open a pull request!
 
 1. Edit the relevant JSON file and make the necessary changes.
 1. Verify the language compiles by running `grunt dist`.
 1. Verify the translation appears properly in the player UI.
-1. Run `grunt check-translations` to update the [missing translation document](/docs/translations-needed.md).
+1. Run `grunt check-translations` to update the [missing translation document](../translations-needed.md).
 1. Commit and open a pull request on GitHub.
 
 ### Writing a New Translation
@@ -81,14 +80,20 @@ cp lang/en.json lang/${NEW_LANG_CODE}.json
 
 Otherwise, the process is the same as [updating an existing translation](#updating-an-existing-translation).
 
+## Advanced Language Usage
+
+The instructions above for [using Video.js languages](#using-videojs-languages) should be sufficient for the majority of use-cases. However, languages can be provided at runtime.
+
+In each case, these custom language definitions _take precedence over any Video.js-provided languages!_
+
 ### Adding Languages via the API
 
 In addition to the stand-alone scripts provided by Video.js, the API supports manual definition of new languages via the `addLanguage` method. It takes two arguments: the [standard language code][lang-codes] and a [language definition object](#json-format).
 
 ```js
 videojs.addLanguage('es', {
-  Play: 'Reproducción',
-  Pause: 'Pausa',
+  'Play': 'Reproducción',
+  'Pause': 'Pausa',
   'Current Time': 'Tiempo reproducido',
   'Duration Time': 'Duración total',
   'Remaining Time': 'Tiempo restante',
@@ -96,44 +101,39 @@ videojs.addLanguage('es', {
 });
 ```
 
-`addLanguage()` will overwrite existing translations if the object includes strings previously translated. However text that has already been localised will not be updated after generation.
+### Per-Player Languages
 
-### Per-Player Translations
-
-In addition to providing languages to Video.js itself, individual `Player` instances can be provided custom language support via [the `languages` option](/docs/guides/options.md#languages):
+In addition to providing languages to Video.js itself, individual `Player` instances can be provided custom language support via [the `languages` option](options.md#languages):
 
 ```js
 // Provide a custom definition of Spanish to this player.
 videojs('my-player', {
   languages: {
-    es: {
-      Play: 'Reproducir'
-    }
+    es: {...}
   }
 });
 ```
 
-### Setting Player Language
+### Setting Default Player Language
 
-The language used by a player instance may be set via [the `language` option](/docs/guides/options.md#language):
+Player instances can also have a default language via [the `language` option](options.md#language):
 
 ```js
-// Set the language to Spanish for this player.
+// Set the default language to Spanish for this player.
 videojs('my-player', {
   language: 'es'
 });
 ```
 
-The `language` method of the player _can_ be used to set the language after instantiation with `language('es')`. However, this is generally not useful as it does not update text that is already in place.
+Additionally, the `language` method of the player can be used to set the language after instantiation (e.g., `language('es')`). However, this is not recommended as it does not update the UI in place. _Setting the language via options is always preferred._
 
 ### Determining Player Language
 
 The player language is set to one of the following in descending priority:
 
 * The language [specified in options](#setting-default-player-language)
-* The language specified by a `lang` attribute on the player element.
-* The language specified by the closest parent element with a `lang` attribute, up to and including the `<html>` element.
-* The browser language preference; the first language if more than one is configured
+* The language specified by the closest element with a `lang` attribute. This could be the player itself or a parent element. Usually, the document language is specified on the `<html>` tag.
+* Browser language preference; the first language if more than one is configured
 * English
 
 #### Internal Language Selection
@@ -143,16 +143,14 @@ The player language is set to one of the following in descending priority:
 
 ## References
 
-For information on translation/localization in plugins, see [the plugins guide](/docs/guides/plugins.md).
+For information on translation/localization in plugins, see [the plugins guide](plugins.md).
 
 Standard languages codes [are defined by the IANA][lang-codes].
 
-For all existing/supported languages, please see the [languages folder (`lang/`)][lang-supported] folder located in the project root.
+For all existing/supported languages, please see the [languages lolder (`lang/`)][lang-supported] folder located in the project root.
 
-[lang-en]: /lang/en.json
+[lang-en]: https://github.com/videojs/video.js/tree/master/lang/en.json
 
-[lang-supported]: /lang
+[lang-supported]: https://github.com/videojs/video.js/tree/master/lang
 
 [lang-codes]: http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
-
-[translations-needed]: https://github.com/videojs/video.js/blob/master/docs/translations-needed.md

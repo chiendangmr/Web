@@ -5,14 +5,14 @@
 * [videojs()](#videojs)
 * [options](#options)
 * [getComponent()](#getcomponent)
-* [registerComponent()](#registercomponent)
+* [registerComponent](#registercomponent)
 * [getTech()](#gettech)
-* [registerTech()](#registertech)
+* [registerTech](#registertech)
 * [extend()](#extend)
 * [mergeOptions()](#mergeoptions)
 * [bind()](#bind)
-* [registerPlugin()](#plugin)
-* [xhr()](#xhr)
+* [plugin()](#plugin)
+* [xhr](#xhr)
 
 ## `videojs()`
 
@@ -43,9 +43,9 @@ var VjsButton = videojs.getComponent('Button');
 // Subclass the component (see 'extend' doc for more info)
 var MySpecialButton = videojs.extend(VjsButton, {});
 // Register the new component
-videojs.registerComponent('MySpecialButton', MySpecialButton);
+VjsButton.registerComponent('MySepcialButton', MySepcialButton);
 // (optionally) add the new component as a default player child
-myPlayer.addChild('MySpecialButton');
+myPlayer.addChild('MySepcialButton');
 ```
 
 ## `getTech()`
@@ -63,7 +63,7 @@ var html5 = new Html5(options);
 var Html5 = videojs.getTech('Html5');
 var MyTech = videojs.extend(Html5, {});
 // Register the new Tech
-videojs.registerTech('MyTech', MyTech);
+VjsButton.registerTech('Tech', MyTech);
 var player = videojs('myplayer', {
   techOrder: ['myTech', 'html5']
 });
@@ -126,13 +126,13 @@ videojs.bind(someObj, function() {
 });
 ```
 
-## `registerPlugin()`
+## `plugin()`
 
-**See the [plugin guide](/docs/guides/plugins.md) in the docs for a more detailed example**
+**See the [plugin guide](plugins.md) in the docs for a more detailed example**
 
 ```js
 // Make a plugin that alerts when the player plays
-videojs.registerPlugin('myPlugin', function(myPluginOptions) {
+videojs.plugin('myPlugin', function(myPluginOptions) {
   myPluginOptions = myPluginOptions || {};
 
   var player = this;

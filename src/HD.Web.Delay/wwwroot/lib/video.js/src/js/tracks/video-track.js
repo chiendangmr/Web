@@ -51,11 +51,9 @@ class VideoTrack extends Track {
     }
 
     /**
-     * @memberof VideoTrack
      * @member {boolean} selected
      *         If this `VideoTrack` is selected or not. When setting this will
      *         fire {@link VideoTrack#selectedchange} if the state of selected changed.
-     * @instance
      *
      * @fires VideoTrack#selectedchange
      */

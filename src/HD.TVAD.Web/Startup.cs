@@ -237,7 +237,7 @@ namespace HD.TVAD.Web
             {
                routes.MapRoute(
                     name: "areaDefault",
-                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+                    template: "{area=MAM}/{controller=Delay}/{action=Index}/{id?}"
                 );
 
                 routes.MapRoute(

@@ -31,7 +31,6 @@ const autoSetup = function() {
   // through each list of elements to build up a new, combined list of elements.
   const vids = document.getElementsByTagName('video');
   const audios = document.getElementsByTagName('audio');
-  const divs = document.getElementsByTagName('video-js');
   const mediaEls = [];
 
   if (vids && vids.length > 0) {
@@ -43,12 +42,6 @@ const autoSetup = function() {
   if (audios && audios.length > 0) {
     for (let i = 0, e = audios.length; i < e; i++) {
       mediaEls.push(audios[i]);
-    }
-  }
-
-  if (divs && divs.length > 0) {
-    for (let i = 0, e = divs.length; i < e; i++) {
-      mediaEls.push(divs[i]);
     }
   }
 
@@ -95,7 +88,7 @@ const autoSetup = function() {
  * @param {number} wait
  *        How long to wait in ms
  *
- * @param {module:videojs} [vjs]
+ * @param {videojs} [vjs]
  *        The videojs library function
  */
 function autoSetupTimeout(wait, vjs) {

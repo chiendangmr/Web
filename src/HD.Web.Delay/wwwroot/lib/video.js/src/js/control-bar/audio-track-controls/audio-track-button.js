@@ -22,9 +22,11 @@ class AudioTrackButton extends TrackButton {
    *        The key/value store of player options.
    */
   constructor(player, options = {}) {
-    options.tracks = player.audioTracks();
+    options.tracks = player.audioTracks && player.audioTracks();
 
     super(player, options);
+
+    this.el_.setAttribute('aria-label', 'Audio Menu');
   }
 
   /**
@@ -35,10 +37,6 @@ class AudioTrackButton extends TrackButton {
    */
   buildCSSClass() {
     return `vjs-audio-button ${super.buildCSSClass()}`;
-  }
-
-  buildWrapperCSSClass() {
-    return `vjs-audio-button ${super.buildWrapperCSSClass()}`;
   }
 
   /**
@@ -54,7 +52,11 @@ class AudioTrackButton extends TrackButton {
     // if there's only one audio track, there no point in showing it
     this.hideThreshold_ = 1;
 
-    const tracks = this.player_.audioTracks();
+    const tracks = this.player_.audioTracks && this.player_.audioTracks();
+
+    if (!tracks) {
+      return items;
+    }
 
     for (let i = 0; i < tracks.length; i++) {
       const track = tracks[i];

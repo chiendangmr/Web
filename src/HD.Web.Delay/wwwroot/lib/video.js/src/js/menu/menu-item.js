@@ -59,7 +59,7 @@ class MenuItem extends ClickableComponent {
 
     return super.createEl('li', assign({
       className: 'vjs-menu-item',
-      innerHTML: `<span class="vjs-menu-item-text">${this.localize(this.options_.label)}</span>`,
+      innerHTML: this.localize(this.options_.label),
       tabIndex: -1
     }, props), attrs);
   }
@@ -97,7 +97,8 @@ class MenuItem extends ClickableComponent {
         this.removeClass('vjs-selected');
         this.el_.setAttribute('aria-checked', 'false');
         // Indicate un-selected state to screen reader
-        this.controlText('');
+        // Note that a space clears out the selected state text
+        this.controlText(' ');
       }
     }
   }

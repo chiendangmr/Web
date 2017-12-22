@@ -4,8 +4,6 @@
 import * as Dom from './utils/dom';
 import * as Fn from './utils/fn';
 import Component from './component';
-import window from 'global/window';
-import document from 'global/document';
 
 const MODAL_CLASS_NAME = 'vjs-modal-dialog';
 const ESC = 27;
@@ -70,7 +68,7 @@ class ModalDialog extends Component {
     });
 
     this.descEl_ = Dom.createEl('p', {
-      className: `${MODAL_CLASS_NAME}-description vjs-control-text`,
+      className: `${MODAL_CLASS_NAME}-description vjs-offscreen`,
       id: this.el().getAttribute('aria-describedby')
     });
 
@@ -95,14 +93,6 @@ class ModalDialog extends Component {
       'aria-label': this.label(),
       'role': 'dialog'
     });
-  }
-
-  dispose() {
-    this.contentEl_ = null;
-    this.descEl_ = null;
-    this.previouslyActiveEl_ = null;
-
-    super.dispose();
   }
 
   /**
@@ -137,7 +127,7 @@ class ModalDialog extends Component {
    *         the localized or raw label of this modal.
    */
   label() {
-    return this.localize(this.options_.label || 'Modal Window');
+    return this.options_.label || this.localize('Modal Window');
   }
 
   /**
@@ -163,17 +153,20 @@ class ModalDialog extends Component {
    *
    * @fires ModalDialog#beforemodalopen
    * @fires ModalDialog#modalopen
+   *
+   * @return {ModalDialog}
+   *         Returns itself; method can be chained.
    */
   open() {
     if (!this.opened_) {
       const player = this.player();
 
       /**
-        * Fired just before a `ModalDialog` is opened.
-        *
-        * @event ModalDialog#beforemodalopen
-        * @type {EventTarget~Event}
-        */
+       * Fired just before a `ModalDialog` is opened.
+       *
+       * @event ModalDialog#beforemodalopen
+       * @type {EventTarget~Event}
+       */
       this.trigger('beforemodalopen');
       this.opened_ = true;
 
@@ -195,23 +188,20 @@ class ModalDialog extends Component {
         this.on(this.el_.ownerDocument, 'keydown', Fn.bind(this, this.handleKeyPress));
       }
 
-      // Hide controls and note if they were enabled.
-      this.hadControls_ = player.controls();
       player.controls(false);
-
       this.show();
-      this.conditionalFocus_();
       this.el().setAttribute('aria-hidden', 'false');
 
       /**
-        * Fired just after a `ModalDialog` is opened.
-        *
-        * @event ModalDialog#modalopen
-        * @type {EventTarget~Event}
-        */
+       * Fired just after a `ModalDialog` is opened.
+       *
+       * @event ModalDialog#modalopen
+       * @type {EventTarget~Event}
+       */
       this.trigger('modalopen');
       this.hasBeenOpened_ = true;
     }
+    return this;
   }
 
   /**
@@ -236,49 +226,48 @@ class ModalDialog extends Component {
    *
    * @fires ModalDialog#beforemodalclose
    * @fires ModalDialog#modalclose
+   *
+   * @return {ModalDialog}
+   *         Returns itself; method can be chained.
    */
   close() {
-    if (!this.opened_) {
-      return;
-    }
-    const player = this.player();
+    if (this.opened_) {
+      const player = this.player();
 
-    /**
-      * Fired just before a `ModalDialog` is closed.
-      *
-      * @event ModalDialog#beforemodalclose
-      * @type {EventTarget~Event}
-      */
-    this.trigger('beforemodalclose');
-    this.opened_ = false;
+      /**
+       * Fired just before a `ModalDialog` is closed.
+       *
+       * @event ModalDialog#beforemodalclose
+       * @type {EventTarget~Event}
+       */
+      this.trigger('beforemodalclose');
+      this.opened_ = false;
 
-    if (this.wasPlaying_ && this.options_.pauseOnOpen) {
-      player.play();
-    }
+      if (this.wasPlaying_ && this.options_.pauseOnOpen) {
+        player.play();
+      }
 
-    if (this.closeable()) {
-      this.off(this.el_.ownerDocument, 'keydown', Fn.bind(this, this.handleKeyPress));
-    }
+      if (this.closeable()) {
+        this.off(this.el_.ownerDocument, 'keydown', Fn.bind(this, this.handleKeyPress));
+      }
 
-    if (this.hadControls_) {
       player.controls(true);
+      this.hide();
+      this.el().setAttribute('aria-hidden', 'true');
+
+      /**
+       * Fired just after a `ModalDialog` is closed.
+       *
+       * @event ModalDialog#modalclose
+       * @type {EventTarget~Event}
+       */
+      this.trigger('modalclose');
+
+      if (this.options_.temporary) {
+        this.dispose();
+      }
     }
-
-    this.hide();
-    this.el().setAttribute('aria-hidden', 'true');
-
-    /**
-      * Fired just after a `ModalDialog` is closed.
-      *
-      * @event ModalDialog#modalclose
-      * @type {EventTarget~Event}
-      */
-    this.trigger('modalclose');
-    this.conditionalBlur_();
-
-    if (this.options_.temporary) {
-      this.dispose();
-    }
+    return this;
   }
 
   /**
@@ -321,9 +310,12 @@ class ModalDialog extends Component {
   /**
    * Fill the modal's content element with the modal's "content" option.
    * The content element will be emptied before this change takes place.
+   *
+   * @return {ModalDialog}
+   *         Returns itself; method can be chained.
    */
   fill() {
-    this.fillWith(this.content());
+    return this.fillWith(this.content());
   }
 
   /**
@@ -333,8 +325,11 @@ class ModalDialog extends Component {
    * @fires ModalDialog#beforemodalfill
    * @fires ModalDialog#modalfill
    *
-   * @param {Mixed} [content]
-   *        The same rules apply to this as apply to the `content` option.
+   * @param  {Mixed} [content]
+   *         The same rules apply to this as apply to the `content` option.
+   *
+   * @return {ModalDialog}
+   *         Returns itself; method can be chained.
    */
   fillWith(content) {
     const contentEl = this.contentEl();
@@ -370,12 +365,7 @@ class ModalDialog extends Component {
       parentEl.appendChild(contentEl);
     }
 
-    // make sure that the close button is last in the dialog DOM
-    const closeButton = this.getChild('closeButton');
-
-    if (closeButton) {
-      parentEl.appendChild(closeButton.el_);
-    }
+    return this;
   }
 
   /**
@@ -383,6 +373,9 @@ class ModalDialog extends Component {
    *
    * @fires ModalDialog#beforemodalempty
    * @fires ModalDialog#modalempty
+   *
+   * @return {ModalDialog}
+   *         Returns itself; method can be chained.
    */
   empty() {
    /**
@@ -401,6 +394,7 @@ class ModalDialog extends Component {
     * @type {EventTarget~Event}
     */
     this.trigger('modalempty');
+    return this;
   }
 
   /**
@@ -423,98 +417,6 @@ class ModalDialog extends Component {
       this.content_ = value;
     }
     return this.content_;
-  }
-
-  /**
-   * conditionally focus the modal dialog if focus was previously on the player.
-   *
-   * @private
-   */
-  conditionalFocus_() {
-    const activeEl = document.activeElement;
-    const playerEl = this.player_.el_;
-
-    this.previouslyActiveEl_ = null;
-
-    if (playerEl.contains(activeEl) || playerEl === activeEl) {
-      this.previouslyActiveEl_ = activeEl;
-
-      this.focus();
-
-      this.on(document, 'keydown', this.handleKeyDown);
-    }
-  }
-
-  /**
-   * conditionally blur the element and refocus the last focused element
-   *
-   * @private
-   */
-  conditionalBlur_() {
-    if (this.previouslyActiveEl_) {
-      this.previouslyActiveEl_.focus();
-      this.previouslyActiveEl_ = null;
-    }
-
-    this.off(document, 'keydown', this.handleKeyDown);
-  }
-
-  /**
-   * Keydown handler. Attached when modal is focused.
-   *
-   * @listens keydown
-   */
-  handleKeyDown(event) {
-    // exit early if it isn't a tab key
-    if (event.which !== 9) {
-      return;
-    }
-
-    const focusableEls = this.focusableEls_();
-    const activeEl = this.el_.querySelector(':focus');
-    let focusIndex;
-
-    for (let i = 0; i < focusableEls.length; i++) {
-      if (activeEl === focusableEls[i]) {
-        focusIndex = i;
-        break;
-      }
-    }
-
-    if (document.activeElement === this.el_) {
-      focusIndex = 0;
-    }
-
-    if (event.shiftKey && focusIndex === 0) {
-      focusableEls[focusableEls.length - 1].focus();
-      event.preventDefault();
-    } else if (!event.shiftKey && focusIndex === focusableEls.length - 1) {
-      focusableEls[0].focus();
-      event.preventDefault();
-    }
-  }
-
-  /**
-   * get all focusable elements
-   *
-   * @private
-   */
-  focusableEls_() {
-    const allChildren = this.el_.querySelectorAll('*');
-
-    return Array.prototype.filter.call(allChildren, (child) => {
-      return ((child instanceof window.HTMLAnchorElement ||
-               child instanceof window.HTMLAreaElement) && child.hasAttribute('href')) ||
-             ((child instanceof window.HTMLInputElement ||
-               child instanceof window.HTMLSelectElement ||
-               child instanceof window.HTMLTextAreaElement ||
-               child instanceof window.HTMLButtonElement) && !child.hasAttribute('disabled')) ||
-             (child instanceof window.HTMLIFrameElement ||
-               child instanceof window.HTMLObjectElement ||
-               child instanceof window.HTMLEmbedElement) ||
-             (child.hasAttribute('tabindex') && child.getAttribute('tabindex') !== -1) ||
-             (child.hasAttribute('contenteditable'));
-    });
   }
 }
 

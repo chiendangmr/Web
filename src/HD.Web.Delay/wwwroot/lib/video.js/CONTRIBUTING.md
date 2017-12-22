@@ -140,17 +140,13 @@ npm install
 
 #### Running tests
 
-Tests can be run either from the shell or from the browser.
-
-To run the tests from the shell, just run
+To run the tests all you need to do is run
 
 ```sh
 npm test
 ```
 
-This will build video.js locally and run the test suite using [Karma](https://karma-runner.github.io/1.0/index.html), which runs our tests in actual browsers.
-
-To run tests from the browser, first start a local server with `npm start` (this also watches for changes and rebuilds video.js and the test files as necessary). Then navigate to `http://localhost:9999/test`, and you'll see a page that displays the results of all the tests. To rerun the tests after making changes, just refresh the page. To run an individual test, click the "Rerun" link next to the test's title.
+This will build video.js locally and run the tests using [Karma](https://karma-runner.github.io/1.0/index.html) which runs our tests in actual browsers.
 
 #### Building videojs
 
@@ -278,8 +274,6 @@ Tests attached to bug fixes should fail before the change and succeed with it.
 ```sh
 npm test
 ```
-
-See [Running tests](#running-tests) for more information.
 
 #### Step 6: Push
 

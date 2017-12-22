@@ -33,8 +33,6 @@ class CaptionSettingsMenuItem extends TextTrackMenuItem {
     // CaptionSettingsMenuItem has no concept of 'selected'
     options.selectable = false;
 
-    options.name = 'CaptionSettingsMenuItem';
-
     super(player, options);
     this.addClass('vjs-texttrack-settings');
     this.controlText(', opens ' + options.kind + ' settings dialog');
@@ -52,8 +50,10 @@ class CaptionSettingsMenuItem extends TextTrackMenuItem {
    * @listens click
    */
   handleClick(event) {
-    this.player().getChild('textTrackSettings').open();
+    this.player().getChild('textTrackSettings').show();
+    this.player().getChild('textTrackSettings').el_.focus();
   }
+
 }
 
 Component.registerComponent('CaptionSettingsMenuItem', CaptionSettingsMenuItem);

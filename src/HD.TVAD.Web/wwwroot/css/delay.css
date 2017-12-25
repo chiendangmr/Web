@@ -8,7 +8,7 @@
     color:#111;
 }
 #treeview .k-sprite {
-    background-image: url("images/coloricons-sprite.png");
+    background-image: url("../images/coloricons-sprite.png");
 }
 
 .rootfolder {
@@ -29,4 +29,11 @@
 
 .image {
     background-position: 0 -64px;
+}
+div.balSlider {
+    width: 100%;
+}
+
+div.balSlider .k-slider-selection {
+    display: none;
 }

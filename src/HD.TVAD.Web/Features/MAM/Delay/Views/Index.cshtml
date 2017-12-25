@@ -11,6 +11,15 @@
                 <div class="panel panel-default">
                     <div class="panel-body container-vertical-flex">
                         <div class="flex flex-1" id="mediaplayer"></div>
+                        <div class="flex flex-0 text-center">
+                            <div class="btn-group" style="padding:10px;">
+                                <button type="button" class="btn btn-primary">Play</button>
+                                <button type="button" class="btn btn-primary">Pause</button>
+                                <button type="button" class="btn btn-primary">Stop</button>
+                                <button type="button" class="btn btn-primary">Next</button>
+                                <button type="button" class="btn btn-primary">Back</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -81,8 +90,9 @@
     <div class="flex flex-1">
         <div class="container-flex">
             <div class="panel panel-default" style="width:100%">
-                <div class="panel-heading">@Localizer["Detail Info"]:</div>
+                <div class="panel-heading">@Localizer["Timeline"]:</div>
                 <div class="panel-body text-center">
+                    <input id="slider" class="balSlider" value="0" title="slider" />
                 </div>
             </div>
         </div>
@@ -106,65 +116,73 @@
             }
         });
         $("#treeview").kendoTreeView();
-        $("#gridSubSchedule").kendoGrid({
-            dataSource: {
-                data: products,
-                schema: {
-                    model: {
-                        fields: {
-                            ProductName: { type: "string" },
-                            UnitPrice: { type: "number" },
-                            UnitsInStock: { type: "number" },
-                            Discontinued: { type: "boolean" }
-                        }
-                    }
-                },
-                pageSize: 20
-            },
-            height: 550,
-            scrollable: true,
-            sortable: true,
-            filterable: true,
-            pageable: {
-                input: true,
-                numeric: false
-            },
-            columns: [
-                "ProductName",
-                { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "130px" },
-                { field: "UnitsInStock", title: "Units In Stock", width: "130px" },
-                { field: "Discontinued", width: "130px" }
-            ]
-        });
-        $("#gridRecordSchedule").kendoGrid({
-            dataSource: {
-                data: products,
-                schema: {
-                    model: {
-                        fields: {
-                            ProductName: { type: "string" },
-                            UnitPrice: { type: "number" },
-                            UnitsInStock: { type: "number" },
-                            Discontinued: { type: "boolean" }
-                        }
-                    }
-                },
-                pageSize: 20
-            },
-            height: 550,
-            scrollable: true,
-            sortable: true,
-            filterable: true,
-            pageable: {
-                input: true,
-                numeric: false
-            },
-            columns: [
-                "ProductName",
-                { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "130px" },
-                { field: "UnitsInStock", title: "Units In Stock", width: "130px" },
-                { field: "Discontinued", width: "130px" }
-            ]
-        });
+        //$("#gridSubSchedule").kendoGrid({
+        //    dataSource: {
+        //        data: products,
+        //        schema: {
+        //            model: {
+        //                fields: {
+        //                    ProductName: { type: "string" },
+        //                    UnitPrice: { type: "number" },
+        //                    UnitsInStock: { type: "number" },
+        //                    Discontinued: { type: "boolean" }
+        //                }
+        //            }
+        //        },
+        //        pageSize: 20
+        //    },
+        //    height: 550,
+        //    scrollable: true,
+        //    sortable: true,
+        //    filterable: true,
+        //    pageable: {
+        //        input: true,
+        //        numeric: false
+        //    },
+        //    columns: [
+        //        "ProductName",
+        //        { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "130px" },
+        //        { field: "UnitsInStock", title: "Units In Stock", width: "130px" },
+        //        { field: "Discontinued", width: "130px" }
+        //    ]
+        //});
+        //$("#gridRecordSchedule").kendoGrid({
+        //    dataSource: {
+        //        data: products,
+        //        schema: {
+        //            model: {
+        //                fields: {
+        //                    ProductName: { type: "string" },
+        //                    UnitPrice: { type: "number" },
+        //                    UnitsInStock: { type: "number" },
+        //                    Discontinued: { type: "boolean" }
+        //                }
+        //            }
+        //        },
+        //        pageSize: 20
+        //    },
+        //    height: 550,
+        //    scrollable: true,
+        //    sortable: true,
+        //    filterable: true,
+        //    pageable: {
+        //        input: true,
+        //        numeric: false
+        //    },
+        //    columns: [
+        //        "ProductName",
+        //        { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "130px" },
+        //        { field: "UnitsInStock", title: "Units In Stock", width: "130px" },
+        //        { field: "Discontinued", width: "130px" }
+        //    ]
+        //});
+        var slider = $("#slider").kendoSlider({
+            increaseButtonTitle: "Right",
+            decreaseButtonTitle: "Left",
+            min: 0,
+            max: 43200,
+            smallStep: 2,
+            largeStep: 1
+        }).data("kendoSlider");
     });    
 </script>

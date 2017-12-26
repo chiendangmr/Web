@@ -42,12 +42,6 @@ namespace HD.TVAD.Web.Features.MAM.Evidence
         {
             var vM = await _evidenceBusiness.GetEvidences(channelId, date);
             return vM;
-        }
-        [HttpGet]
-        public async Task<List<ChannelViewModel>> GetAllChannel()
-        {
-            var vM = await _evidenceBusiness.GetAllChannel();
-            return vM;
-        }
+        }        
     }
 }

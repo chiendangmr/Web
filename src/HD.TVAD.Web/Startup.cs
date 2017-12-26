@@ -151,9 +151,7 @@ namespace HD.TVAD.Web
 
             services.AddSingleton<Localization.Repositories.CultureProvider>();
             services.AddSingleton<IStringLocalizerFactory, Localization.Repositories.SqlStringLocalizerFactory>();
-            services.AddLocalization();
-
-            Bootstrapper.Initital();
+            services.AddLocalization();           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

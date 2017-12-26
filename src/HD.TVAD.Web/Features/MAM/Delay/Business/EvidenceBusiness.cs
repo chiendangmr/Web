@@ -35,23 +35,7 @@ namespace HD.TVAD.Web.Features.MAM.Content.Business
             _storageLocationService = storageLocationService;
             _hostingEnvironment = hostingEnvironment;
             _settings = settings;
-        }
-        public async Task<List<ChannelViewModel>> GetAllChannel()
-        {
-            var data = await _channelService.GetAll().ToListAsync();
-            var result = new List<ChannelViewModel>();
-            foreach (var temp in data)
-            {
-                result.Add(new ChannelViewModel
-                {
-                    Id = temp.Id,
-                    Name = temp.TimeBandBase.Name,
-                    Description = temp.TimeBandBase.Description,
-                    ParentId = temp.TimeBandBase.ParentId
-                });
-            }
-            return result;
-        }
+        }        
         public async Task<List<EvidenceViewModel>> GetEvidences(Guid channelId, DateTimeOffset recordTime)
         {
             var channel = await _channelService.Get(channelId).FirstOrDefaultAsync();

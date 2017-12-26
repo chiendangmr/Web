@@ -1,13 +1,9 @@
 ﻿using HD.Localization;
 using HD.Station.Infrastructure.ApplicationParts;
 using HD.Station.Infrastructure.Conventions;
-using HD.Station.WebComponents;
-using HD.Station.MediaAssets.Services;
 using HD.TVAD.Infrastructure.Data;
 using HD.TVAD.Web.Infrastructure;
 using HD.TVAD.Web.Services;
-using HD.Workflow;
-using HD.Workflow.Middlewares;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -145,27 +141,9 @@ namespace HD.TVAD.Web
             .AddDataAnnotationsLocalization()
             .AddViewLocalization();
 
-            services.AddKendo();
-            //services.AddSession(options =>
-            //{
-            //	// Set a short timeout for easy testing.
-            //	options.IdleTimeout = TimeSpan.FromSeconds(10);
-            //	options.CookieHttpOnly = true;
-            //});
-            // Add workflow services  
-
-            services.AddWorkflow(Configuration);
-            services.AddWorkflowMvc(Configuration);
-            services.AddWorkflowContentExtension(Configuration);
-            services.AddDynamicFieldset(Configuration);
-            services.AddWorkflowManagement(Configuration);
-            services.AddUploadHandler(Configuration);
-            services.AddWorkflowUploadExtension(Configuration);
-            services.AddAssetUploadExtension(Configuration);
+            services.AddKendo();            
             services.AddRepositories();
-            services.AddServices();
-            services.AddMediaAssetService(Configuration);
-            services.AddUploadFileNameGeneratorByAsset(Configuration);
+            services.AddServices();            
             // Add application services.
 
             services.AddTransient<IEmailSender, AuthMessageSender>();
@@ -213,14 +191,7 @@ namespace HD.TVAD.Web
             app.UseSession();
 
             // Add external authentication middleware below. To configure them please see https://go.microsoft.com/fwlink/?LinkID=532715
-            app.UseWorkflowMvcStaticFiles();
-            app.UseWorkflowManagementStaticFiles();
-
-            app.UseMediainfojsStaticFiles();
-            app.UseUploadStaticFiles();
-            app.UseUploadMiddleware();
-            app.UseAssetUploadStaticFiles();
-            app.UseWorkflowApiMiddleware();
+            
             app.UseMvc(routes =>
             {
                routes.MapRoute(

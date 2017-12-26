@@ -1,5 +1,4 @@
-﻿using HD.AspNetCore.Mvc.Security;
-using HD.TVAD.Web.StartData;
+﻿using HD.TVAD.Web.StartData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

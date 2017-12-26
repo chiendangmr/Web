@@ -138,10 +138,8 @@
                     @Html.Partial("_MenuPartial")
                 }
 
-                @Html.Partial("_LoginPartial")
-                @Html.Partial("_NotifiPartial")
-                @Html.Partial("_TopThemePartial")
-                @Html.Partial("_LanguagePartial")
+                @Html.Partial("_LoginPartial")                
+                @Html.Partial("_TopThemePartial")                
             </div>
 
         </div>
@@ -149,24 +147,10 @@
 
     <div class="container-fluid content" style="width:100%;overflow-x:hidden;">
         @RenderBody()
-    </div>
-
-    <span id="notification" style="display:none;"></span>
+    </div>    
 
     @Html.Partial("_KendoTemplate")
-    @Html.Partial("_CommonDOM")
-    @*<footer class="footer @navClassName navbar-fixed-bottom">
-            <div class="hidden-xs hidden-sm hidden-print" style="width:auto">
-                <vc:culture-select></vc:culture-select>
-            </div>
-            <div class="text-center">
-                <span class="text-muted credit">&copy;HD TVAD - @Localizer["Powered by"] HDVietNam</span>
-                <a asp-area="" asp-controller="Home" asp-action="Subscribe">@Localizer["Subscribe"]</a>
-            </div>
-            <div class="pull-right" style="width:auto">
-                @Html.Partial("_ThemeSelectPartial")
-            </div>
-        </footer>*@
+    @Html.Partial("_CommonDOM")    
     @RenderSection("Scripts", required: false)
 </body>
 

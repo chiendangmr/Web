@@ -2,8 +2,7 @@
     baseUrl: 'lib',
     paths: {
         module: '../js/modules',
-        content: '../js/content',
-        storages: '../js/storages',
+        content: '../js/content',        
         hd: '../js/hd',
         'domReady': 'requirejs-domReady/domReady',
         'jquery': "jquery/dist/jquery",
@@ -150,8 +149,6 @@
     shim: {
         'toolkit': ["jquery"],
         'jquery.validate': ['jquery'],
-        'jquery.validate.unobtrusive': ['jquery.validate'],
-    //    'mediaelement': { deps: ['require'], exports: "MediaElementPlayer" }
+        'jquery.validate.unobtrusive': ['jquery.validate']    
     }
 });
-//# sourceMappingURL=config.js.map

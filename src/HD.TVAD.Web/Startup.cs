@@ -163,8 +163,7 @@ namespace HD.TVAD.Web
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
-                //  app.UseBrowserLink();
+                app.UseDatabaseErrorPage();                
             }
             else
             {

@@ -2,7 +2,13 @@
     background-color: #252830; 
     border: 2px solid #676767;
 }
-
+.k-tabstrip-items .k-state-active .k-link {
+    color: #fff !important;
+}
+.k-tabstrip:focus {
+    -webkit-box-shadow: 0 0 7px 0 #52c0e9;
+    box-shadow: none;
+}
 #gridContextMenu {
     background-color: #434857;
     color: #fff;
@@ -54,10 +60,6 @@
 .k-grid table {
   width: 100%;
   max-width: 100%;
-  /*margin-bottom: @line-height-computed;*/
-  /*> tbody > tr.k-alt {
-            background-color: @table-bg;
-        }*/
 }
     .k-grid table > thead > tr > th,
     .k-grid table > tbody > tr > th,

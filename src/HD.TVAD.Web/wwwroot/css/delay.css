@@ -1,11 +1,17 @@
-﻿.k-widget.k-tabstrip {
-    background-color: #3f51b5;    
+﻿.k-tabstrip-wrapper {
+    height:100%;
+}
+.k-widget.k-tabstrip {
+    background-color: #3f51b5;
+    height:100%;
 }
 .k-tabstrip-items .k-state-default .k-link{
     color:#fff;
 }
-.k-tabstrip-items .k-state-active .k-link{
-    color:#111;
+
+.k-tabstrip > .k-content {
+    border: none !important;
+    height:100%;
 }
 #treeview .k-sprite {
     background-image: url("../images/coloricons-sprite.png");
@@ -36,4 +42,7 @@ div.balSlider {
 
 div.balSlider .k-slider-selection {
     display: none;
+}
+.player-btn{
+    margin-left:10px !important;
 }

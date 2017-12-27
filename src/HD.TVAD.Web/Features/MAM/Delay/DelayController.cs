@@ -22,7 +22,7 @@ namespace HD.TVAD.Web.Features.MAM.Evidence
         private IEvidenceService _evidenceService;
         private IChannelService _channelService;
         private IAssetService _assetService;
-        private EvidenceBusiness _evidenceBusiness;
+        private DelayBusiness _evidenceBusiness;
 
         public DelayController(IChannelService channelService, IAssetService assetService, IStorageService storageService, IEvidenceService evidenceService,
              IAssetTypeService assetTypeService, IStorageLocationService storageLocationService,IHostingEnvironment hostingEnvironment, IOptions<Settings> settings)
@@ -30,7 +30,7 @@ namespace HD.TVAD.Web.Features.MAM.Evidence
             _evidenceService = evidenceService;
             _channelService = channelService;
             _assetService = assetService;
-            _evidenceBusiness = new EvidenceBusiness(channelService, assetService, storageService, evidenceService,
+            _evidenceBusiness = new DelayBusiness(channelService, assetService, storageService, evidenceService,
                 assetTypeService, storageLocationService, hostingEnvironment, settings);
         }
         public IActionResult Index()

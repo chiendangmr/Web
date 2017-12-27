@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace HD.TVAD.Web.Features.MAM.Content.Business
 {
-    public class EvidenceBusiness
+    public class DelayBusiness
     {
         private readonly IOptions<Settings> _settings;
         private IChannelService _channelService;
@@ -24,7 +24,7 @@ namespace HD.TVAD.Web.Features.MAM.Content.Business
         private readonly IHostingEnvironment _hostingEnvironment;
         private IAssetTypeService _assetTypeService;
         private IStorageLocationService _storageLocationService;
-        public EvidenceBusiness(IChannelService channelService, IAssetService assetService, IStorageService storageService, IEvidenceService evidenceService,
+        public DelayBusiness(IChannelService channelService, IAssetService assetService, IStorageService storageService, IEvidenceService evidenceService,
              IAssetTypeService assetTypeService, IStorageLocationService storageLocationService,IHostingEnvironment hostingEnvironment, IOptions<Settings> settings)
         {
             _channelService = channelService;

@@ -46,3 +46,7 @@ div.balSlider .k-slider-selection {
 .player-btn{
     margin-left:10px !important;
 }
+.delayInfo{    
+    font-size:18px;    
+    /*padding-left:10px;*/
+}

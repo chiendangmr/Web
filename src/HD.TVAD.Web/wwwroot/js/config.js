@@ -6,6 +6,7 @@
         hd: '../js/hd',
         'domReady': 'requirejs-domReady/domReady',
         'jquery': "jquery/dist/jquery",
+        'jquery-ui':"jquery-ui/jquery-ui",
         'chart': "chart.js/dist/Chart",
         'knockout': "knockout/dist/knockout",
         'bootstrap': "bootstrap/dist/js/bootstrap",

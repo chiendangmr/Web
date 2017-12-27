@@ -4,10 +4,10 @@
 <head>
     <link rel="stylesheet" href="~/css/delay.css" />
     <link rel="stylesheet" href="~/css/timeslider.css" />
+    <link rel="stylesheet" href="~/lib/jquery-ui/themes/base/jquery-ui.css">
 
-    <script src="~/lib/jquery/dist/jquery.js"></script>
-    @*<script src="~/lib/jquery-ui/jquery-ui.js"></script>
-    <link rel="stylesheet" href="~/lib/jquery-ui/themes/base/jquery-ui.css" />*@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
 </head>
 <div class="container-vertical-flex">
     <div class="flex flex-2">
@@ -93,27 +93,50 @@
         </div>
     </div>
     <div class="flex flex-1">
-        <div class="container-flex">
-            <h3 id="version"></h3>
-            <div style="margin: 50px 30px;">
-                <p>With standard options</p>
-                <p>Zoom 1...48 hours:</p>
-                <div id="zoom-slider123" style="width:300px;margin-bottom:10px;"></div>
-                <div id="slider123" class="time-slider"></div>
+        <div class="container-vertical-flex">
+            <div class="flex flex-0">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Thông tin:</div>
+                    <div class="panel-body">
+                        <div class="col-sm-3 col-md-3 delayInfo" style="color: #2c0ab9;"><label>Trễ kỳ vọng:</label></div>
+                        <div class="col-sm-3 col-md-3 delayInfo" style="color: #cd3920;"><label>Trễ thực tế:</label></div>
+                        <div class="col-sm-3 col-md-3 delayInfo" style="color: #23eb1a;"><label>Playback:</label></div>
+                        <div class="col-sm-3 col-md-3 delayInfo" style="color: #efd610;"><label>Con trỏ chuột:</label></div>
+                    </div>
+                </div>
             </div>
-            <div style="margin: 50px 30px;">
-                <p>Using milliseconds</p>
-                <p>Zoom 1...48 hours:</p>
-                <div id="zoom-slider456" style="width:300px;margin-bottom:10px;"></div>
-                <div id="slider456" class="time-slider" style="width: 65%"></div>
+            <div class="flex flex-1">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Timeline:</div>
+                    <div class="panel-body container-vertical-flex">
+                        <div class="flex flex-0">
+                            <div class="container-flex">
+                                <div class="flex flex-0">
+                                    <label style="font-size:large">Zoom:</label>
+                                </div>
+                                <div class="flex flex-1 container-fluid">
+                                    <div class="col-xs-3 col-sm-2 col-md-1" style="text-align:right;font-weight:bold">IN</div>
+                                    <div class="col-xs-6 col-sm-8 col-md-4" style="padding-top:10px">
+                                        <div id="zoom-slider123"></div>
+                                    </div>
+                                    <div class="col-xs-3 col-sm-2 col-md-1" style="font-weight:bold">OUT</div>
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="flex flex-1">
+                            <label style="font-size:large">Timeline:</label>
+                            <div id="slider123" class="time-slider"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p id="messages"></p>
         </div>
     </div>
 </div>
 <script src="~/js/timeslider.js"></script>
 <script>
-    require(['content/evidence'], function (evidence) {
+    require(['jquery', 'jquery-ui', 'kendo.all.min'], function ($) {
+        //$(document).ready(function () {
         $("#mediaplayer").kendoMediaPlayer({
             autoPlay: true,
             navigatable: true,
@@ -191,57 +214,36 @@
         //    ]
         //});
         var current_time = (new Date()).getTime() + ((new Date()).getTimezoneOffset() * 60 * 1000 * -1);
-        $(document).ready(function () {
-            (function () {
-                $('#version').text('Version: ' + $.fn.TimeSlider.VERSION);
-                //$('#zoom-slider123').slider({
-                //    min: 1,
-                //    max: 48,
-                //    value: 24,
-                //    step: 0.2,
-                //    slide: function (event, ui) {
-                //        $('#slider123').TimeSlider({ hours_per_ruler: ui.value });
-                //    }
-                //});
-                //$('#zoom-slider456').slider({
-                //    min: 1,
-                //    max: 48,
-                //    value: 9,
-                //    step: 0.2,
-                //    slide: function (event, ui) {
-                //        $('#slider456').TimeSlider({ hours_per_ruler: ui.value });
-                //    }
-                //});
-                $('#slider123').TimeSlider({
-                    start_timestamp: current_time - 3600 * 12 * 1000,
-                    init_cells: [
-                        {
-                            '_id': 'c1',
-                            'start': (current_time - (3600 * 5.4 * 1000) + 1234),
-                            'stop': current_time - 3600 * 3.2 * 1000,
-                            'style': {
-                                'background-color': '#76C4FF'
-                            }
-                        },
-                        {
-                            '_id': 'c2',
-                            'start': (current_time - (3600 * 2.1 * 1000))
+
+        (function () {
+            $('#zoom-slider123').slider({
+                min: 1,
+                max: 48,
+                value: 24,
+                step: 0.2,
+                slide: function (event, ui) {
+                    $('#slider123').TimeSlider({ hours_per_ruler: ui.value });
+                }
+            });
+
+            $('#slider123').TimeSlider({
+                start_timestamp: current_time - 3600 * 12 * 1000,
+                init_cells: [
+                    {
+                        '_id': 'c1',
+                        'start': (current_time - (3600 * 5.4 * 1000) + 1234),
+                        'stop': current_time - 3600 * 3.2 * 1000,
+                        'style': {
+                            'background-color': '#76C4FF'
                         }
-                    ]
-                });
-                $('#slider456').TimeSlider({
-                    update_timestamp_interval: 10,
-                    update_interval: 10,
-                    show_ms: true,
-                    hours_per_ruler: 9,
-                    graduation_step: 6,
-                    start_timestamp: current_time - 3600 * 7 * 1000,
-                    init_cells: [
-                        { '_id': 'c1', 'start': (current_time - (3600 * 6.2 * 1000) + 5678), 'stop': current_time - 3600 * 4.8 * 1000 },
-                        { '_id': 'c2', 'start': (current_time - (3600 * 3.1 * 1000) + 864), 'stop': current_time }
-                    ]
-                });
-            })();
-        });
-    });    
+                    },
+                    {
+                        '_id': 'c2',
+                        'start': (current_time - (3600 * 2.1 * 1000))
+                    }
+                ]
+            });
+        })();
+    });
+    //});
 </script>

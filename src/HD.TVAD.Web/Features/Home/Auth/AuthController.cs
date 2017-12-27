@@ -24,8 +24,7 @@ namespace HD.TVAD.Web.Features.Home
     public class AuthController : TVADController
     {
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly IEmailSender _emailSender;
+        private readonly SignInManager<User> _signInManager;        
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
         private readonly string _externalCookieScheme;
@@ -33,16 +32,14 @@ namespace HD.TVAD.Web.Features.Home
 
         public AuthController(UserManager<User> userManager,
             SignInManager<User> signInManager, 
-            IOptions<IdentityCookieOptions> identityCookieOptions,
-            IEmailSender emailSender,
+            IOptions<IdentityCookieOptions> identityCookieOptions,            
             ISmsSender smsSender,
             ILoggerFactory loggerFactory,
             IStringLocalizer<AuthController> localizer)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _externalCookieScheme = identityCookieOptions.Value.ExternalCookieAuthenticationScheme;
-            _emailSender = emailSender;
+            _externalCookieScheme = identityCookieOptions.Value.ExternalCookieAuthenticationScheme;            
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AuthController>();
             _localizer = localizer;

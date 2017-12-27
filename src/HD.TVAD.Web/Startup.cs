@@ -144,10 +144,7 @@ namespace HD.TVAD.Web
             services.AddKendo();            
             services.AddRepositories();
             services.AddServices();            
-            // Add application services.
-
-            services.AddTransient<IEmailSender, AuthMessageSender>();
-            services.AddTransient<ISmsSender, AuthMessageSender>();
+            // Add application services.            
 
             services.AddSingleton<Localization.Repositories.CultureProvider>();
             services.AddSingleton<IStringLocalizerFactory, Localization.Repositories.SqlStringLocalizerFactory>();

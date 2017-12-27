@@ -10,23 +10,12 @@ using HD.TVAD.Web.Models;
 
 namespace HD.TVAD.Web.Controllers
 {
-	[Authorize]
+    [Authorize]
     public class HomeController : TVADController
     {
         public IActionResult Index()
         {
-			var model = new DashboardIndexViewModel()
-			{
-				TimePeriod = new TimePeriod()
-				{
-					Date = DateTime.Today,
-					Type = TimePeriodType.Day,
-					FromDate = DateTime.Today.AddDays(-7),
-					ToDate = DateTime.Today,
-				}
-			};
-
-			return View(model);
+            return View();
         }
 
         public IActionResult About()

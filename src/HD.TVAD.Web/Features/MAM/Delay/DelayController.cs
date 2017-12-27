@@ -19,18 +19,16 @@ namespace HD.TVAD.Web.Features.MAM.Evidence
     [Authorize]
     public class DelayController : TVADController
     {
-        private IEvidenceService _evidenceService;
-        private IChannelService _channelService;
+        private IEvidenceService _evidenceService;        
         private IAssetService _assetService;
         private DelayBusiness _evidenceBusiness;
 
-        public DelayController(IChannelService channelService, IAssetService assetService, IStorageService storageService, IEvidenceService evidenceService,
+        public DelayController(IAssetService assetService, IStorageService storageService, IEvidenceService evidenceService,
              IAssetTypeService assetTypeService, IStorageLocationService storageLocationService,IHostingEnvironment hostingEnvironment, IOptions<Settings> settings)
         {
-            _evidenceService = evidenceService;
-            _channelService = channelService;
+            _evidenceService = evidenceService;            
             _assetService = assetService;
-            _evidenceBusiness = new DelayBusiness(channelService, assetService, storageService, evidenceService,
+            _evidenceBusiness = new DelayBusiness(assetService, storageService, evidenceService,
                 assetTypeService, storageLocationService, hostingEnvironment, settings);
         }
         public IActionResult Index()

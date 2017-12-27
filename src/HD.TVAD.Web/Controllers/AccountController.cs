@@ -20,8 +20,7 @@ namespace TvadIdentity.Controllers
 	public class AccountController : Controller
 	{
 		private readonly UserManager<User> _userManager;
-		private readonly SignInManager<User> _signInManager;
-		private readonly IEmailSender _emailSender;
+		private readonly SignInManager<User> _signInManager;		
 		private readonly ISmsSender _smsSender;
 		private readonly ILogger _logger;
 		private readonly string _externalCookieScheme;
@@ -31,8 +30,7 @@ namespace TvadIdentity.Controllers
 		public AccountController(
 			UserManager<User> userManager,
 			SignInManager<User> signInManager,
-			IOptions<IdentityCookieOptions> identityCookieOptions,
-			IEmailSender emailSender,
+			IOptions<IdentityCookieOptions> identityCookieOptions,			
 			ISmsSender smsSender,
 			ILoggerFactory loggerFactory,
 			IDataContext dbContext,
@@ -40,8 +38,7 @@ namespace TvadIdentity.Controllers
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
-			_externalCookieScheme = identityCookieOptions.Value.ExternalCookieAuthenticationScheme;
-			_emailSender = emailSender;
+			_externalCookieScheme = identityCookieOptions.Value.ExternalCookieAuthenticationScheme;			
 			_smsSender = smsSender;
 			_logger = loggerFactory.CreateLogger<AccountController>();
 			_dbContext = dbContext;
@@ -407,11 +404,7 @@ namespace TvadIdentity.Controllers
 			}
 
 			var message = "Your security code is: " + code;
-			if (model.SelectedProvider == "Email")
-			{
-				await _emailSender.SendEmailAsync(await _userManager.GetEmailAsync(user), "Security Code", message);
-			}
-			else if (model.SelectedProvider == "Phone")
+			if(model.SelectedProvider == "Phone")
 			{
 				await _smsSender.SendSmsAsync(await _userManager.GetPhoneNumberAsync(user), message);
 			}

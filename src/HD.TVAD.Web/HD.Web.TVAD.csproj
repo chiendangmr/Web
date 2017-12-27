@@ -62,7 +62,6 @@
     <ProjectReference Include="..\HD.TVAD.Entities\HD.TVAD.Entities.csproj" />
     <ProjectReference Include="..\HD.TVAD.Processing\HD.TVAD.Processing.csproj" />
     <ProjectReference Include="..\HD.TVAD.Services\HD.TVAD.Services.csproj" />
-    <ProjectReference Include="..\HD.TVAD.Web.ViewServices\HD.TVAD.Web.ViewServices.csproj" />
     <ProjectReference Include="..\MediaInfoDotNet\MediaInfoDotNet.csproj" />
   </ItemGroup>
   <ItemGroup>

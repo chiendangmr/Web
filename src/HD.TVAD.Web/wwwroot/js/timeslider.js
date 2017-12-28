@@ -614,7 +614,7 @@ if (typeof jQuery === 'undefined') {
         if (! this.$ruler.find('#' + timecell['_id']).length) {
             t_class = '';
             start = 'start_timestamp="' + (timecell['start']).toString() + '"';
-            stop = '';
+            stop = '';            
             width = ((timecell['stop'] ? (timecell['stop']) : this.options.current_timestamp) - (timecell['start'])) * this.px_per_ms;
             left = (((timecell['start']) - this.options.start_timestamp) * this.px_per_ms);
             if (timecell['stop']) {
@@ -622,8 +622,8 @@ if (typeof jQuery === 'undefined') {
             }
             else {
                 t_class = ' current';
-            }
-            style = 'left:' + left.toString() + 'px;';
+            }            
+            style = 'left:' + left.toString() + 'px;';            
             style += 'width:' + width.toString() + 'px;';
             var timecell_style = this.set_style(timecell['style']);
             this.$ruler.append(

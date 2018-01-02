@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HD.TVAD.ApplicationCore\HD.TVAD.ApplicationCore.csproj" />
-    <ProjectReference Include="..\HD.TVAD.Entities\HD.TVAD.Entities.csproj" />
   </ItemGroup>
 
 </Project>

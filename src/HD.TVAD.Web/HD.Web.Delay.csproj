@@ -59,7 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HD.Localization\HD.Localization.csproj" />
-    <ProjectReference Include="..\HD.TVAD.Entities\HD.TVAD.Entities.csproj" />
     <ProjectReference Include="..\HD.TVAD.Processing\HD.TVAD.Processing.csproj" />
   </ItemGroup>
   <ItemGroup>

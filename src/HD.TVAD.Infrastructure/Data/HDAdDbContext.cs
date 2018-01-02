@@ -116,19 +116,7 @@ namespace HD.TVAD.Infrastructure.Data
             modelBuilder.Entity<User_Permission>(entity =>
                      {
                          entity.HasKey(e => new { e.UserId, e.PermissionId })
-                             .HasName("PK_User_Permissions");
-
-                         //entity.ToTable("User_Permissions", "Security");
-
-                         //entity.HasOne(d => d.Permission)
-                         //    .WithMany(p => p.UserPermissions)
-                         //    .HasForeignKey(d => d.PermissionId)
-                         //    .HasConstraintName("FK_User_Permissions_Permissions");
-
-                         //entity.HasOne(d => d.User)
-                         //    .WithMany(p => p.UserPermissions)
-                         //    .HasForeignKey(d => d.UserId)
-                         //    .HasConstraintName("FK_User_Permissions_Users");
+                             .HasName("PK_User_Permissions");                         
                      });
             
             modelBuilder.Entity<Menu_Permission>()

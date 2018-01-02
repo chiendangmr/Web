@@ -61,7 +61,6 @@
     <ProjectReference Include="..\HD.Localization\HD.Localization.csproj" />
     <ProjectReference Include="..\HD.TVAD.Entities\HD.TVAD.Entities.csproj" />
     <ProjectReference Include="..\HD.TVAD.Processing\HD.TVAD.Processing.csproj" />
-    <ProjectReference Include="..\HD.TVAD.Services\HD.TVAD.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="Features\Manager\TemplateItem\Views\Delete.cshtml">

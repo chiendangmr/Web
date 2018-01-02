@@ -22,20 +22,17 @@ namespace HD.TVAD.Web.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly string _externalCookieScheme;        
-        private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
 
         public ManageController(
           UserManager<User> userManager,
           SignInManager<User> signInManager,
           IOptions<IdentityCookieOptions> identityCookieOptions,          
-          ISmsSender smsSender,
           ILoggerFactory loggerFactory)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _externalCookieScheme = identityCookieOptions.Value.ExternalCookieAuthenticationScheme;            
-            _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<ManageController>();
         }
 
@@ -112,8 +109,7 @@ namespace HD.TVAD.Web.Controllers
             {
                 return View("Error");
             }
-            var code = await _userManager.GenerateChangePhoneNumberTokenAsync(user, model.PhoneNumber);
-            await _smsSender.SendSmsAsync(model.PhoneNumber, "Your security code is: " + code);
+            var code = await _userManager.GenerateChangePhoneNumberTokenAsync(user, model.PhoneNumber);            
             return RedirectToAction(nameof(VerifyPhoneNumber), new { PhoneNumber = model.PhoneNumber });
         }
 

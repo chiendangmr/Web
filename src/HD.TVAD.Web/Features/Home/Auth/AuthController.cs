@@ -24,23 +24,20 @@ namespace HD.TVAD.Web.Features.Home
     public class AuthController : TVADController
     {
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;        
-        private readonly ISmsSender _smsSender;
+        private readonly SignInManager<User> _signInManager;       
         private readonly ILogger _logger;
         private readonly string _externalCookieScheme;
         private readonly IStringLocalizer<AuthController> _localizer;
 
         public AuthController(UserManager<User> userManager,
             SignInManager<User> signInManager, 
-            IOptions<IdentityCookieOptions> identityCookieOptions,            
-            ISmsSender smsSender,
+            IOptions<IdentityCookieOptions> identityCookieOptions,           
             ILoggerFactory loggerFactory,
             IStringLocalizer<AuthController> localizer)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _externalCookieScheme = identityCookieOptions.Value.ExternalCookieAuthenticationScheme;            
-            _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AuthController>();
             _localizer = localizer;
         }

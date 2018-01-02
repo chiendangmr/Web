@@ -34,11 +34,6 @@ namespace HD.TVAD.ApplicationCore.Entities.Security
         public virtual ICollection<Group_User> GroupUsers { get; } = new HashSet<Group_User>();
 
         [ForeignKey("UserId")]
-        public virtual ICollection<User_Permission> UserPermissions { get; } = new HashSet<User_Permission>();
-
-		[ForeignKey("UserId")]
-		public virtual ICollection<Notification_User> NotificationUsers { get; } = new HashSet<Notification_User>();
-
-		public virtual NotificationSubscribe NotificationSubscribe { get; set; }
+        public virtual ICollection<User_Permission> UserPermissions { get; } = new HashSet<User_Permission>();		
 	}
 }

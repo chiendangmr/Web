@@ -21,7 +21,6 @@ namespace TvadIdentity.Controllers
 	{
 		private readonly UserManager<User> _userManager;
 		private readonly SignInManager<User> _signInManager;		
-		private readonly ISmsSender _smsSender;
 		private readonly ILogger _logger;
 		private readonly string _externalCookieScheme;
 		private IDataContext _dbContext;
@@ -31,7 +30,6 @@ namespace TvadIdentity.Controllers
 			UserManager<User> userManager,
 			SignInManager<User> signInManager,
 			IOptions<IdentityCookieOptions> identityCookieOptions,			
-			ISmsSender smsSender,
 			ILoggerFactory loggerFactory,
 			IDataContext dbContext,
 			IPasswordHasher<User> passwordHasher)
@@ -39,7 +37,6 @@ namespace TvadIdentity.Controllers
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_externalCookieScheme = identityCookieOptions.Value.ExternalCookieAuthenticationScheme;			
-			_smsSender = smsSender;
 			_logger = loggerFactory.CreateLogger<AccountController>();
 			_dbContext = dbContext;
 			_PasswordHasher = passwordHasher;
@@ -403,11 +400,7 @@ namespace TvadIdentity.Controllers
 				return View("Error");
 			}
 
-			var message = "Your security code is: " + code;
-			if(model.SelectedProvider == "Phone")
-			{
-				await _smsSender.SendSmsAsync(await _userManager.GetPhoneNumberAsync(user), message);
-			}
+			var message = "Your security code is: " + code;			
 
 			return RedirectToAction(nameof(VerifyCode), new { Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe });
 		}

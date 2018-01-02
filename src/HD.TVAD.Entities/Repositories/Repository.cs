@@ -1,5 +1,4 @@
 ﻿using HD.TVAD.Entities.Entities.Security;
-using HD.TVAD.Entities.Entities.Storage;
 using HD.TVAD.Entities.Entities.UI;
 using HD.TVAD.Entities.Repositories.Security;
 using Microsoft.EntityFrameworkCore;
@@ -76,21 +75,7 @@ namespace HD.TVAD.Entities.Repositories
             #region UI
             services.AddScoped<IRepository<Menu>, Repository<Menu>>();
             services.AddScoped<IRepository<Menu_Permission>, Repository<Menu_Permission>>();
-            #endregion
-
-            #region Storage
-            services.AddScoped<IRepository<FileType>, Repository<FileType>>();
-            services.AddScoped<IRepository<FileExtension>, Repository<FileExtension>>();
-            services.AddScoped<IRepository<FileTypeExtension>, Repository<FileTypeExtension>>();
-
-            services.AddScoped<IRepository<Storage>, Repository<Storage>>();
-            services.AddScoped<IRepository<Location>, Repository<Location>>();
-            services.AddScoped<IRepository<LocationAccessZone>, Repository<LocationAccessZone>>();
-
-            services.AddScoped<IRepository<AccessZone>, Repository<AccessZone>>();
-            services.AddScoped<IRepository<UriType>, Repository<UriType>>();
-            services.AddScoped<IRepository<LocationAccessZoneUri>, Repository<LocationAccessZoneUri>>();
-            #endregion
+            #endregion           
         }
     }
 }

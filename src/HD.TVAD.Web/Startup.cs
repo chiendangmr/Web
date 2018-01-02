@@ -214,12 +214,7 @@ namespace HD.TVAD.Web
                 );
             });
 
-            app.UseKendo(env);
-
-            if (env.IsDevelopment())
-            {                
-                StartData.StorageExtentions.Register(tvadContext);
-            }
+            app.UseKendo(env);            
         }
     }
 }

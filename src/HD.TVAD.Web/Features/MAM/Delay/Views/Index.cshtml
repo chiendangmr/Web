@@ -108,25 +108,8 @@
             <div class="flex flex-1">
                 <div class="panel panel-default">
                     <div class="panel-heading">Timeline:</div>
-                    <div class="panel-body container-vertical-flex">
-                        <div class="flex flex-0">
-                            <div class="container-flex">
-                                <div class="flex flex-0">
-                                    <label style="font-size:large">Zoom:</label>
-                                </div>
-                                <div class="flex flex-1 container-fluid">
-                                    <div class="col-xs-3 col-sm-2 col-md-1" style="text-align:right;font-weight:bold">IN</div>
-                                    <div class="col-xs-6 col-sm-8 col-md-4" style="padding-top:10px">
-                                        <div id="zoom-slider123"></div>
-                                    </div>
-                                    <div class="col-xs-3 col-sm-2 col-md-1" style="font-weight:bold">OUT</div>
-                                </div>
-                            </div>                            
-                        </div>
-                        <div class="flex flex-1">
-                            <label style="font-size:large">Timeline:</label>
-                            <div id="slider123" class="time-slider"></div>
-                        </div>
+                    <div class="panel-body container-vertical-flex" id="partialDiv">
+                        @Html.Partial("TimeSlider");
                     </div>
                 </div>
             </div>
@@ -211,23 +194,13 @@
         //        { field: "UnitsInStock", title: "Units In Stock", width: "130px" },
         //        { field: "Discontinued", width: "130px" }
         //    ]
-        //});
-        var current_time = (new Date()).getTime() + ((new Date()).getTimezoneOffset() * 60 * 1000 * -1);
-
-        (function () {
-            $('#zoom-slider123').slider({
-                min: 0.1,
-                max: 2,
-                value: 0.1,
-                step: 0.05,
-                slide: function (event, ui) {
-                    $('#slider123').TimeSlider({ hours_per_ruler: ui.value });
-                }
-            });
-
-            $('#slider123').TimeSlider({
-                start_timestamp: current_time - 1800 * 1000                
-            });
-        })();
+        //});       
+        var windowWidth = window.innerWidth;
+        setInterval(function () {            
+            if ($('.current-time-caret').position().left > (windowWidth - 50)) {
+                $("#partialDiv").load("/MAM/Delay/TimeSlider");
+                console.log("refreshed");
+            }
+        }, 10000);
     });    
 </script>

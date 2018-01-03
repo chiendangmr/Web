@@ -18,16 +18,22 @@ namespace HD.TVAD.Web.Features.MAM.Evidence
     [Area("MAM")]
     [Authorize]
     public class DelayController : TVADController
-    {        
+    {
         private DelayBusiness _evidenceBusiness;
 
         public DelayController(IHostingEnvironment hostingEnvironment, IOptions<Settings> settings)
-        {            
+        {
             _evidenceBusiness = new DelayBusiness(hostingEnvironment, settings);
         }
+        [HttpGet]
         public IActionResult Index()
-        {            
+        {
             return View();
-        }         
+        }
+        [HttpGet]
+        public IActionResult TimeSlider()
+        {
+            return View();
+        }
     }
 }

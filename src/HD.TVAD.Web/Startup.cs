@@ -141,14 +141,14 @@ namespace HD.TVAD.Web
             .AddDataAnnotationsLocalization()
             .AddViewLocalization();
 
-            services.AddKendo();            
+            services.AddKendo();
             services.AddRepositories();
-            services.AddServices();            
+            services.AddServices();
             // Add application services.            
 
             services.AddSingleton<Localization.Repositories.CultureProvider>();
             services.AddSingleton<IStringLocalizerFactory, Localization.Repositories.SqlStringLocalizerFactory>();
-            services.AddLocalization();           
+            services.AddLocalization();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -160,7 +160,7 @@ namespace HD.TVAD.Web
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();                
+                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -179,42 +179,27 @@ namespace HD.TVAD.Web
             });
 
             app.UseStaticFiles();
-            
+
             app.UseIdentity();
 
             app.UseSession();
 
             // Add external authentication middleware below. To configure them please see https://go.microsoft.com/fwlink/?LinkID=532715
-            
+
             app.UseMvc(routes =>
             {
-               routes.MapRoute(
-                    name: "areaDefault",
-                    template: "{area=MAM}/{controller=Delay}/{action=Index}/{id?}"
-                );
-
                 routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}"
-                );
+                     name: "areaDefault",
+                     template: "{area=MAM}/{controller=Delay}/{action=Index}/{id?}"
+                 );
 
-                routes.MapRoute(
-                    name: "toolsApiRoute",
-                    template: "api/tools/{controller}/{action}/{id?}"
-                );
-
-                routes.MapRoute(
-                    name: "homeApiRoute",
-                    template: "api/home/{controller}/{action}/{id?}"
-                );
-
-                routes.MapRoute(
-                    name: "managersApiRoute",
-                    template: "api/managers/{controller}/{action}/{id?}"
-                );
+                //routes.MapRoute(
+                //    name: "default",
+                //    template: "{controller=Home}/{action=Index}/{id?}"
+                //);
             });
 
-            app.UseKendo(env);            
+            app.UseKendo(env);
         }
     }
 }

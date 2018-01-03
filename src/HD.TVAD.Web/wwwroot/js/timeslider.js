@@ -34,7 +34,7 @@ if (typeof jQuery === 'undefined') {
         this.time_cell_selected = null;
         this.running_time_cell = null;
         this.time_caret = null;
-        this.steps_by_minutes = [1, 2, 5, 10, 15, 20, 30, 60, 120, 180, 240, 360, 720, 1440];
+        this.steps_by_minutes = [1/60, 1/30, 1/12, 1/6, 0.5, 1, 2, 5, 10, 15, 20, 30, 60];
         this.gt_height = 0;
 
         this.init(element, options);
@@ -46,9 +46,9 @@ if (typeof jQuery === 'undefined') {
     TimeSlider.DEFAULTS = {
         start_timestamp: (new Date()).getTime() + ((new Date()).getTimezoneOffset() * 60 * 1000 * -1),   // left border
         current_timestamp: (new Date()).getTime() + ((new Date()).getTimezoneOffset() * 60 * 1000 * -1), // current timestamp
-        hours_per_ruler: 24,                    // length of graduation ruler in hours (min 1, max 48)
-        graduation_step: 20,                    // minimum pixels between graduations
-        distance_between_gtitle: 80,            // minimum pixels between titles of graduations
+        hours_per_ruler: 0.1,                    // length of graduation ruler in hours (min 0.1, max 12)
+        graduation_step: 1,                    // minimum pixels between graduations
+        distance_between_gtitle: 60,            // minimum pixels between titles of graduations
         update_timestamp_interval: 1000,        // interval for updating current time
         update_interval: 1000,                  // interval for updating elements
         show_ms: false,                         // whether to show the milliseconds?
@@ -149,11 +149,11 @@ if (typeof jQuery === 'undefined') {
     };
 
     TimeSlider.prototype.validate_options = function (options) {
-        if (options['hours_per_ruler'] < 1) {
-            options['hours_per_ruler'] = 1;
+        if (options['hours_per_ruler'] < 0.1) {
+            options['hours_per_ruler'] = 0.1;
         }
-        else if (options['hours_per_ruler'] > 48) {
-            options['hours_per_ruler'] = 48;
+        else if (options['hours_per_ruler'] > 12) {
+            options['hours_per_ruler'] = 12;
         }
 
         if (options['update_timestamp_interval'] < 1) {
@@ -214,7 +214,7 @@ if (typeof jQuery === 'undefined') {
                 ('0' + (datetime.getUTCMonth() + 1).toString()).substr(-2) + '.' +
                 datetime.getUTCFullYear();
         }
-        return datetime.getUTCHours() + ':' + ('0' + datetime.getUTCMinutes().toString()).substr(-2);
+        return datetime.getUTCHours() + ':' + ('0' + datetime.getUTCMinutes().toString()).substr(-2) + ":" + ('0' + datetime.getUTCSeconds().toString()).substr(-2);
     };
 
     TimeSlider.prototype.ms_to_next_step = function(timestamp, step) {

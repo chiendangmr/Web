@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using HD.TVAD.Infrastructure.DataProtections;
+using HD.Web.Delay;
 
 namespace HD.TVAD.Web
 {
@@ -190,7 +191,7 @@ namespace HD.TVAD.Web
             {
                 routes.MapRoute(
                      name: "areaDefault",
-                     template: "{area=MAM}/{controller=Delay}/{action=Index}/{id?}"
+                     template: "{area=Manager}/{controller=Delay}/{action=Index}/{id?}"
                  );
 
                 //routes.MapRoute(

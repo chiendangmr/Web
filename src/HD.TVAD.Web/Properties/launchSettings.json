@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:39647/MAM/Delay",
+      "applicationUrl": "http://localhost:39647/Manager/Delay",
       "sslPort": 0
     }
   },

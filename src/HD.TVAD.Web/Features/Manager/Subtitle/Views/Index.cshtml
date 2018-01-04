@@ -197,9 +197,9 @@
         //});       
         var windowWidth = window.innerWidth;
         setInterval(function () {            
-            if ($('.current-time-caret').position().left > (windowWidth - 50)) {
-                $("#partialDiv").load("/MAM/Delay/TimeSlider");
-                console.log("refreshed");
+            if ($('.current-time-caret').position().left > (windowWidth - 150)) {
+                $("#partialDiv").load("/Manager/Subtitle/TimeSlider");
+                //console.log("refreshed");
             }
         }, 10000);
     });    

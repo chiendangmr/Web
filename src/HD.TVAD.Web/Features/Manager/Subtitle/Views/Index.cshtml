@@ -118,7 +118,7 @@
 </div>
 <script src="~/js/timeslider.js"></script>
 <script>
-    require(['jquery', 'jquery-ui', 'kendo.all.min'], function ($) {        
+    require(['jquery', 'jquery-ui', 'kendo.all.min'], function ($) {
         $("#mediaplayer").kendoMediaPlayer({
             autoPlay: true,
             navigatable: true,
@@ -194,13 +194,15 @@
         //        { field: "UnitsInStock", title: "Units In Stock", width: "130px" },
         //        { field: "Discontinued", width: "130px" }
         //    ]
-        //});       
+        //});
         var windowWidth = window.innerWidth;
-        setInterval(function () {            
-            if ($('.current-time-caret').position().left > (windowWidth - 150)) {
-                $("#partialDiv").load("/Manager/Subtitle/TimeSlider");
-                //console.log("refreshed");
+        setInterval(function () {
+            if ($("#cbAutoMap").is(':checked')) {
+                if ($('.current-time-caret').position().left > (windowWidth - 150)) {
+                    $("#partialDiv").load("/Manager/Subtitle/TimeSlider");
+                    //console.log("refreshed");
+                }
             }
         }, 10000);
-    });    
+    });
 </script>

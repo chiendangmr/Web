@@ -36,7 +36,7 @@ namespace HD.TVAD.Web.Controllers
         {
             return View();
         }
-        public IActionResult Subscribe()
+        public IActionResult TimeSlider()
         {
             return View();
         }

@@ -1,206 +1,208 @@
-﻿@using HD.TVAD.Web.Views.Shared.Components
-@using HD.TVAD.Web.Models
-@model DashboardIndexViewModel
-
-@functions{
-	async Task<bool> CheckPermissionAsync(UserPermissions permission)
-	{
-		return await AuthorizationService.AuthorizeAsync(User, null, new PermissionRequirement(permission));
-	}
+﻿@{
+    ViewBag.Title = "HD Delay Website";
 }
-@{
-	ViewData["Title"] = Localizer["Dashboard"].Value;
-	Layout = "_Dashboard_Layout";
-}
-@{
-	var hasPermissionReport = await CheckPermissionAsync(UserPermissions.Report);
-}
-@if (hasPermissionReport)
-{
-	<div class="panel panel-flex panel-default">
-		<div class="panel-heading">
-			<div class="dashhead">
-				<div class="dashhead-titles">
-					<div class="dashhead-subtitle">@Localizer["Dashboard"]</div>
-					<div class="dashhead-title">@Localizer["Overview"]</div>
-				</div>
-				<div class="dashhead-toolbar">
-					<div class="dashhead-toolbar-item">@Localizer["From"]: &emsp; </div>
-					<div class="input-with-icon dashhead-toolbar-item">
-						<input asp-for="TimePeriod.FromDate" class="form-control" type="date" />
-						<span class="icon icon-calendar"></span>
-					</div>
-					<span class="dashhead-toolbar-divider"></span>
-					<div class="dashhead-toolbar-item">@Localizer["To"]: &emsp; </div>
-					<div class="input-with-icon dashhead-toolbar-item">
-						<input asp-for="TimePeriod.ToDate" class="form-control" type="date" />
-						<span class="icon icon-calendar"></span>
-					</div>
-					<span class="dashhead-toolbar-divider"></span>
-					<div class="btn-group dashhead-toolbar-item btn-group-fourths">
-						<button id="day-btn" data-type="@((int)TimePeriodType.Day)" class="btn btn-primary-outline time-period-btn active">@Localizer["Day"]</button>
-						<button id="week-btn" data-type="@((int)TimePeriodType.Week)" class="btn btn-primary-outline time-period-btn">@Localizer["Week"]</button>
-						<button id="month-btn" data-type="@((int)TimePeriodType.Month)" class="btn btn-primary-outline time-period-btn">@Localizer["Month"]</button>
-						<button id="year-btn" data-type="@((int)TimePeriodType.Year)" class="btn btn-primary-outline time-period-btn">@Localizer["Year"]</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="panel-body">
-			<div class="container-vertical-flex">
-				<div class="flex flex-0" id="stat-card-panel">
-					@*@await Component.InvokeAsync("StatCard", new Parameter()
-						{
-							IsMonthOrFromDaySelect = Period.Month,
-							IsMonthOrThreeMount = true,
-							Month = DateTime.Today.Month,
-							Year = DateTime.Today.Year,
-						})*@
-				</div>
-				<div class="flex flex-1">
-					<div class="container-flex">
-						<div class="flex flex-2" id="chart-panel">
-						</div>
-						<div class="flex flex-1">
-							<div class="panel panel-flex panel-default">
-								<div class="panel-heading">
-									@Localizer["Notifications"]
-								</div>
-								<div class="panel-body">
-									<div class="container-fluid">
-										<div class="container-vertical-flex">
-											<div class="flex flex-0">
-												@Localizer["Some notifications"]
-											</div>
-											<div class="flex flex-1">
-												<ul class="list-group">
-													<li class="list-group-header">List group header</li>
-													<li class="list-group-item">Cras justo odio</li>
-													<li class="list-group-item">Dapibus ac facilisis in</li>
-													<li class="list-group-item">Morbi leo risus</li>
-													<li class="list-group-item">Porta ac consectetur ac</li>
-													<li class="list-group-item">Vestibulum at eros</li>
-												</ul>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<script>
-	require(["jquery"], function () {
+<head>
+    <link rel="stylesheet" href="~/css/delay.css" />
+    <link rel="stylesheet" href="~/css/timeslider.css" />
+    <link rel="stylesheet" href="~/lib/jquery-ui/themes/base/jquery-ui.css">
 
-		var model = {
-			periodType: @((int)Model.TimePeriod.Type),
-		}
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
-		$("button.time-period-btn").on('click', function () {
-			$('.time-period-btn').removeClass('active');
-			$(this).addClass('active');
-			var data = {
-				Type: this.dataset.type,
-				ToDate: $("#TimePeriod_ToDate").val(),
-				FromDate: $("#TimePeriod_FromDate").val(),
-			};
-
-			LoadStatPanel(data);
-			LoadChartPanel(data);
-		});
-
-		function LoadStatPanel(_data) {
-			var data = $.extend({ Type: 0 }, _data);
-			$.ajax({
-				url: '/Dashboard/StatCard/Index',
-				data: data,
-				success: function (response) {
-					$("#stat-card-panel").html(response)
-							.hide()
-							.fadeIn();
-				}
-			});
-		}
-		function LoadChartPanel(_data) {
-			var data = $.extend({ Type: 0 }, _data);
-			$.ajax({
-				url: '/Dashboard/Chart/Index',
-				data: data,
-				success: function (response) {
-					$("#chart-panel").html(response)
-							.hide()
-							.fadeIn();
-				}
-			});
-		}
-		var data = {
-			Type: model.periodType,
-			ToDate: $("#TimePeriod_ToDate").val(),
-			FromDate: $("#TimePeriod_FromDate").val(),
-		}
-		LoadStatPanel(data); //init
-		LoadChartPanel(data);//init
-	});
-	</script>
-
-}
-else
-{
-	<div class="panel panel-flex panel-default">
-		<div class="panel-heading">
-			<div class="dashhead">
-				<div class="dashhead-titles">
-					<div class="dashhead-subtitle">@Localizer["Dashboard"]</div>
-					<div class="dashhead-title">@Localizer["Overview"]</div>
-				</div>
-				<div class="dashhead-toolbar">
-				</div>
-			</div>
-		</div>
-		<div class="panel-body">
-			<div class="container-vertical-flex">
-				<div class="flex flex-0" id="stat-card-panel">
-				</div>
-				<div class="flex flex-1">
-					<div class="container-flex">
-						<div class="flex flex-2" id="chart-panel">
-							<div class="h1 text-center">Chương trình quản lý TVAd</div>
-							@Html.Partial("_Notification")
-						</div>
-						<div class="flex flex-1">
-							<div class="panel panel-flex panel-default">
-								<div class="panel-heading">
-									@Localizer["Notifications"]
-								</div>
-								<div class="panel-body">
-									<div class="container-fluid">
-										<div class="container-vertical-flex">
-											<div class="flex flex-0">
-												@Localizer["Some notifications"]
-											</div>
-											<div class="flex flex-1">
-												<ul class="list-group">
-													<li class="list-group-header">List group header</li>
-													<li class="list-group-item">Cras justo odio</li>
-													<li class="list-group-item">Dapibus ac facilisis in</li>
-													<li class="list-group-item">Morbi leo risus</li>
-													<li class="list-group-item">Porta ac consectetur ac</li>
-													<li class="list-group-item">Vestibulum at eros</li>
-												</ul>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-}
-
+</head>
+<div class="container-vertical-flex">
+    <div class="flex flex-2">
+        <div class="container-flex">
+            <div class="flex flex-1">
+                <div class="panel panel-default">
+                    <div class="panel-body container-vertical-flex">
+                        <div class="flex flex-1" id="mediaplayer"></div>
+                        <div class="flex flex-0 text-center">
+                            <div class="btn-group" style="padding:10px;">
+                                <button type="button" class="btn btn-primary player-btn icon-play">Play</button>
+                                <button type="button" class="btn btn-primary player-btn icon-pause">Pause</button>
+                                <button type="button" class="btn btn-primary player-btn icon-stop">Stop</button>
+                                <button type="button" class="btn btn-primary player-btn icon-to-start">Back</button>
+                                <button type="button" class="btn btn-primary player-btn icon-to-end">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-1">
+                <div class="panel panel-default">
+                    <div class="panel-body container-vertical-flex">
+                        <div class="flex flex-1">
+                            <div id="tabs">
+                                <ul>
+                                    <li class="k-state-active">
+                                        File phụ đề
+                                    </li>
+                                    <li>
+                                        Lịch phụ đề
+                                    </li>
+                                    <li>
+                                        Lịch ghi Lowres
+                                    </li>
+                                </ul>
+                                <div>
+                                    <ul id="treeview">
+                                        <li data-expanded="true">
+                                            <span class="k-sprite folder"></span>
+                                            My Web Site
+                                            <ul>
+                                                <li data-expanded="true">
+                                                    <span class="k-sprite folder"></span>images
+                                                    <ul>
+                                                        <li><span class="k-sprite image"></span>logo.png</li>
+                                                        <li><span class="k-sprite image"></span>body-back.png</li>
+                                                        <li><span class="k-sprite image"></span>my-photo.jpg</li>
+                                                    </ul>
+                                                </li>
+                                                <li data-expanded="true">
+                                                    <span class="k-sprite folder"></span>resources
+                                                    <ul>
+                                                        <li data-expanded="true">
+                                                            <span class="k-sprite folder"></span>pdf
+                                                            <ul>
+                                                                <li><span class="k-sprite pdf"></span>brochure.pdf</li>
+                                                                <li><span class="k-sprite pdf"></span>prices.pdf</li>
+                                                            </ul>
+                                                        </li>
+                                                        <li><span class="k-sprite folder"></span>zip</li>
+                                                    </ul>
+                                                </li>
+                                                <li><span class="k-sprite html"></span>about.html</li>
+                                                <li><span class="k-sprite html"></span>contacts.html</li>
+                                                <li><span class="k-sprite html"></span>index.html</li>
+                                                <li><span class="k-sprite html"></span>portfolio.html</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <div id="gridSubSchedule"></div>
+                                </div>
+                                <div>
+                                    <div id="gridRecordSchedule"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-1">
+        <div class="container-vertical-flex">
+            <div class="flex flex-0">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Thông tin:</div>
+                    <div class="panel-body">
+                        <div class="col-sm-3 col-md-3 col-lg-3 delayInfo" style="color: #2c0ab9;"><label>Trễ kỳ vọng:</label></div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 delayInfo" style="color: #cd3920;"><label>Trễ thực tế:</label></div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 delayInfo" style="color: #23eb1a;"><label>Playback:</label></div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 delayInfo" style="color: #efd610;"><label>Con trỏ chuột:</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-1">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Timeline:</div>
+                    <div class="panel-body container-vertical-flex" id="partialDiv">
+                        @Html.Partial("TimeSlider");
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/timeslider.js"></script>
+<script>
+    require(['jquery', 'jquery-ui', 'kendo.all.min'], function ($) {
+        $("#mediaplayer").kendoMediaPlayer({
+            autoPlay: true,
+            navigatable: true,
+            media: {
+                title: "Recap of Progress Ringing The Bell at Nasdaq (2016)",
+                source: "https://www.youtube.com/watch?v=tc3xhD24iTU"
+            }
+        });
+        $("#tabs").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            }
+        });
+        $("#treeview").kendoTreeView();
+        //$("#gridSubSchedule").kendoGrid({
+        //    dataSource: {
+        //        data: products,
+        //        schema: {
+        //            model: {
+        //                fields: {
+        //                    ProductName: { type: "string" },
+        //                    UnitPrice: { type: "number" },
+        //                    UnitsInStock: { type: "number" },
+        //                    Discontinued: { type: "boolean" }
+        //                }
+        //            }
+        //        },
+        //        pageSize: 20
+        //    },
+        //    height: 550,
+        //    scrollable: true,
+        //    sortable: true,
+        //    filterable: true,
+        //    pageable: {
+        //        input: true,
+        //        numeric: false
+        //    },
+        //    columns: [
+        //        "ProductName",
+        //        { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "130px" },
+        //        { field: "UnitsInStock", title: "Units In Stock", width: "130px" },
+        //        { field: "Discontinued", width: "130px" }
+        //    ]
+        //});
+        //$("#gridRecordSchedule").kendoGrid({
+        //    dataSource: {
+        //        data: products,
+        //        schema: {
+        //            model: {
+        //                fields: {
+        //                    ProductName: { type: "string" },
+        //                    UnitPrice: { type: "number" },
+        //                    UnitsInStock: { type: "number" },
+        //                    Discontinued: { type: "boolean" }
+        //                }
+        //            }
+        //        },
+        //        pageSize: 20
+        //    },
+        //    height: 550,
+        //    scrollable: true,
+        //    sortable: true,
+        //    filterable: true,
+        //    pageable: {
+        //        input: true,
+        //        numeric: false
+        //    },
+        //    columns: [
+        //        "ProductName",
+        //        { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "130px" },
+        //        { field: "UnitsInStock", title: "Units In Stock", width: "130px" },
+        //        { field: "Discontinued", width: "130px" }
+        //    ]
+        //});
+        var windowWidth = window.innerWidth;
+        setInterval(function () {
+            if ($("#cbAutoMap").is(':checked')) {
+                if ($('.current-time-caret').position().left > (windowWidth - 150)) {
+                    $("#partialDiv").load("/Home/TimeSlider");
+                    //console.log("refreshed");
+                }
+            }
+        }, 10000);
+    });
+</script>

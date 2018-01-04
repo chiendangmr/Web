@@ -18,8 +18,6 @@ using HD.TVAD.Entities.Repositories;
 using HD.TVAD.Web.Models;
 using Newtonsoft.Json;
 using HD.TVAD.Web.Features.Manager;
-using HD.TVAD.Web.Features.Managers.User.Models;
-using HD.TVAD.Web.Infrastructure;
 using HD.TVAD.Web.StartData;
 using HD.TVAD.Web.Models.ManageViewModels;
 using Microsoft.Extensions.Logging;
